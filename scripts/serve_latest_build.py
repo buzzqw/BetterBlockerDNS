@@ -8,9 +8,13 @@ repository); without them the server falls back to plain HTTP.
 The server reads the files on every request, so new builds are served without
 restarting it. Used by scripts/serve_latest_build.sh, which is started by the
 Gradle email hook after a release build.
+
+It listens on 127.0.0.1 by default; set BBDNS_HTTP_HOST to bind another
+interface (scripts/serve_latest_build.sh does this to publish the LAN URL).
 """
 
 import os
+import re
 import ssl
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -21,6 +25,19 @@ ROOT = Path(__file__).resolve().parent.parent
 APK = ROOT / "app/build/outputs/apk/fdroid/release/app-fdroid-release.apk"
 ZIP = ROOT / "app/build/outputs/apk/fdroid/release/BetterBlockerDNS-release.zip"
 PORT = int(os.environ.get("BBDNS_HTTP_PORT", "8099"))
+# The helper has no authentication: expose it on the loopback interface by
+# default. Set BBDNS_HTTP_HOST=0.0.0.0 only when a tunnel or reverse proxy is
+# intentionally publishing it.
+HOST = os.environ.get("BBDNS_HTTP_HOST", "127.0.0.1")
+
+# A requested name is echoed in the Content-Disposition header. Strip anything
+# that could break out of the header or the quoted string (CR/LF included).
+SAFE_FILENAME = re.compile(r"[^A-Za-z0-9._-]+")
+
+
+def safe_filename(name: str, fallback: str) -> str:
+    cleaned = SAFE_FILENAME.sub("_", Path(name).name).strip("._")
+    return cleaned if cleaned else fallback
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -46,10 +63,10 @@ class Handler(BaseHTTPRequestHandler):
         name = Path(path).name
         if path in ("/", "") or name.endswith(".apk"):
             # Versioned names keep each build out of the browser cache.
-            filename = name if name.endswith(".apk") else "BetterBlockerDNS.apk"
+            filename = safe_filename(name, "BetterBlockerDNS.apk")
             self._serve(APK, "application/vnd.android.package-archive", filename)
         elif name.endswith(".zip"):
-            self._serve(ZIP, "application/zip", name)
+            self._serve(ZIP, "application/zip", safe_filename(name, "BetterBlockerDNS.zip"))
         else:
             self.send_error(404, "Not found")
 
@@ -64,7 +81,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> int:
-    server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
+    server = ThreadingHTTPServer((HOST, PORT), Handler)
     cert = os.environ.get("BBDNS_TLS_CERT")
     key = os.environ.get("BBDNS_TLS_KEY")
     scheme = "http"
@@ -74,7 +91,7 @@ def main() -> int:
         context.load_cert_chain(cert, key)
         server.socket = context.wrap_socket(server.socket, server_side=True)
         scheme = "https"
-    print(f"BBDNS file server on {scheme}://0.0.0.0:{PORT}", flush=True)
+    print(f"BBDNS file server on {scheme}://{HOST}:{PORT}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

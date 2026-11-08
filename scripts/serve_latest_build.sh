@@ -37,7 +37,7 @@ if ! ss -ltn 2>/dev/null | grep -q ":${PORT} "; then
   # a caller's pipe, otherwise command substitution would wait forever.
   (
     cd "$REPO_ROOT"
-    BBDNS_HTTP_PORT="$PORT" BBDNS_TLS_CERT="$CERT" BBDNS_TLS_KEY="$KEY" \
+    BBDNS_HTTP_HOST="$IP" BBDNS_HTTP_PORT="$PORT" BBDNS_TLS_CERT="$CERT" BBDNS_TLS_KEY="$KEY" \
       setsid python3 scripts/serve_latest_build.py \
       >> "$LOG" 2>&1 < /dev/null &
   ) >> "$LOG" 2>&1 < /dev/null
