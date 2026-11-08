@@ -2,8 +2,8 @@
 
 ## Self-hosted repository
 
-While official inclusion is pending, BBDNS is already available from a signed
-F-Droid repository hosted on GitHub Pages:
+While the official submission is in review, BBDNS is already available from a
+signed F-Droid repository hosted on GitHub Pages:
 
 - Repository URL: `https://buzzqw.github.io/BetterBlockerDNS/repo`
 - Fingerprint: `13:64:2D:F1:5D:EC:D4:EE:11:9B:EE:11:C1:9C:61:5F:B1:B8:3C:CD:79:3C:52:75:F7:36:65:F8:40:A3:54:8D`
@@ -18,6 +18,11 @@ The repository signing key lives in `~/.config/bbdns/fdroid-repo.env` and must
 be backed up.
 
 ## Submission to the official F-Droid repository
+
+**Status: submitted and in approval.** The merge request is
+[!56352](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/56352); the
+F-Droid CI builds the app successfully. This section documents the submission
+for future releases.
 
 `com.buzzqw.bbdns.yml` is a template for the
 [fdroiddata](https://gitlab.com/fdroid/fdroiddata) repository. F-Droid builds
