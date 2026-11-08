@@ -1,0 +1,44 @@
+# Template for fdroiddata/metadata/com.buzzqw.bbdns.yml.
+#
+# 1. Copy this file to a fork of https://gitlab.com/fdroid/fdroiddata.
+# 2. Replace <commit-hash> with the full hash of the released tag
+#    (for example: git rev-list -n 1 v1.0.23).
+# 3. Run `fdroid lint com.buzzqw.bbdns` and `fdroid rewritemeta com.buzzqw.bbdns`.
+# 4. Push the branch and open a merge request with the "New App" label.
+
+Categories:
+  - Internet
+  - Security
+
+License: GPL-3.0-or-later
+AuthorName: buzzqw
+AuthorEmail: azanzani@gmail.com
+SourceCode: https://github.com/buzzqw/BetterBlockerDNS
+IssueTracker: https://github.com/buzzqw/BetterBlockerDNS/issues
+Changelog: https://github.com/buzzqw/BetterBlockerDNS/blob/main/CHANGELOG.md
+Donate:
+  - https://ko-fi.com/buzzqw
+
+RepoType: git
+Repo: https://github.com/buzzqw/BetterBlockerDNS.git
+
+Builds:
+  - versionName: 1.0.23
+    versionCode: 1000023
+    commit: <commit-hash>
+    gradle:
+      - fdroid
+    ndk: 27.0.12077973
+    sudo:
+      - apt-get update
+      - apt-get install -y wget
+      - wget -qO /tmp/go.tar.gz https://go.dev/dl/go1.23.4.linux-amd64.tar.gz
+      - rm -rf /usr/local/go
+      - tar -C /usr/local -xzf /tmp/go.tar.gz
+      - ln -sf /usr/local/go/bin/go /usr/local/bin/go
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+UpdateCheckData: version.properties|versionCode=(\d+)|.|versionName=(\d+\.\d+\.\d+)
+CurrentVersion: 1.0.23
+CurrentVersionCode: 1000023

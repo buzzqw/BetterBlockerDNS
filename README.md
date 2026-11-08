@@ -64,6 +64,20 @@ From the command line:
 
 The APK is written to `app/build/outputs/apk/`.
 
+Release builds are deterministic: the version lives in `version.properties`.
+Before a release, run `./gradlew bumpVersion`, commit the new version, tag the
+commit (for example `v1.0.23`) and build with `scripts/build_release.sh`. The
+script sets `BBDNS_EMAIL_BUILD=1`, so the package is emailed to the owner;
+external builders such as F-Droid call Gradle directly and never send mail.
+
+---
+
+## F-Droid
+
+BBDNS is prepared for [F-Droid](https://f-droid.org/): the metadata lives in
+`metadata/en-US/` and the build recipe template in `fdroid/`. See
+`fdroid/README.md` for the submission steps.
+
 ---
 
 ## Support the project

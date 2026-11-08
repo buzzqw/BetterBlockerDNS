@@ -1,0 +1,3 @@
+First F-Droid release.
+
+Home: support card with PayPal and Ko-fi buttons, resource usage card with BBDNS CPU and device battery data (measured only while Home is open), and recently blocked domains.

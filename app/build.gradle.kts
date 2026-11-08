@@ -10,17 +10,30 @@ plugins {
 }
 
 // ---------------------------------------------------------------------------
-// Build number: every packaged release gets a new 1.0.<n> version.
-// The counter lives in .bbdns-build-number (gitignored) and is advanced after
-// a successful release build. CI can override it with BBDNS_BUILD_NUMBER.
+// Version: stored in version.properties so every build from a commit (local,
+// CI and F-Droid) produces the same versionName/versionCode. Use
+// `./gradlew bumpVersion` before a release commit, then tag the commit.
+// Nightly CI can still override the build number with BBDNS_BUILD_NUMBER.
 // ---------------------------------------------------------------------------
-val bbdnsBuildNumberFile = rootProject.layout.projectDirectory.file(".bbdns-build-number")
-val bbdnsStoredBuildNumber = providers.fileContents(bbdnsBuildNumberFile).asText
-    .orElse("0")
-    .map { it.trim().toIntOrNull() ?: 0 }
+val bbdnsVersionFile = rootProject.layout.projectDirectory.file("version.properties")
+val bbdnsVersionText = providers.fileContents(bbdnsVersionFile).asText.orNull
+
+fun bbdnsVersionValue(key: String): String? = bbdnsVersionText
+    ?.lineSequence()
+    ?.map { it.trim() }
+    ?.firstOrNull { it.startsWith("$key=") }
+    ?.substringAfter('=')
+    ?.trim()
+    ?.takeIf { it.isNotEmpty() }
+
 val bbdnsEnvBuildNumber = providers.environmentVariable("BBDNS_BUILD_NUMBER")
     .orNull?.trim()?.toIntOrNull()?.takeIf { it > 0 }
-val bbdnsBuildNumber = bbdnsEnvBuildNumber ?: ((bbdnsStoredBuildNumber.orNull ?: 0) + 1)
+val bbdnsVersionCode = bbdnsEnvBuildNumber?.let { 1_000_000 + it }
+    ?: bbdnsVersionValue("versionCode")?.toIntOrNull()
+    ?: 1_000_001
+val bbdnsVersionName = bbdnsEnvBuildNumber?.let { "1.0.$it" }
+    ?: bbdnsVersionValue("versionName")
+    ?: "1.0.1"
 
 android {
     namespace = "com.buzzqw.bbdns"
@@ -30,8 +43,8 @@ android {
         applicationId = "com.buzzqw.bbdns"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1_000_000 + bbdnsBuildNumber
-        versionName = "1.0.$bbdnsBuildNumber"
+        versionCode = bbdnsVersionCode
+        versionName = bbdnsVersionName
 
         vectorDrawables {
             useSupportLibrary = true
@@ -217,33 +230,31 @@ dependencies {
 
 }
 
-// After every successful release build, email the package with
-// scripts/send_build_email.sh. Delivery is best-effort: a failure does not
-// fail the build. Set BBDNS_SKIP_EMAIL=1 to opt out (CI, quick builds).
+// Email the package after a release build, using scripts/email_latest_build.sh.
+// This is opt-in so external builders such as F-Droid never try to send mail:
+// set BBDNS_EMAIL_BUILD=1 (scripts/build_release.sh does it). Delivery is
+// best-effort: a failure does not fail the build.
 tasks.register<Exec>("emailReleaseBuild") {
     group = "distribution"
     description = "Email the release APK produced by this build"
     workingDir = rootDir
     commandLine("bash", "scripts/email_latest_build.sh")
     isIgnoreExitValue = true
-    environment("BBDNS_SKIP_EMAIL", "1")
-    onlyIf { System.getenv("BBDNS_SKIP_EMAIL") != "1" }
+    onlyIf {
+        System.getenv("BBDNS_EMAIL_BUILD") == "1" &&
+            System.getenv("BBDNS_SKIP_EMAIL") != "1"
+    }
 }
 
 tasks.matching { it.name == "assembleFdroidRelease" }.configureEach {
     finalizedBy("emailReleaseBuild")
-    finalizedBy("bumpBuildNumber")
 }
 
-// Advance the stored build number so the next release becomes 1.0.<n+1>.
-tasks.register<Exec>("bumpBuildNumber") {
-    group = "build"
-    description = "Advance the BBDNS build number for the next release build"
+// Advance version.properties to the next 1.0.<n> release. Run it before the
+// release commit, then tag that commit (for example v1.0.23).
+tasks.register<Exec>("bumpVersion") {
+    group = "distribution"
+    description = "Advance version.properties to the next 1.0.<n> release"
     workingDir = rootDir
-    commandLine(
-        "bash",
-        "-c",
-        "expr \$(cat .bbdns-build-number 2>/dev/null || echo 0) + 1 > .bbdns-build-number",
-    )
-    onlyIf { System.getenv("BBDNS_BUILD_NUMBER").isNullOrBlank() }
+    commandLine("bash", "scripts/bump_version.sh")
 }

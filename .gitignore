@@ -80,6 +80,4 @@ app/libs/
 # Local project instructions (not part of the published project)
 AGENTS.md
 
-# BBDNS local build counter
-.bbdns-build-number
 __pycache__/

@@ -8,6 +8,14 @@ listed newest first.
 
 ## 2026-11-08
 
+### F-Droid readiness
+- Version information now lives in the repository, so local, CI and F-Droid
+  builds produce the same version name and code.
+- Release builds email the package only when explicitly requested, so external
+  builders such as F-Droid never try to send mail.
+- Added the F-Droid changelog and a ready build recipe for submission.
+- No change to the app's behaviour.
+
 ### Documentation: release process
 - After each commit, BBDNS now asks whether to publish a new version on GitHub
   together with its changelog.
