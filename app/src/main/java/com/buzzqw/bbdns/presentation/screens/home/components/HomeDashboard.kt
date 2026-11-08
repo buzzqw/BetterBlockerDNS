@@ -132,7 +132,8 @@ private val SectionSpacing = 16.dp
 /**
  * Opening dashboard, top to bottom: protection status with the single power
  * control and the pause control, warnings, key numbers, activity and
- * history charts, then the most and recently blocked domains.
+ * history charts, then the recently blocked domains, resource usage and the
+ * donation card.
  */
 @Composable
 fun HomeDashboard(
@@ -292,18 +293,18 @@ fun HomeDashboard(
         details?.let { ActivityChartCard(details = it, onClick = onOpenStats) }
         HistoryCard(history = history)
 
-        // 7. Blocked domains (tap one to allow it).
+        // 7. Recently blocked domains (tap one to allow it).
         details?.let {
-            TopBlockedCard(
-                top = it.topBlocked.filter { (domain, _) -> domain !in allowedFromHome },
-                onDomainClick = { domain -> domainToAllow = domain },
-            )
             RecentBlockedCard(
                 recent = it.recentBlocked.filter { event -> event.domain !in allowedFromHome },
                 now = now,
                 onDomainClick = { domain -> domainToAllow = domain },
             )
         }
+
+        // 8. Resource usage and ways to support the project.
+        ResourceUsageCard()
+        SupportCard()
     }
 
     if (pickProfile) {
