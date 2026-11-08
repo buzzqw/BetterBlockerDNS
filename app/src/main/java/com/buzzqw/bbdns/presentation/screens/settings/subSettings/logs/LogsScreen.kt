@@ -29,7 +29,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.FileCopy
 import androidx.compose.material.icons.rounded.Analytics
@@ -631,7 +631,7 @@ fun LogDetails(
                     )
                     Icon(
                         tint = if (color != MaterialTheme.colorScheme.error) LocalContentColor.current else color,
-                        imageVector = Icons.Rounded.ArrowForwardIos,
+                        imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
                         contentDescription = null,
                         modifier = Modifier.size(12.dp)
                     )

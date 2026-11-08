@@ -66,7 +66,7 @@ object AppFilterPresets {
         "bnpparibas", "bnp paribas", "societegenerale", "societe generale",
         "creditmutuel", "credit mutuel", "labanquepostale", "boursorama",
         "hsbc", "barclays", "lloyds", "natwest", "halifax", "nationwide",
-        "chase", "kbc", "belfius", "argenta", "abnamro", "abn amro",
+        "kbc", "belfius", "argenta", "abnamro", "abn amro",
         "rabobank", "triodos", "asnbank", "snsbank", "caixabank", "sabadell",
         "bankinter", "abanca", "unicaja", "cajamar", "kutxabank", "openbank",
         "evobanco", "millennium bcp", "millenniumbcp", "activobank",
@@ -74,30 +74,30 @@ object AppFilterPresets {
         "danske", "opmobiili", "spankki", "mbank", "pekao", "alior",
         "monobank", "privat24", "otpbank", "erste", "bancatransilvania",
         "ingdirect", "ing.mobile", "ing bank", "ingbank",
-        "pko bp", "qonto", "lydia", "fortuneo", "monabanq", "nickel",
+        "pko bp", "qonto", "lydia", "fortuneo", "monabanq",
         "sumup", "zettle", "izettle", "paysera", "trustly", "zimpler",
-        "mobilepay", "vipps", "swish", "tikkie", "payconiq", "bancontact",
+        "mobilepay", "vipps", "tikkie", "payconiq", "bancontact",
         "itsme", "knab", "regiobank", "vanlanschot", "nibc", "crelan",
         "bawag", "comdirect", "traderepublic", "trade republic", "scalable",
         "degiro", "etoro", "bitpanda", "coinbase", "binance", "kraken",
         "crypto", "raisin", "weltsparen", "bnext", "cajasur", "ibercaja",
         "caixa", "moey", "eurobic", "aktia", "saastopankki",
         "lansforsakringar", "getin", "ferratum", "piraeus", "garanti",
-        "millennium",
 
         // Investments, trading and insurance often bundled with bank apps.
         "invest", "trading", "broker",
-        "generali", "allianz", "unipol", "zurich", "axa", "linear", "quixa",
+        "generali", "allianz", "unipol", "zurich", "quixa",
     )
 
     /**
-     * Short brand tokens that would be too ambiguous as free-text fragments but
-     * are safe when they appear as a whole package segment (for example
-     * `it.mps.mobile` or `com.ing.mobile`).
+     * Short or common brand tokens that would be too ambiguous as free-text
+     * fragments but are safe when they appear as a whole package segment (for
+     * example `it.mps.mobile`, `com.ing.mobile` or `com.chase.sig.android`).
      */
     private val BANKING_PACKAGE_TOKENS = listOf(
         "mps", "seb", "lcl", "tsb", "brd", "bcr", "pko", "otp", "ing", "bcc",
-        "bnl", "dnb", "citi",
+        "bnl", "dnb", "citi", "chase", "axa", "linear", "curve",
+        "imaginecurve", "vivid", "nickel", "swish",
     )
 
     fun matches(app: Application, preset: AppFilterPreset): Boolean = when (preset) {

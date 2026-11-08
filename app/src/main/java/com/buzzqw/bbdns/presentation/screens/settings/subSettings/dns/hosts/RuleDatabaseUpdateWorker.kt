@@ -82,14 +82,16 @@ class RuleDatabaseUpdateWorker @AssistedInject constructor(
 
         // Check if this is an auto-update
         val isAutoUpdate = inputData.getBoolean("auto_update", false)
-        
+        // The "Update now" button updates only the lists that are in use.
+        val enabledOnly = inputData.getBoolean("enabled_only", false)
+
         // Check if we should update specific lists only
         val targetLists = inputData.getStringArray("target_lists")
         val hostsToProcess = if (targetLists != null && targetLists.isNotEmpty()) {
             config.hosts.items.filter { targetLists.contains(it.data) }
         } else {
-            // For auto-updates, only update enabled lists
-            if (isAutoUpdate) {
+            // For auto-updates and manual "Update now", only update enabled lists.
+            if (isAutoUpdate || enabledOnly) {
                 config.hosts.items.filter { it.state == HostState.DENY }
             } else {
                 config.hosts.items

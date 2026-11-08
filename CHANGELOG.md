@@ -10,6 +10,16 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-09
 
+### Release 1.0.31
+- Added an "Update now" button to the blocklist update section and its interval
+  dialog, so the lists can be refreshed immediately.
+- The banking-app preset now matches ambiguous brand names only inside package
+  names, keeping the extra banks without flagging unrelated apps.
+- StevenBlack Unified and its "-only" extensions can be combined again, while
+  profile and preset alternatives still replace each other.
+- A restored backup now cleans up duplicate lists and redundant lower tiers.
+- The last-update time follows the device's 12/24-hour setting.
+
 ### Release 1.0.30
 - Home shows live CPU and battery usage while the screen is open, including the
   battery draw and the percentage of battery already consumed.

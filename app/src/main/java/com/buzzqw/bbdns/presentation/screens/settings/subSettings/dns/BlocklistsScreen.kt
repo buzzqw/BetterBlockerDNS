@@ -28,9 +28,10 @@ import androidx.compose.material.icons.rounded.AdsClick
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Games
 import androidx.compose.material.icons.rounded.Hardware
-import androidx.compose.material.icons.rounded.List
+import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.rounded.Man
 import androidx.compose.material.icons.rounded.Numbers
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.RemoveRedEye
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Security
@@ -47,6 +48,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
@@ -58,6 +60,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
@@ -91,7 +94,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.DateFormat
+import android.text.format.DateFormat
 import java.util.Date
 
 /**
@@ -146,15 +149,21 @@ fun BlocklistsScreen(
                 it in doneNames.value
             }
             if (malwareEnabled) {
+                val enabledUrls = config.hosts.items
+                    .filter { it.state == HostState.DENY }
+                    .map { it.data }
+                    .toSet()
+                // Do not add the full TIF when the user already has a TIF
+                // variant (for example the one from the Balanced profile).
+                val hasTif = HageziCatalog.all.any { it.threatFeed && it.url in enabledUrls }
                 val missing = AppConstants.DnsBlockLists.MALWARE_PROTECTION.filter { url ->
-                    config.hosts.items.none { it.data == url }
+                    config.hosts.items.none { it.data == url } &&
+                        !(hasTif && HageziCatalog.all.any {
+                            it.url == url && it.threatFeed
+                        })
                 }
                 if (missing.isNotEmpty()) {
                     missing.forEach { url -> config.addURL(url, url, HostState.DENY) }
-                    // Enabling the malware preset must replace a smaller TIF
-                    // variant that a profile already enabled.
-                    val redundant = BlocklistSelection.sanitize(config.hosts.items)
-                    redundant.forEach { item -> FileHelper.getItemFile(item)?.delete() }
                     config.save()
                     val inputData = Data.Builder()
                         .putStringArray("target_lists", missing.toTypedArray())
@@ -186,47 +195,61 @@ fun BlocklistsScreen(
         )
     }
 
-    fun updateLists(onComplete: ((Boolean) -> Unit)? = null) {
-        val workRequest = OneTimeWorkRequestBuilder<RuleDatabaseUpdateWorker>().build()
-        WorkManager.getInstance(context).enqueue(workRequest)
-        
-        // Monitor work completion
-        WorkManager.getInstance(context).getWorkInfoByIdLiveData(workRequest.id)
-            .observeForever { workInfo ->
-                if (workInfo?.state?.isFinished == true) {
-                    onComplete?.invoke(workInfo.state == WorkInfo.State.SUCCEEDED)
+    /**
+     * Watches a worker and removes the observer when it finishes, so repeated
+     * manual updates do not leave LiveData observers behind.
+     */
+    fun observeUpdate(
+        workRequestId: java.util.UUID,
+        onProgress: (Int, String) -> Unit,
+        onFinished: (Boolean) -> Unit,
+    ) {
+        val liveData = WorkManager.getInstance(context).getWorkInfoByIdLiveData(workRequestId)
+        val observer = object : Observer<WorkInfo?> {
+            override fun onChanged(value: WorkInfo?) {
+                if (value == null) return
+                onProgress(
+                    value.progress.getInt("progress", 0),
+                    value.progress.getString("stage") ?: "",
+                )
+                if (value.state.isFinished) {
+                    liveData.removeObserver(this)
+                    onFinished(value.state == WorkInfo.State.SUCCEEDED)
                 }
             }
+        }
+        liveData.observeForever(observer)
     }
-    
-    fun updateSpecificList(targetList: String, onComplete: ((Boolean) -> Unit)? = null) {
+
+    fun updateLists(onComplete: ((Boolean) -> Unit)? = null) {
+        if (isDomainUpdateInProgress) return
+        isDomainUpdateInProgress = true
+        blockListViewModel.startDownload(context.getString(R.string.dns_update_now))
+
         val inputData = Data.Builder()
-            .putStringArray("target_lists", arrayOf(targetList))
+            .putBoolean("enabled_only", true)
             .build()
-            
         val workRequest = OneTimeWorkRequestBuilder<RuleDatabaseUpdateWorker>()
             .setInputData(inputData)
             .build()
-            
         WorkManager.getInstance(context).enqueue(workRequest)
-        
-        onComplete?.let { callback ->
-            WorkManager.getInstance(context)
-                .getWorkInfoByIdLiveData(workRequest.id)
-                .observeForever { workInfo ->
-                    if (workInfo != null) {
-                        // Update progress
-                        val progress = workInfo.progress.getInt("progress", 0)
-                        val stage = workInfo.progress.getString("stage") ?: ""
-                        blockListViewModel.updateProgress(progress, stage)
 
-                        // Check if finished
-                        if (workInfo.state.isFinished) {
-                            callback(workInfo.state == WorkInfo.State.SUCCEEDED)
-                        }
-                    }
+        observeUpdate(
+            workRequestId = workRequest.id,
+            onProgress = { progress, stage -> blockListViewModel.updateProgress(progress, stage) },
+            onFinished = { success ->
+                isDomainUpdateInProgress = false
+                if (success) {
+                    blockListViewModel.downloadSuccess()
+                    blockListViewModel.markDomainsInitialized()
+                } else if (!blockListViewModel.isNetworkAvailable()) {
+                    blockListViewModel.downloadNetworkError()
+                } else {
+                    blockListViewModel.downloadError()
                 }
-        }
+                onComplete?.invoke(success)
+            },
+        )
     }
 
     fun updateList(enabled: Boolean, lists: List<String>, listKey: String) {
@@ -368,59 +391,55 @@ fun BlocklistsScreen(
 
                             WorkManager.getInstance(context).enqueue(workRequest)
 
-                            WorkManager.getInstance(context)
-                                .getWorkInfoByIdLiveData(workRequest.id)
-                                .observeForever { workInfo ->
-                                    if (workInfo != null) {
-                                        // Update progress
-                                        val progress = workInfo.progress.getInt("progress", 0)
-                                        val stage = workInfo.progress.getString("stage") ?: ""
-                                        blockListViewModel.updateProgress(progress, stage)
-
-                                        // Check if finished
-                                        if (workInfo.state.isFinished) {
-                                            if (workInfo.state == WorkInfo.State.SUCCEEDED) {
-                                                // Only turn switch ON after successful download
-                                                localSwitchStates[listKey] = true
-                                                blockListViewModel.downloadSuccess()
-                                                // The worker reloaded RuleDatabase once:
-                                                // do not trigger a second full parse.
-                                                blockListViewModel.markDomainsInitialized()
-                                                // The replaced alternatives are no
-                                                // longer needed: drop their files.
-                                                replacedUrls.forEach { url ->
-                                                    FileHelper.getItemFile(
-                                                        HostFile(title = url, data = url)
-                                                    )?.delete()
-                                                }
-                                            } else {
-                                                // Download failed, restore the selection
-                                                // that existed before the replacements.
-                                                val previous = selectionSnapshot
-                                                if (previous != null) {
-                                                    CoroutineScope(Dispatchers.IO).launch {
-                                                        try {
-                                                            config.hosts.items.clear()
-                                                            config.hosts.items.addAll(previous)
-                                                            config.save()
-                                                            Logger.info("Reverted list changes")
-                                                        } catch (e: Exception) {
-                                                            Logger.error("Failed to revert config: ${e.message}", e)
-                                                        }
-                                                    }
-                                                }
-
-                                                // Show appropriate error
-                                                if (!blockListViewModel.isNetworkAvailable()) {
-                                                    blockListViewModel.downloadNetworkError()
-                                                } else {
-                                                    blockListViewModel.downloadError()
+                            observeUpdate(
+                                workRequestId = workRequest.id,
+                                onProgress = { progress, stage ->
+                                    blockListViewModel.updateProgress(progress, stage)
+                                },
+                                onFinished = { success ->
+                                    if (success) {
+                                        // Only turn switch ON after successful download
+                                        localSwitchStates[listKey] = true
+                                        blockListViewModel.downloadSuccess()
+                                        // The worker reloaded RuleDatabase once:
+                                        // do not trigger a second full parse.
+                                        blockListViewModel.markDomainsInitialized()
+                                        // The replaced alternatives are no
+                                        // longer needed: drop their files.
+                                        replacedUrls.forEach { url ->
+                                            FileHelper.getItemFile(
+                                                HostFile(title = url, data = url)
+                                            )?.delete()
+                                        }
+                                    } else {
+                                        // Download failed, restore the selection
+                                        // that existed before the replacements.
+                                        val previous = selectionSnapshot
+                                        if (previous != null) {
+                                            CoroutineScope(Dispatchers.IO).launch {
+                                                try {
+                                                    config.hosts.items.clear()
+                                                    config.hosts.items.addAll(previous)
+                                                    config.save()
+                                                    blockListViewModel.invalidateDomainsCache()
+                                                    blockListViewModel.refreshDomains()
+                                                    Logger.info("Reverted list changes")
+                                                } catch (e: Exception) {
+                                                    Logger.error("Failed to revert config: ${e.message}", e)
                                                 }
                                             }
-                                            isDomainUpdateInProgress = false
+                                        }
+
+                                        // Show appropriate error
+                                        if (!blockListViewModel.isNetworkAvailable()) {
+                                            blockListViewModel.downloadNetworkError()
+                                        } else {
+                                            blockListViewModel.downloadError()
                                         }
                                     }
-                                }
+                                    isDomainUpdateInProgress = false
+                                },
+                            )
                         } else {
                             // For disabling there is no download: the reload
                             // below removes the list from the rule database.
@@ -443,6 +462,8 @@ fun BlocklistsScreen(
                         config.hosts.items.clear()
                         config.hosts.items.addAll(previous)
                         config.save()
+                        blockListViewModel.invalidateDomainsCache()
+                        blockListViewModel.refreshDomains()
                     }
 
                     withContext(Dispatchers.Main) {
@@ -739,7 +760,7 @@ fun BlocklistsScreen(
             SettingsBox(
                 title = stringResource(R.string.dns_domain_management_title),
                 description = stringResource(R.string.dns_domain_management_desc),
-                icon = IconType.VectorIcon(Icons.Rounded.List),
+                icon = IconType.VectorIcon(Icons.AutoMirrored.Rounded.List),
                 actionType = SettingType.CUSTOM,
                 isUsable = !isProtectionOnline,
                 onNotUsableClicked = {
@@ -782,10 +803,11 @@ fun BlocklistsScreen(
             }
             val lastUpdate = BlocklistUpdateStatus.lastUpdate(context)
             val lastUpdateValue = lastUpdate?.let { timestamp ->
-                DateFormat.getDateTimeInstance(
-                    DateFormat.MEDIUM,
-                    DateFormat.SHORT,
-                ).format(Date(timestamp))
+                val date = Date(timestamp)
+                // Android's formatters follow the device language and the
+                // system 12/24-hour preference.
+                DateFormat.getMediumDateFormat(context).format(date) + " " +
+                    DateFormat.getTimeFormat(context).format(date)
             } ?: stringResource(R.string.dns_auto_update_never)
             val autoUpdateStatus = autoUpdateText + "\n" +
                 stringResource(R.string.dns_auto_update_last_update, lastUpdateValue)
@@ -799,6 +821,28 @@ fun BlocklistsScreen(
                     showAutoUpdateDialog = true
                     onExit()
                 }
+            )
+
+            // Trigger a full update without waiting for the next scheduled run.
+            SettingsBox(
+                title = stringResource(R.string.dns_update_now),
+                description = if (isDomainUpdateInProgress) {
+                    stringResource(R.string.dns_update_now_running)
+                } else {
+                    stringResource(R.string.dns_update_now_desc)
+                },
+                icon = IconType.VectorIcon(Icons.Rounded.Refresh),
+                actionType = SettingType.CUSTOM,
+                isUsable = !isDomainUpdateInProgress,
+                customButton = {
+                    FilledTonalButton(
+                        onClick = { updateLists() },
+                        enabled = !isDomainUpdateInProgress,
+                    ) {
+                        Text(stringResource(R.string.dns_update_now))
+                    }
+                },
+                onCustomClick = { if (!isDomainUpdateInProgress) updateLists() },
             )
 
             if (showAutoUpdateDialog) {
@@ -850,6 +894,16 @@ fun BlocklistsScreen(
                                     }
                                 )
                             }
+                        }
+                    }
+
+                    item {
+                        FilledTonalButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = { updateLists() },
+                            enabled = !isDomainUpdateInProgress,
+                        ) {
+                            Text(stringResource(R.string.dns_update_now))
                         }
                     }
                 }

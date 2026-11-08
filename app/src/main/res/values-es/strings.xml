@@ -223,6 +223,9 @@
     <string name="dns_auto_update_desc">Intervalo actual: %1$s</string>
     <string name="dns_auto_update_last_update">Última actualización: %1$s</string>
     <string name="dns_auto_update_never">nunca</string>
+    <string name="dns_update_now">Actualizar ahora</string>
+    <string name="dns_update_now_desc">Descargar ahora las listas de bloqueo más recientes</string>
+    <string name="dns_update_now_running">Actualizando las listas de bloqueo…</string>
     <string name="dns_auto_update_dialog_title">Intervalo de actualización automática</string>
     <string name="dns_auto_update_interval_6h">6 horas</string>
     <string name="dns_auto_update_interval_12h">12 horas</string>

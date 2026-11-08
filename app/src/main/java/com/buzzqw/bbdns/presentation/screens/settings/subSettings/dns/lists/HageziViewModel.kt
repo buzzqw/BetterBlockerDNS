@@ -103,7 +103,8 @@ class HageziViewModel @Inject constructor(
         if (removed.isEmpty()) return
 
         config.save()
-        removed.forEach { item -> FileHelper.getItemFile(item)?.delete() }
+        // Keep the cached files: an update worker may be reading one of them.
+        // Orphaned cache files are removed by the worker's own cleanup.
         domainCacheService.invalidateCache()
         withContext(Dispatchers.Main) {
             refreshEnabled()

@@ -1,0 +1,1 @@
+Update blocklists immediately with the new Update now button, more accurate banking app detection, cleaner blocklist profiles and backups, and the last update time in the auto-update section.
