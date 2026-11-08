@@ -17,6 +17,7 @@ SourceCode: https://github.com/buzzqw/BetterBlockerDNS
 IssueTracker: https://github.com/buzzqw/BetterBlockerDNS/issues
 Changelog: https://github.com/buzzqw/BetterBlockerDNS/blob/HEAD/CHANGELOG.md
 Donate: https://ko-fi.com/buzzqw
+AutoName: BetterBlockerDNS
 
 RepoType: git
 Repo: https://github.com/buzzqw/BetterBlockerDNS.git
@@ -28,6 +29,7 @@ Builds:
     gradle:
       - fdroid
     ndk: 27.0.12077973
+    output: app/build/outputs/apk/fdroid/release/app-fdroid-release.apk
     sudo:
       - apt-get update
       - apt-get install -y wget
@@ -35,6 +37,11 @@ Builds:
       - rm -rf /usr/local/go
       - tar -C /usr/local -xzf /tmp/go.tar.gz
       - ln -sf /usr/local/go/bin/go /usr/local/bin/go
+    # Temporary: downloads.gradle.org returned 504 from the F-Droid CI runner.
+    # gradlew-fdroid verifies the archive against the Gradle transparency log.
+    prebuild:
+      - mkdir -p "$HOME/.cache/gradlew-fdroid"
+      - curl -L --fail --retry 3 -o "$HOME/.cache/gradlew-fdroid/gradle-8.14.3-bin.zip" https://mirrors.cloud.tencent.com/gradle/gradle-8.14.3-bin.zip
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags

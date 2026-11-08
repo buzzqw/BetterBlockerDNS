@@ -69,6 +69,9 @@ repository within 24-48 hours.
 - The app compiles its Go native library (`libnflog.so`) during the Gradle
   build, so the recipe installs Go and declares NDK `27.0.12077973`. That
   version must stay in sync with `app/src/main/go/build-android.sh`.
+- While the official Gradle CDN returns 504 errors, the recipe caches Gradle
+  8.14.3 from a mirror in `prebuild`; `gradlew-fdroid` verifies the archive
+  against the official Gradle transparency log before using it.
 - The release Gradle hooks never send email: `emailReleaseBuild` only runs
   with `BBDNS_EMAIL_BUILD=1` (`scripts/build_release.sh`).
 - `m3color` is resolved from JitPack. If the F-Droid build rejects that
