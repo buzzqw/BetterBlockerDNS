@@ -46,19 +46,23 @@ object BlocklistCoverage {
     private val ranks: Map<String, Int> = buildMap {
         put(HageziCatalog.LIGHT.id, 10)
         put(HageziCatalog.NORMAL.id, 20)
-        put(HageziCatalog.PRO.id, 30)
+        // The full variants contain the optimised "-mini" ones of the same tier.
+        put(HageziCatalog.PRO.id, 31)
         put(HageziCatalog.PRO_MINI.id, 30)
-        put(HageziCatalog.PRO_PLUS.id, 40)
+        put(HageziCatalog.PRO_PLUS.id, 41)
         put(HageziCatalog.PRO_PLUS_MINI.id, 40)
-        put(HageziCatalog.ULTIMATE.id, 50)
+        put(HageziCatalog.ULTIMATE.id, 51)
         put(HageziCatalog.ULTIMATE_MINI.id, 50)
         put(HageziCatalog.TIF_MINI.id, 10)
         put(HageziCatalog.TIF_MEDIUM.id, 20)
         put(HageziCatalog.TIF.id, 30)
-        put(StevenBlackCatalog.UNIFIED.id, 20)
-        StevenBlackCatalog.all
-            .filter { it.id != StevenBlackCatalog.UNIFIED.id }
-            .forEach { put(it.id, 10) }
+        // Alternatives that are not part of a protection profile still need a
+        // preference when two of them were enabled by an older release.
+        put(HageziCatalog.DOH_VPN_PROXY_BYPASS.id, 20)
+        put(HageziCatalog.DOH.id, 10)
+        put(HageziCatalog.GAMBLING.id, 30)
+        put(HageziCatalog.GAMBLING_MEDIUM.id, 20)
+        put(HageziCatalog.GAMBLING_MINI.id, 10)
     }
 
     private val all: List<BlocklistSource> = HageziCatalog.all + StevenBlackCatalog.all
@@ -66,6 +70,10 @@ object BlocklistCoverage {
     fun idForUrl(url: String): String? = all.firstOrNull { it.url == url }?.id
 
     fun nameForUrl(url: String): String? = all.firstOrNull { it.url == url }?.name
+
+    /** Coverage rank of [url]; 0 for custom lists and lists without a tier. */
+    fun rankOf(url: String): Int =
+        idForUrl(url)?.let { ranks[it] } ?: 0
 
     /**
      * The name of the enabled list that already contains [url], or null when
@@ -94,7 +102,8 @@ object BlocklistCoverage {
     private fun familyOf(id: String): String? = when {
         id in coreIds -> "core"
         id in tifIds -> "tif"
-        all.any { it.id == id && it is StevenBlackList } -> "stevenblack"
+        // StevenBlack Unified and the "-only" extensions are designed to be
+        // combined, so they never cover each other.
         else -> null
     }
 }

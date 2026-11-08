@@ -81,6 +81,7 @@ import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.Host
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.HostState
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.RuleDatabaseUpdateWorker
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.BlocklistCoverage
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.BlocklistSelection
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.HageziCatalog
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.HageziProfile
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.HageziViewModel
@@ -90,6 +91,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.DateFormat
+import java.util.Date
 
 /**
  * Blocklists: the simple protection presets first (the easy choice), then the
@@ -148,6 +151,10 @@ fun BlocklistsScreen(
                 }
                 if (missing.isNotEmpty()) {
                     missing.forEach { url -> config.addURL(url, url, HostState.DENY) }
+                    // Enabling the malware preset must replace a smaller TIF
+                    // variant that a profile already enabled.
+                    val redundant = BlocklistSelection.sanitize(config.hosts.items)
+                    redundant.forEach { item -> FileHelper.getItemFile(item)?.delete() }
                     config.save()
                     val inputData = Data.Builder()
                         .putStringArray("target_lists", missing.toTypedArray())
@@ -244,34 +251,39 @@ fun BlocklistsScreen(
 
         // A list already contained in the active profile must not be downloaded
         // again (e.g. Multi NORMAL after Multi PRO).
-        if (enabled) {
+        val toAdd = if (enabled) {
             val enabledUrls = config.hosts.items
                 .filter { it.state == HostState.DENY }
                 .map { it.data }
                 .toSet()
-            if (lists.all { BlocklistCoverage.isCovered(it, enabledUrls) }) {
-                localSwitchStates[listKey] = true
-                Logger.info("Preset $listKey already included in the active profile")
-                return
-            }
+            lists.filterNot { it in enabledUrls || BlocklistCoverage.isCovered(it, enabledUrls) }
+        } else {
+            emptyList()
+        }
+        if (enabled && toAdd.isEmpty()) {
+            localSwitchStates[listKey] = true
+            Logger.info("Preset $listKey already included in the active profile")
+            return
         }
 
         // Show download dialog for enabling rules
             if (enabled) {
                 val ruleName = when {
-                    lists.any { it in AppConstants.DnsBlockLists.MALWARE_PROTECTION } -> "Malware Protection"
-                    lists.any { it in AppConstants.DnsBlockLists.AD_PROTECTION } -> "Ad Protection"
-                    lists.any { it in AppConstants.DnsBlockLists.ADS_EXTREME } -> "Ads Extreme"
-                    lists.any { it in AppConstants.DnsBlockLists.PRIVACY_PROTECTION } -> "Privacy Protection"
-                    lists.any { it in AppConstants.DnsBlockLists.SOCIAL_PROTECTION } -> "Social Media"
-                    lists.any { it in AppConstants.DnsBlockLists.ADULT_PROTECTION } -> "Adult Content"
-                    lists.any { it in AppConstants.DnsBlockLists.GAMBLING_PROTECTION } -> "Gambling"
+                    toAdd.any { it in AppConstants.DnsBlockLists.MALWARE_PROTECTION } -> "Malware Protection"
+                    toAdd.any { it in AppConstants.DnsBlockLists.AD_PROTECTION } -> "Ad Protection"
+                    toAdd.any { it in AppConstants.DnsBlockLists.ADS_EXTREME } -> "Ads Extreme"
+                    toAdd.any { it in AppConstants.DnsBlockLists.PRIVACY_PROTECTION } -> "Privacy Protection"
+                    toAdd.any { it in AppConstants.DnsBlockLists.SOCIAL_PROTECTION } -> "Social Media"
+                    toAdd.any { it in AppConstants.DnsBlockLists.ADULT_PROTECTION } -> "Adult Content"
+                    toAdd.any { it in AppConstants.DnsBlockLists.GAMBLING_PROTECTION } -> "Gambling"
                     else -> "Custom Rules"
                 }
                 blockListViewModel.startDownload(ruleName)
             }
 
             CoroutineScope(Dispatchers.IO).launch {
+                var selectionSnapshot: List<HostFile>? = null
+                var replacedUrls: Set<String> = emptySet()
                 try {
                     withContext(Dispatchers.Main) {
                         isDomainUpdateInProgress = true
@@ -291,9 +303,30 @@ fun BlocklistsScreen(
                     }
 
                     if (enabled) {
+                        // Snapshot the selection after legacy cleanup: a failed
+                        // download restores it exactly, including alternatives
+                        // that were replaced below.
+                        selectionSnapshot = config.hosts.items.toList()
+
+                        // Alternatives (TIF full/medium/mini, Multi tiers, DoH
+                        // and gambling variants) replace each other instead of
+                        // being stacked.
+                        replacedUrls = BlocklistSelection.conflictsWhenEnabling(
+                            urls = toAdd,
+                            currentUrls = config.hosts.items.map { it.data },
+                        )
+                        replacedUrls.forEach { url ->
+                            Logger.info("Replacing conflicting list: $url")
+                            config.removeURL(url)
+                            RuleDatabaseUpdateWorker.doneNames.value =
+                                RuleDatabaseUpdateWorker.doneNames.value
+                                    .filter { it != url }
+                                    .toMutableList()
+                        }
+
                         // Add all URLs in the list, reusing an entry already
                         // provided by the active profile instead of duplicating it.
-                        lists.forEach { url ->
+                        toAdd.forEach { url ->
                             val existing = config.hosts.items.firstOrNull { it.data == url }
                             if (existing == null) {
                                 config.addURL(url, url, HostState.DENY)
@@ -326,7 +359,7 @@ fun BlocklistsScreen(
                         if (enabled) {
                             // Update all lists in the array
                             val inputData = Data.Builder()
-                                .putStringArray("target_lists", lists.toTypedArray())
+                                .putStringArray("target_lists", toAdd.toTypedArray())
                                 .build()
 
                             val workRequest = OneTimeWorkRequestBuilder<RuleDatabaseUpdateWorker>()
@@ -353,18 +386,27 @@ fun BlocklistsScreen(
                                                 // The worker reloaded RuleDatabase once:
                                                 // do not trigger a second full parse.
                                                 blockListViewModel.markDomainsInitialized()
+                                                // The replaced alternatives are no
+                                                // longer needed: drop their files.
+                                                replacedUrls.forEach { url ->
+                                                    FileHelper.getItemFile(
+                                                        HostFile(title = url, data = url)
+                                                    )?.delete()
+                                                }
                                             } else {
-                                                // Download failed, revert the config changes made earlier
-                                                CoroutineScope(Dispatchers.IO).launch {
-                                                    try {
-                                                        // Remove all URLs that were added
-                                                        lists.forEach { url ->
-                                                            config.removeURL(url)
+                                                // Download failed, restore the selection
+                                                // that existed before the replacements.
+                                                val previous = selectionSnapshot
+                                                if (previous != null) {
+                                                    CoroutineScope(Dispatchers.IO).launch {
+                                                        try {
+                                                            config.hosts.items.clear()
+                                                            config.hosts.items.addAll(previous)
+                                                            config.save()
+                                                            Logger.info("Reverted list changes")
+                                                        } catch (e: Exception) {
+                                                            Logger.error("Failed to revert config: ${e.message}", e)
                                                         }
-                                                        config.save()
-                                                        Logger.info("Reverted list additions")
-                                                    } catch (e: Exception) {
-                                                        Logger.error("Failed to revert config: ${e.message}", e)
                                                     }
                                                 }
 
@@ -394,6 +436,14 @@ fun BlocklistsScreen(
 
                 } catch (e: Exception) {
                     Logger.error("Failed to update lists: ${e.message}", e)
+
+                    // Restore the previous selection if the failure happened
+                    // after the conflicting alternatives were removed.
+                    selectionSnapshot?.let { previous ->
+                        config.hosts.items.clear()
+                        config.hosts.items.addAll(previous)
+                        config.save()
+                    }
 
                     withContext(Dispatchers.Main) {
                         isDomainUpdateInProgress = false
@@ -725,11 +775,20 @@ fun BlocklistsScreen(
                     }
             }
             
-            val autoUpdateStatus = if (settings.settings.value.autoUpdateEnabled) {
+            val autoUpdateText = if (settings.settings.value.autoUpdateEnabled) {
                 stringResource(R.string.dns_auto_update_desc, getCurrentIntervalText())
             } else {
                 stringResource(R.string.dns_auto_update_disabled_desc)
             }
+            val lastUpdate = BlocklistUpdateStatus.lastUpdate(context)
+            val lastUpdateValue = lastUpdate?.let { timestamp ->
+                DateFormat.getDateTimeInstance(
+                    DateFormat.MEDIUM,
+                    DateFormat.SHORT,
+                ).format(Date(timestamp))
+            } ?: stringResource(R.string.dns_auto_update_never)
+            val autoUpdateStatus = autoUpdateText + "\n" +
+                stringResource(R.string.dns_auto_update_last_update, lastUpdateValue)
 
             SettingsBox(
                 title = stringResource(R.string.dns_auto_update_title),

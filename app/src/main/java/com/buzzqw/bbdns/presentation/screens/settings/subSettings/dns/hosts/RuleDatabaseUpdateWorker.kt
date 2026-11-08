@@ -23,6 +23,7 @@ import androidx.work.Data
 import androidx.work.workDataOf
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.presentation.config
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.BlocklistUpdateStatus
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.atomicfu.atomic
@@ -169,6 +170,7 @@ class RuleDatabaseUpdateWorker @AssistedInject constructor(
             if (errors.isNotEmpty()) {
                 Logger.info("Completed with ${successCount} successes and ${errorCount} errors (partial success)")
             }
+            BlocklistUpdateStatus.recordSuccess(context)
             Result.success()
         }
     }

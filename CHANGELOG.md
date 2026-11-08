@@ -8,6 +8,46 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-09
+
+### Release 1.0.30
+- Home shows live CPU and battery usage while the screen is open, including the
+  battery draw and the percentage of battery already consumed.
+- The AMOLED option now really turns the dark theme black instead of leaving it
+  almost unchanged.
+- The logs screen is more compact, so more blocked requests fit on screen.
+- The "Banking apps" quick exclusion recognises many more Italian and European
+  banks and payment apps.
+- Blocklist profiles and presets no longer keep two alternatives of the same
+  list enabled, and redundant lower tiers are removed automatically.
+- The Auto-update Lists section shows when the blocklists were last updated.
+
+### Last blocklist update time
+- The Auto-update Lists section now shows when the blocklists were last
+  updated successfully, or "never" if no update has run yet. Manual updates
+  are included.
+
+### Banking app preset
+- The "Banking apps" quick exclusion now recognises many more Italian and
+  European banks and payment apps, so fewer of them are missed when the preset
+  is applied.
+
+### Compact logs layout
+- The logs view is now more compact: app groups use a smaller header with the
+  timestamp on the same line, and each entry has tighter spacing and smaller
+  icons, so more blocked requests fit on screen.
+
+### AMOLED colours
+- The "AMOLED Colors" option now has a visible effect: with the dark theme it
+  turns the background pure black and the other surfaces near-black, instead of
+  leaving the normal dark colours almost unchanged.
+
+### Live resource usage on Home
+- The Home resource card now updates while it is open: it shows the CPU used by
+  BBDNS and the current battery draw together with the percentage of battery
+  already consumed.
+- No background sampling: the values stop updating as soon as Home is closed.
+
 ## 2026-11-08
 
 ### Release 1.0.29

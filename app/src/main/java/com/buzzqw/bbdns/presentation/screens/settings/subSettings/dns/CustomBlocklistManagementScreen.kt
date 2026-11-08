@@ -66,6 +66,7 @@ import com.buzzqw.bbdns.presentation.config
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.HostState
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.HostFile
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.RuleDatabaseUpdateWorker
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.BlocklistSelection
 import com.buzzqw.bbdns.core.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -131,6 +132,9 @@ fun CustomBlocklistManagementScreen(
                     }
 
                     config.addURL(title, list, HostState.DENY)
+                    // A manually typed catalogue URL must not stack an
+                    // alternative (for example TIF mini next to TIF full).
+                    BlocklistSelection.sanitize(config.hosts.items)
                     config.save()
 
                     // Trigger actual download via WorkManager

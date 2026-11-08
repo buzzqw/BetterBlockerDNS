@@ -136,13 +136,14 @@
     <string name="home_resources_cpu_hint">BBDNS</string>
     <string name="home_resources_cpu_value">%1$.1f%%</string>
     <string name="home_resources_battery">Batterie</string>
-    <string name="home_resources_battery_hint">appareil</string>
-    <string name="home_resources_battery_hint_level">appareil · %1$d%%</string>
+    <string name="home_resources_battery_hint">appareil · consommée</string>
     <string name="home_resources_battery_value">-%1$.0f mA</string>
     <string name="home_resources_battery_level_value">%1$d%%</string>
+    <string name="home_resources_battery_draw_level">%1$s / %2$d%%</string>
     <string name="home_resources_charging">En charge</string>
+    <string name="home_resources_charging_level">En charge · %1$d%%</string>
     <string name="home_resources_unavailable">n/d</string>
-    <string name="home_resources_hint">Mesuré maintenant, uniquement à l\'ouverture de l\'accueil : aucune interrogation en arrière-plan.</string>
+    <string name="home_resources_hint">Valeurs en direct tant que l\'accueil est ouvert : aucune interrogation en arrière-plan.</string>
     <string name="home_allow_domain_action">Autoriser le domaine</string>
     <string name="home_allow_domain_title">Autoriser ce domaine ?</string>
     <string name="home_allow_domain_desc">%1$s et ses sous-domaines ne seront plus bloqués. Vous pouvez supprimer la règle ultérieurement dans les paramètres DNS.</string>
@@ -220,6 +221,8 @@
     <string name="dns_auto_update_disabled_desc">Désactivé — les listes ne sont mises à jour que lorsque vous appuyez sur Actualiser</string>
     <string name="dns_auto_update_title">Mettre à jour automatiquement les listes</string>
     <string name="dns_auto_update_desc">Intervalle actuel : %1$s</string>
+    <string name="dns_auto_update_last_update">Dernière mise à jour : %1$s</string>
+    <string name="dns_auto_update_never">jamais</string>
     <string name="dns_auto_update_dialog_title">Intervalle de mise à jour automatique</string>
     <string name="dns_auto_update_interval_6h">6 heures</string>
     <string name="dns_auto_update_interval_12h">12 heures</string>

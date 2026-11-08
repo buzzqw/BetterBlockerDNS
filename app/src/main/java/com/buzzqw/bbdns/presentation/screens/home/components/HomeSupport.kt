@@ -127,38 +127,45 @@ fun SupportCard() {
     }
 }
 
+/** How often the live CPU and battery values are refreshed while Home is open. */
+private const val RESOURCE_REFRESH_MS = 2_000L
+
 /**
- * CPU and battery snapshot, sampled only while the dashboard is composed.
+ * Live CPU and battery snapshot, refreshed only while the dashboard is composed.
  *
  * CPU is read from `/proc/self/stat` twice, about a second apart, so the value
  * reflects the app process (VPN service included) while the home is open. The
- * battery draw comes from the framework and needs no polling. Nothing keeps
- * running after the card leaves the screen.
+ * battery draw and level come from the framework and are refreshed together
+ * with the CPU. Nothing keeps running after the card leaves the screen.
  */
 @Composable
 fun ResourceUsageCard() {
     val context = LocalContext.current
     val usage by produceState(initialValue = ResourceUsage(), context) {
-        val cpu = sampleCpuPercent()
-        value = readBattery(context).copy(cpuPercent = cpu)
+        while (true) {
+            val battery = withContext(Dispatchers.IO) { readBattery(context) }
+            value = battery.copy(cpuPercent = sampleCpuPercent())
+            delay(RESOURCE_REFRESH_MS)
+        }
     }
 
-    val batteryValue = if (usage.charging) {
-        stringResource(R.string.home_resources_charging)
-    } else {
-        usage.batteryCurrentMa?.let {
-            stringResource(R.string.home_resources_battery_value, it)
-        } ?: usage.batteryLevel?.let {
-            stringResource(R.string.home_resources_battery_level_value, it)
-        } ?: stringResource(R.string.home_resources_unavailable)
+    val batteryConsumed = usage.batteryLevel?.let { (100 - it).coerceIn(0, 100) }
+    val batteryCurrent = usage.batteryCurrentMa
+    val batteryValue = when {
+        usage.charging -> batteryConsumed?.let {
+            stringResource(R.string.home_resources_charging_level, it)
+        } ?: stringResource(R.string.home_resources_charging)
+        batteryCurrent != null -> batteryConsumed?.let { consumed ->
+            stringResource(
+                R.string.home_resources_battery_draw_level,
+                stringResource(R.string.home_resources_battery_value, batteryCurrent),
+                consumed,
+            )
+        } ?: stringResource(R.string.home_resources_battery_value, batteryCurrent)
+        batteryConsumed != null -> stringResource(R.string.home_resources_battery_level_value, batteryConsumed)
+        else -> stringResource(R.string.home_resources_unavailable)
     }
-    val batteryDetail = if (usage.charging || usage.batteryCurrentMa != null) {
-        usage.batteryLevel?.let {
-            stringResource(R.string.home_resources_battery_hint_level, it)
-        } ?: stringResource(R.string.home_resources_battery_hint)
-    } else {
-        stringResource(R.string.home_resources_battery_hint)
-    }
+    val batteryDetail = stringResource(R.string.home_resources_battery_hint)
 
     InsightCard(
         icon = Icons.Rounded.Memory,

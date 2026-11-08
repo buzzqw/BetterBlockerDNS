@@ -25,6 +25,7 @@ import com.buzzqw.bbdns.domain.usecase.application.ApplicationUseCases
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.Configuration
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.HostException
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.HostState
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.BlocklistSelection
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.encodeToString
@@ -282,6 +283,14 @@ class BackupManager @Inject constructor(
                             data = exceptionBackup.hostname,
                             state = state
                         )
+                    )
+                }
+                // A backup can contain duplicates or two variants of the same
+                // list (for example TIF full and TIF mini). Keep one per group.
+                val removed = BlocklistSelection.sanitize(configuration.hosts.items)
+                if (removed.isNotEmpty()) {
+                    Logger.info(
+                        "Backup restore: removed ${removed.size} duplicate or redundant blocklist entr(y/ies)"
                     )
                 }
                 configuration.save()

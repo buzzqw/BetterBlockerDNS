@@ -62,14 +62,25 @@ data class Configuration(var hosts: Hosts = Hosts(), ) {
         private fun loadBackup(name: String = "$DEFAULT_CONFIG_FILENAME$CONFIG_BACKUP_EXTENSION"): Configuration = load(name)
     }
 
-    fun addURL(title: String, location: String, state: HostState) =
-        hosts.items.add(
-            element = HostFile(
-                title = title,
-                data = location,
-                state = state,
-            ),
-        )
+    /**
+     * Adds [location] at most once: an existing entry is re-enabled/updated
+     * instead of creating a duplicate of the same URL.
+     */
+    fun addURL(title: String, location: String, state: HostState) {
+        val existing = hosts.items.firstOrNull { it.data == location }
+        if (existing != null) {
+            if (title.isNotBlank()) existing.title = title
+            existing.state = state
+        } else {
+            hosts.items.add(
+                element = HostFile(
+                    title = title,
+                    data = location,
+                    state = state,
+                ),
+            )
+        }
+    }
 
     fun removeURL(oldURL: String) =
         hosts.items.removeAll { it.data == oldURL }

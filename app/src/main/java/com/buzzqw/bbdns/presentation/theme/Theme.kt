@@ -35,24 +35,37 @@ import androidx.core.view.WindowCompat
 import com.buzzqw.bbdns.presentation.screens.settings.viewModel.SettingsViewModel
 
 
+/**
+ * Pure black background and near-black elevated surfaces for AMOLED panels.
+ * A small step between container levels keeps cards distinguishable.
+ */
+private fun ColorScheme.amoled(): ColorScheme = copy(
+    background = Color.Black,
+    surface = Color.Black,
+    surfaceDim = Color.Black,
+    surfaceContainerLowest = Color.Black,
+    surfaceContainerLow = Color(0xFF050806),
+    surfaceContainer = Color(0xFF0A0E0B),
+    surfaceContainerHigh = Color(0xFF0F1411),
+    surfaceContainerHighest = Color(0xFF141A16),
+)
+
 private fun getColorScheme(context: Context, isDarkTheme: Boolean, isDynamicTheme: Boolean, isAmoledTheme: Boolean, keyColor: Color, useSystemDynamic: Boolean): ColorScheme {
     if (isDynamicTheme) {
         // Dynamic Colors ON
         if (useSystemDynamic && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // Use system Material You colors (from wallpaper)
             if (isDarkTheme) {
-                if (isAmoledTheme) {
-                    return getDarkDynamicColorScheme(context).copy(background = Color.Black, surface = Color.Black)
-                }
-                return getDarkDynamicColorScheme(context)
+                val darkDynamic = getDarkDynamicColorScheme(context)
+                return if (isAmoledTheme) darkDynamic.amoled() else darkDynamic
             } else {
                 return getLightDynamicColorScheme(context)
             }
         } else {
             // Use custom accent color generation
             if (isDarkTheme) {
-                val darkScheme = generatePalette(keyColor, true)
-                return if (isAmoledTheme) darkScheme.copy(surfaceContainerLow = Color.Black, surface = Color.Black) else darkScheme
+                val darkPalette = generatePalette(keyColor, true)
+                return if (isAmoledTheme) darkPalette.amoled() else darkPalette
             } else {
                 return generatePalette(keyColor, false)
             }
@@ -60,10 +73,7 @@ private fun getColorScheme(context: Context, isDarkTheme: Boolean, isDynamicThem
     } else {
         // Dynamic Colors OFF → Use original static color schemes
         if (isDarkTheme) {
-            if (isAmoledTheme) {
-                return darkScheme.copy(surfaceContainerLow = Color.Black, surface = Color.Black)
-            }
-            return darkScheme
+            return if (isAmoledTheme) darkScheme.amoled() else darkScheme
         } else {
             return lightScheme
         }

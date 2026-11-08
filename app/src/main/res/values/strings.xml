@@ -135,13 +135,14 @@
     <string name="home_resources_cpu_hint">BBDNS</string>
     <string name="home_resources_cpu_value">%1$.1f%%</string>
     <string name="home_resources_battery">Battery</string>
-    <string name="home_resources_battery_hint">device</string>
-    <string name="home_resources_battery_hint_level">device · %1$d%%</string>
+    <string name="home_resources_battery_hint">device · consumed</string>
     <string name="home_resources_battery_value">-%1$.0f mA</string>
     <string name="home_resources_battery_level_value">%1$d%%</string>
+    <string name="home_resources_battery_draw_level">%1$s / %2$d%%</string>
     <string name="home_resources_charging">Charging</string>
+    <string name="home_resources_charging_level">Charging · %1$d%%</string>
     <string name="home_resources_unavailable">n/a</string>
-    <string name="home_resources_hint">Measured now, only when you open Home: no background polling.</string>
+    <string name="home_resources_hint">Live while Home is open: no background polling.</string>
     <string name="home_allow_domain_action">Allow domain</string>
     <string name="home_allow_domain_title">Allow this domain?</string>
     <string name="home_allow_domain_desc">%1$s and its subdomains will no longer be blocked. You can remove the rule later in DNS settings.</string>
@@ -219,6 +220,8 @@
     <string name="dns_auto_update_disabled_desc">Disabled — lists are updated only when you tap refresh</string>
     <string name="dns_auto_update_title">Auto-update Lists</string>
     <string name="dns_auto_update_desc">Current interval: %1$s</string>
+    <string name="dns_auto_update_last_update">Last update: %1$s</string>
+    <string name="dns_auto_update_never">never</string>
     <string name="dns_auto_update_dialog_title">Auto-update Interval</string>
     <string name="dns_auto_update_interval_6h">6 hours</string>
     <string name="dns_auto_update_interval_12h">12 hours</string>

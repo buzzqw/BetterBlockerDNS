@@ -520,20 +520,20 @@ fun LogGroupCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 24.dp)
+            .padding(bottom = 8.dp)
             .background(
-                shape = RoundedCornerShape(32.dp),
+                shape = RoundedCornerShape(14.dp),
                 color = MaterialTheme.colorScheme.surfaceContainer
             )
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
             if (includeHeader) {
                 ApplicationHeader(
                     appName = appName,
                     appIcon = iconBitmap,
                     timestamp = logGroup.first().time.toFormattedDateTime()
                 )
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(6.dp))
             }
             LogDetails(logGroup, navController, detailed, onBlockedClick)
         }
@@ -547,13 +547,24 @@ fun ApplicationHeader(appName: String, appIcon: androidx.compose.ui.graphics.Ima
             Image(
                 bitmap = it,
                 contentDescription = null,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(24.dp)
             )
         }
-        Column(modifier = Modifier.padding(start = 12.dp)) {
-            Text(text = appName)
-            Text(text = timestamp, fontSize = 12.sp)
-        }
+        Text(
+            text = appName,
+            style = MaterialTheme.typography.titleSmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 8.dp)
+        )
+        Text(
+            text = timestamp,
+            fontSize = 11.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1
+        )
     }
 }
 
@@ -565,7 +576,7 @@ fun LogDetails(
     onBlockedClick: ((Log) -> Unit)? = null
 ) {
     Column(
-        modifier = Modifier.clip(RoundedCornerShape(16.dp))
+        modifier = Modifier.clip(RoundedCornerShape(10.dp))
     ) {
         logs.forEach { log ->
             val color = when (log.packetStatus) {
@@ -593,15 +604,16 @@ fun LogDetails(
             ) {
                 Row(
                     modifier = Modifier
-                        .padding(horizontal = 18.dp, vertical = 4.dp)
-                        .weight(1f),
+                        .padding(horizontal = 10.dp, vertical = 1.dp)
+                        .weight(1f)
+                        .heightIn(min = 30.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         color = color,
                         text = (log.destinationPort.toIntOrNull()?.let { Port.getServiceName(it) } ?: log.destinationPort).uppercase(Locale.ROOT),
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         modifier = Modifier.weight(1f, fill = false)
                     )
                     Text(
@@ -621,9 +633,7 @@ fun LogDetails(
                         tint = if (color != MaterialTheme.colorScheme.error) LocalContentColor.current else color,
                         imageVector = Icons.Rounded.ArrowForwardIos,
                         contentDescription = null,
-                        modifier = Modifier
-                            .padding(vertical = 6.dp)
-                            .scale(0.6f)
+                        modifier = Modifier.size(12.dp)
                     )
                 }
             }
@@ -637,11 +647,11 @@ fun LogDetails(
                         log.destinationIP,
                         log.destinationPort
                     ),
-                    fontSize = 10.sp,
+                    fontSize = 9.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 18.dp, vertical = 2.dp)
+                        .padding(horizontal = 10.dp, vertical = 1.dp)
                 )
             }
             Spacer(modifier = Modifier.height(1.dp))

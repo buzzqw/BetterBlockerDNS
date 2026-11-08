@@ -77,11 +77,13 @@ class HageziViewModel @Inject constructor(
     private val _stage = MutableStateFlow("")
     val stage: StateFlow<String> = _stage.asStateFlow()
 
-    private val catalogue: List<BlocklistSource> = HageziCatalog.all + StevenBlackCatalog.all
-
     init {
         refreshEnabled()
         viewModelScope.launch(Dispatchers.IO) {
+            // Older builds could enable two alternatives at once (for example
+            // TIF full and TIF mini). Clean the selection before any migration
+            // or profile matching reads it.
+            sanitizeSelection()
             // Migrate first, so seeding sees the user's converted selection.
             // A migrated user already has a selection: no default seeding.
             if (!migrateLegacyStevenBlack()) {
@@ -90,6 +92,27 @@ class HageziViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    /**
+     * Drops duplicate URLs and redundant alternatives before the selection is
+     * used to decide the active profile or to build the rule database.
+     */
+    private suspend fun sanitizeSelection() {
+        val removed = BlocklistSelection.sanitize(config.hosts.items)
+        if (removed.isEmpty()) return
+
+        config.save()
+        removed.forEach { item -> FileHelper.getItemFile(item)?.delete() }
+        domainCacheService.invalidateCache()
+        withContext(Dispatchers.Main) {
+            refreshEnabled()
+            domainCacheService.forceRefresh()
+        }
+        Logger.info(
+            "Removed ${removed.size} duplicate or redundant blocklist entr(y/ies): " +
+                removed.joinToString { it.title.ifBlank { it.data } }
+        )
     }
 
     /**
@@ -298,9 +321,12 @@ class HageziViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             // A smaller list already contained in an enabled profile must not
             // be downloaded again (e.g. Multi NORMAL inside Multi PRO).
-            val effective = lists.filterNot {
-                BlocklistCoverage.isCovered(it.url, _enabledUrls.value)
-            }
+            val effective = BlocklistSelection.bestPerGroup(
+                lists.filterNot {
+                    it.url in _enabledUrls.value ||
+                        BlocklistCoverage.isCovered(it.url, _enabledUrls.value)
+                }
+            )
             if (effective.isEmpty()) {
                 Logger.info("Lists already included in the active profile: ${lists.map { it.name }}")
                 withContext(Dispatchers.Main) { refreshEnabled() }
@@ -309,13 +335,11 @@ class HageziViewModel @Inject constructor(
             val snapshot = config.hosts.items.toList()
             // Alternatives (Multi tiers, full/medium/mini variants): enabling
             // one replaces the others of the same group.
-            val groups = effective.mapNotNull { it.exclusiveGroup }.toSet()
-            if (groups.isNotEmpty()) {
-                val keep = effective.map { it.url }.toSet()
-                val replaced = catalogue
-                    .filter { it.exclusiveGroup in groups && it.url !in keep }
-                    .map { it.url }
-                    .toSet()
+            val replaced = BlocklistSelection.conflictsWhenEnabling(
+                urls = effective.map { it.url },
+                currentUrls = config.hosts.items.map { it.data },
+            )
+            if (replaced.isNotEmpty()) {
                 config.hosts.items
                     .filter { it.data in replaced }
                     .forEach { item -> FileHelper.getItemFile(item)?.delete() }
