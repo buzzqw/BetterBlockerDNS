@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Blocklists
+- The active blocklist screen now shows when each list was last updated, so it
+  is easy to see whether automatic updates are working.
+
 ### DNS reliability
 - DNS queries that the system retries over TCP now go to the configured
   resolver instead of failing. This fixes some apps and websites that could

@@ -17,6 +17,7 @@
 
 package com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns
 
+import android.text.format.DateFormat
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.List
@@ -28,7 +29,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,12 +45,15 @@ import com.buzzqw.bbdns.presentation.screens.settings.components.SettingsBox
 import com.buzzqw.bbdns.presentation.screens.settings.components.SettingsScaffold
 import com.buzzqw.bbdns.presentation.screens.settings.components.SettingsSectionHeader
 import com.buzzqw.bbdns.presentation.screens.settings.components.settingsContainer
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.FileHelper
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.HostFile
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.HostState
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.RuleDatabase
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.BlocklistNames
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.CompatibilityAllowlist
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.viewModel.BlockListViewModel
 import com.buzzqw.bbdns.presentation.screens.settings.viewModel.SettingsViewModel
+import java.util.Date
 
 /**
  * Dedicated "Blocked domains" page: every enabled blocklist and how many hosts
@@ -118,12 +124,31 @@ fun ActiveListsScreen(
             }
             settingsContainer {
                 listStats.sortedByDescending { it.entries }.forEach { stat ->
+                    val updatedAt = remember(stat.data) {
+                        FileHelper.getItemFile(
+                            HostFile(
+                                title = stat.title,
+                                data = stat.data,
+                                state = stat.state,
+                            )
+                        )?.lastModified() ?: 0L
+                    }
+                    val entries = stringResource(
+                        R.string.active_lists_entries,
+                        NumberFormatter.formatCount(stat.entries.toLong()),
+                    )
                     SettingsBox(
                         title = BlocklistNames.displayName(stat.title, stat.data),
-                        description = stringResource(
-                            R.string.active_lists_entries,
-                            NumberFormatter.formatCount(stat.entries.toLong()),
-                        ),
+                        description = if (updatedAt > 0L) {
+                            stringResource(
+                                R.string.active_lists_entries_updated,
+                                entries,
+                                DateFormat.getDateFormat(LocalContext.current)
+                                    .format(Date(updatedAt)),
+                            )
+                        } else {
+                            entries
+                        },
                         icon = IconType.VectorIcon(
                             if (stat.state == HostState.ALLOW) {
                                 Icons.Rounded.Shield

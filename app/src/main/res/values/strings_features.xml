@@ -42,6 +42,7 @@
     <string name="active_lists_empty">No list is enabled yet. Open the blocklists page to choose a protection profile.</string>
     <string name="active_lists_manage">Manage blocklists</string>
     <string name="active_lists_entries">%1$s hosts</string>
+    <string name="active_lists_entries_updated">%1$s hosts · updated %2$s</string>
     <string name="active_lists_compatibility_on">Compatibility allowlist active</string>
     <string name="active_lists_compatibility_off">Compatibility allowlist off</string>
 
