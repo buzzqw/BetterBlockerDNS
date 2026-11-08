@@ -21,8 +21,6 @@
 
 char socks5_addr[INET6_ADDRSTRLEN + 1];
 int socks5_port = 0;
-char socks5_username[127 + 1];
-char socks5_password[127 + 1];
 
 void clear_tcp_data(struct tcp_session *cur) {
     struct segment *s = cur->forward;
@@ -290,15 +288,6 @@ void check_tcp_socket(const struct arguments *args, const struct epoll_event *ev
                         if (s->tcp.socks5 == SOCKS5_HELLO && bytes == 2 && buffer[0] == 5) {
                             if (buffer[1] == 0)
                                 s->tcp.socks5 = SOCKS5_CONNECT;
-                            else if (buffer[1] == 2)
-                                s->tcp.socks5 = SOCKS5_AUTH;
-                            else {
-                                s->tcp.socks5 = 0;
-                                write_rst(args, &s->tcp);
-                            }
-                        } else if (s->tcp.socks5 == SOCKS5_AUTH && bytes == 2 && (buffer[0] == 1 || buffer[0] == 5)) {
-                            if (buffer[1] == 0)
-                                s->tcp.socks5 = SOCKS5_CONNECT;
                             else {
                                 s->tcp.socks5 = 0;
                                 write_rst(args, &s->tcp);
@@ -319,19 +308,10 @@ void check_tcp_socket(const struct arguments *args, const struct epoll_event *ev
             }
 
             if (s->tcp.socks5 == SOCKS5_HELLO) {
-                uint8_t buffer[4] = {5, 2, 0, 2};
+                // This build supports only the "no authentication" method:
+                // there is no UI to configure SOCKS5 credentials.
+                uint8_t buffer[3] = {5, 1, 0};
                 send(s->socket, buffer, sizeof(buffer), MSG_NOSIGNAL);
-            } else if (s->tcp.socks5 == SOCKS5_AUTH) {
-                uint8_t ulen = strlen(socks5_username);
-                uint8_t plen = strlen(socks5_password);
-                uint8_t buffer[512];
-                *(buffer + 0) = 1;
-                *(buffer + 1) = ulen;
-                memcpy(buffer + 2, socks5_username, ulen);
-                *(buffer + 2 + ulen) = plen;
-                memcpy(buffer + 2 + ulen + 1, socks5_password, plen);
-                size_t len = 2 + ulen + 1 + plen;
-                send(s->socket, buffer, len, MSG_NOSIGNAL);
             } else if (s->tcp.socks5 == SOCKS5_CONNECT) {
                 uint8_t buffer[22];
                 *(buffer + 0) = 5;
