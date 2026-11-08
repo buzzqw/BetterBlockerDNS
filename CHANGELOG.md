@@ -14,6 +14,7 @@ listed newest first.
 - Release builds email the package only when explicitly requested, so external
   builders such as F-Droid never try to send mail.
 - Added the F-Droid changelog and a ready build recipe for submission.
+- The F-Droid recipe now points to the 1.0.23 release commit.
 - No change to the app's behaviour.
 
 ### Documentation: release process
