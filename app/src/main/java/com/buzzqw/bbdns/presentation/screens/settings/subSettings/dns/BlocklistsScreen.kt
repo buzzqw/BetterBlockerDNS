@@ -45,6 +45,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.platform.LocalContext
@@ -75,6 +82,7 @@ import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.Host
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.RuleDatabaseUpdateWorker
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.BlocklistCoverage
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.HageziCatalog
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.HageziProfile
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.HageziViewModel
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.viewModel.BlockListViewModel
 import com.buzzqw.bbdns.presentation.screens.settings.viewModel.SettingsViewModel
@@ -108,7 +116,6 @@ fun BlocklistsScreen(
     val hageziStage by hageziViewModel.stage.collectAsState()
     val hageziCurrentName by hageziViewModel.currentListName.collectAsState()
     val activeProfile = HageziCatalog.matchingProfile(enabledCatalogueUrls)
-    var showProfileDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val isDomainsLoading by blockListViewModel.isLoading.collectAsState()
     val isDomainsInitialized by blockListViewModel.isInitialized.collectAsState()
@@ -416,22 +423,10 @@ fun BlocklistsScreen(
         onBackNavClicked = { navController.navigateUp() }
     ) {
         settingsContainer(titleRes = R.string.blocklists_section_profile) {
-            SettingsBox(
-                title = stringResource(R.string.blocklists_profile_title),
-                description = activeProfile?.let { profile ->
-                    stringResource(
-                        R.string.blocklists_profile_desc,
-                        stringResource(profile.nameRes),
-                        stringResource(profile.descriptionRes),
-                    )
-                } ?: stringResource(R.string.blocklists_profile_custom),
-                icon = IconType.VectorIcon(Icons.Rounded.Shield),
-                actionType = SettingType.CUSTOM,
-                isUsable = !hageziBusy,
-                customAction = { onExit ->
-                    showProfileDialog = true
-                    onExit()
-                }
+            ProtectionProfileSelector(
+                activeProfile = activeProfile,
+                enabled = !hageziBusy,
+                onProfileSelected = { profile -> hageziViewModel.applyProfile(profile) },
             )
             SettingsBox(
                 title = stringResource(R.string.blocklists_compatibility_title),
@@ -860,30 +855,69 @@ fun BlocklistsScreen(
         stage = hageziStage,
         onDismiss = { hageziViewModel.dismissDownloadDialog() },
     )
+}
 
-    if (showProfileDialog) {
-        CustomListDialog(
-            text = stringResource(R.string.blocklists_profile_dialog_title),
-            onExit = { showProfileDialog = false }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProtectionProfileSelector(
+    activeProfile: HageziProfile?,
+    enabled: Boolean,
+    onProfileSelected: (HageziProfile) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        expanded = expanded && enabled,
+        onExpandedChange = { if (enabled) expanded = !expanded },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+    ) {
+        OutlinedTextField(
+            value = activeProfile?.let { stringResource(it.nameRes) }
+                ?: stringResource(R.string.blocklists_profile_custom),
+            onValueChange = {},
+            readOnly = true,
+            enabled = enabled,
+            singleLine = true,
+            label = { Text(stringResource(R.string.blocklists_profile_title)) },
+            supportingText = activeProfile?.let { profile ->
+                { Text(stringResource(profile.descriptionRes)) }
+            },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded && enabled)
+            },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded && enabled,
+            onDismissRequest = { expanded = false },
         ) {
             HageziCatalog.profiles.forEach { profile ->
-                item {
-                    SettingsBox(
-                        size = 8.dp,
-                        title = stringResource(profile.nameRes),
-                        description = stringResource(profile.descriptionRes),
-                        icon = IconType.VectorIcon(Icons.Rounded.Shield),
-                        actionType = SettingType.RADIOBUTTON,
-                        isUsable = !hageziBusy,
-                        variable = activeProfile?.id == profile.id,
-                        onSwitchEnabled = { selected ->
-                            if (selected && !hageziBusy) {
-                                hageziViewModel.applyProfile(profile)
-                                showProfileDialog = false
-                            }
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = stringResource(profile.nameRes),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    },
+                    trailingIcon = {
+                        if (activeProfile?.id == profile.id) {
+                            Icon(
+                                imageVector = Icons.Rounded.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
                         }
-                    )
-                }
+                    },
+                    onClick = {
+                        expanded = false
+                        if (activeProfile?.id != profile.id) {
+                            onProfileSelected(profile)
+                        }
+                    },
+                )
             }
         }
     }

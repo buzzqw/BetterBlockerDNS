@@ -36,7 +36,6 @@ import androidx.navigation.NavController
 import com.buzzqw.bbdns.R
 import com.buzzqw.bbdns.core.utils.NumberFormatter
 import com.buzzqw.bbdns.presentation.config
-import com.buzzqw.bbdns.presentation.navigation.routes.SettingRoutes
 import com.buzzqw.bbdns.presentation.screens.settings.components.IconType
 import com.buzzqw.bbdns.presentation.screens.settings.components.SettingType
 import com.buzzqw.bbdns.presentation.screens.settings.components.SettingsBox
@@ -110,16 +109,6 @@ fun ActiveListsScreen(
                 description = stringResource(R.string.blocklists_compatibility_desc),
                 icon = IconType.VectorIcon(Icons.Rounded.Shield),
                 actionType = SettingType.TEXT,
-            )
-            SettingsBox(
-                title = stringResource(R.string.active_lists_manage),
-                description = stringResource(R.string.blocklists_active_desc),
-                icon = IconType.VectorIcon(Icons.Rounded.List),
-                actionType = SettingType.CUSTOM,
-                customAction = { onExit ->
-                    navController.navigate(SettingRoutes.Blocklists.route)
-                    onExit()
-                },
             )
         }
 

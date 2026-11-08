@@ -82,7 +82,7 @@
     <string name="behavior_start_on_boot">Iniciar en el arranque</string>
     <string name="behavior_start_on_boot_desc">Inicie la protección cuando arranque el dispositivo</string>
     <string name="behavior_permanent_notification">Notificación permanente</string>
-    <string name="behavior_permanent_notification_desc">Hacer que las notificaciones sean silenciosas y sin color</string>
+    <string name="behavior_permanent_notification_desc">Mantiene una notificación silenciosa y de baja prioridad para que Android detenga menos el servicio VPN en segundo plano</string>
     <string name="method_use_vpn">Usar VPN</string>
     <string name="permissions_grant_required">Por favor, conceda los permisos necesarios en los cuadros de diálogo del sistema</string>
     <string name="tile_error">Error</string>
@@ -294,7 +294,7 @@
     <string name="privacy_lock_on_resume">Bloquear al reanudar</string>
     <string name="privacy_lock_on_resume_desc">Vuelva a bloquear cuando regrese la aplicación</string>
     <string name="privacy_block_port_80">Bloquear puerto 80</string>
-    <string name="privacy_block_port_80_desc">Bloquear el tráfico HTTP no encriptado</string>
+    <string name="privacy_block_port_80_desc">Bloquea el HTTP sin cifrar (puerto 80) para todas las apps. Los datos no pueden viajar en claro; los sitios que solo funcionan con HTTP pueden dejar de cargarse. HTTPS no se ve afectado</string>
     <string name="privacy_passcode">Código de acceso</string>
     <string name="backup_export">Exportar copia de seguridad</string>
     <string name="backup_export_desc">Copia de seguridad de configuraciones, dominios y listas de bloqueo</string>

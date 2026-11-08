@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Common -->
+    <string name="common_search">搜索</string>
+    <string name="common_logs">日志</string>
+    <string name="common_settings">设置</string>
+    <string name="common_allow">允许</string>
+    <string name="common_cancel">取消</string>
+    <string name="common_confirm">确认</string>
+    <string name="common_enable">启用</string>
+    <string name="common_disable">停用</string>
+    <string name="common_done">完成</string>
+    <string name="common_delete">删除</string>
+    <string name="common_retry">重试</string>
+    <string name="common_selected">已选择</string>
+
+    <!-- Settings -->
+    <string name="settings_section_protection">保护</string>
+    <string name="settings_section_network">网络与应用</string>
+    <string name="settings_section_general">行为与通知</string>
+    <string name="settings_section_privacy">隐私与备份</string>
+    <string name="settings_section_appearance">外观</string>
+    <string name="settings_section_about">信息</string>
+    <string name="settings_blocklists">屏蔽列表</string>
+    <string name="settings_blocklists_option_presets">保护预设</string>
+    <string name="settings_blocklists_option_sources">HaGeZi 与 StevenBlack</string>
+    <string name="settings_blocklists_option_rules">允许/拒绝规则</string>
+    <string name="settings_dns_resolver">DNS 解析器</string>
+    <string name="settings_dns_resolver_option_server">DNS 服务器</string>
+    <string name="settings_dns_resolver_option_doh">DNS over HTTPS</string>
+    <string name="settings_dns_resolver_option_doh_on">DNS over HTTPS 已启用</string>
+    <string name="settings_dns_resolver_option_private_dns">私人 DNS</string>
+    <string name="settings_privacy_option_backup">备份</string>
+    <string name="settings_language">语言</string>
+    <string name="settings_language_option_system">跟随系统</string>
+    <string name="settings_colors">颜色与样式</string>
+    <string name="settings_behavior">行为</string>
+    <string name="settings_network">网络</string>
+    <string name="settings_privacy">隐私与安全</string>
+    <string name="settings_notifications">通知</string>
+
+    <!-- DNS resolver -->
+    <string name="dns_resolver_section_server">解析器</string>
+    <string name="dns_resolver_section_encrypted">加密 DNS</string>
+    <string name="dns_resolver_section_android">Android</string>
+    <string name="dns_resolver_server_title">DNS 服务器</string>
+    <string name="dns_resolver_server_custom">自定义：%1$s</string>
+    <string name="dns_resolver_doh_title">DNS over HTTPS (DoH)</string>
+    <string name="dns_resolver_doh_on_desc">通过 %1$s 加密 DNS。请重启保护以应用更改。关闭 Android 私人 DNS 以避免冲突。</string>
+    <string name="dns_resolver_doh_off_desc">使用 RFC 8484 端点加密 DNS 查询。所选普通 DNS 服务器仅作为备用。</string>
+    <string name="dns_resolver_doh_provider_title">DoH 提供商</string>
+    <string name="dns_resolver_private_dns_title">Android 私人 DNS</string>
+    <string name="dns_resolver_private_dns_desc">打开 Android 私人 DNS 设置。请保持关闭，以便 DNS 查询经过 BBDNS。</string>
+    <string name="dns_resolver_private_dns_doh_desc">使用 BBDNS DoH 时，请在 Android 设置中关闭私人 DNS，否则系统解析器可能会绕过本应用。</string>
+    <string name="dns_resolver_private_dns_unavailable">此设备不支持私人 DNS 设置。请前往“设置 → 网络和互联网 → 私人 DNS”。</string>
+    <string name="dns_protection_tile_label">DNS 保护</string>
+    <string name="dns_blocking_title">DNS 拦截</string>
+    <string name="dns_status_disabled">DNS 拦截已停用</string>
+    <string name="dns_status_enabled">DNS 拦截已启用</string>
+    <string name="dns_custom">自定义 DNS</string>
+    <string name="dns_set_custom">设置自己的 DNS 服务器</string>
+    <string name="dns_invalid">DNS 无效</string>
+    <string name="dns_malware_protection">恶意软件防护</string>
+    <string name="dns_social_media">社交媒体</string>
+    <string name="dns_adult_content">成人内容</string>
+    <string name="dns_gambling">赌博</string>
+    <string name="dns_blocked_domains">已屏蔽域名</string>
+
+    <!-- Blocklists -->
+    <string name="blocklists_section_presets">保护预设</string>
+    <string name="blocklists_section_content">内容过滤</string>
+    <string name="blocklists_section_advanced">高级</string>
+    <string name="blocklists_section_updates">更新与状态</string>
+    <string name="blocklists_sources_title">屏蔽列表来源</string>
+    <string name="blocklists_sources_desc">选择 HaGeZi 列表（Multi 级别、威胁情报源、跟踪器、家庭过滤）和 StevenBlack hosts 列表。</string>
+    <string name="blocklists_count_blocked">已屏蔽 %1$s 个域名</string>
+    <string name="blocklists_count_updating">正在更新域名…</string>
+    <string name="blocklists_count_loading">正在加载域名…</string>
+    <string name="blocklists_count_none">未加载域名</string>
+    <string name="blocklists_downloading_rules">正在下载规则</string>
+    <string name="blocklists_interval_days">%1$d 天</string>
+    <string name="blocklists_interval_hours">%1$d 小时</string>
+    <string name="blocklist_category_adult">成人内容</string>
+    <string name="blocklist_category_other">其他</string>
+    <string name="blocklist_category_popular">热门</string>
+    <string name="blocklist_import_selected">导入所选 (%1$d)</string>
+    <string name="blocklist_select_all">全选</string>
+    <string name="blocklist_deselect_all">取消全选</string>
+
+    <!-- Home -->
+    <string name="home_top_bar_title">BetterBlockerDNS - BBDNS</string>
+    <string name="home_search_clear">清除搜索</string>
+    <string name="home_status_paused">已暂停</string>
+    <string name="home_status_paused_desc">拦截已暂停，保护将于 %1$s 恢复。</string>
+    <string name="home_pause">暂停</string>
+    <string name="home_resume_now">立即恢复</string>
+    <string name="notification_paused_text">保护已暂停 – 将于 %1$s 恢复</string>
+    <string name="notification_action_pause_15">暂停 15 分钟</string>
+    <string name="notification_action_resume">恢复</string>
+    <string name="tile_status_paused_until">暂停至 %1$s</string>
+    <string name="tile_protection_resumed">保护已恢复</string>
+    <string name="home_history_title">历史记录</string>
+    <string name="home_history_days">%1$d 天</string>
+    <string name="home_history_today">今天</string>
+    <string name="home_history_empty">暂无历史记录。开启保护后，每日统计会显示在这里。</string>
+    <string name="home_history_summary">最近 %3$d 天共拦截 %1$s 次，总查询 %2$s 次</string>
+    <string name="home_onboarding_title">开启保护</string>
+    <string name="home_onboarding_desc">点击电源按钮开始拦截广告、跟踪器和恶意软件。</string>
+    <string name="home_onboarding_skip">跳过</string>
+    <string name="home_status_protected">已保护</string>
+    <string name="home_status_protected_desc">BBDNS 正在拦截广告、跟踪器和恶意软件。</string>
+    <string name="home_status_unprotected">未保护</string>
+    <string name="home_status_unprotected_desc">保护已关闭。点击按钮开始拦截。</string>
+    <string name="home_status_loading">正在启动…</string>
+    <string name="home_status_loading_desc">正在应用保护规则…</string>
+    <string name="home_toggle_protection">切换保护</string>
+    <string name="home_total_requests">总请求数</string>
+    <string name="home_blocked_requests">已拦截</string>
+    <string name="home_allowed_requests">已允许</string>
+    <string name="home_block_rate">拦截率</string>
+    <string name="home_session">会话</string>
+    <string name="home_tab_statistics">统计</string>
+    <string name="home_tab_apps">应用</string>
+    <string name="home_firewall_disable">关闭保护</string>
+    <string name="home_firewall_permission_desc">确定要关闭保护吗？</string>
+    <string name="home_applying_rules">正在应用保护规则…</string>
+    <string name="home_private_dns_title">私人 DNS 会绕过 BBDNS</string>
+    <string name="home_private_dns_desc">Android 私人 DNS 已设为“%1$s”：所有查询都会通过 DNS-over-TLS 直接发送到该提供商，不会被拦截。请将私人 DNS 设为关闭或自动。</string>
+    <string name="home_private_dns_open_settings">打开网络设置</string>
+    <string name="home_cd_vpn_bypassed">已绕过 VPN</string>
+    <string name="home_cd_pinned">已置顶</string>
+
+    <!-- Logs -->
+    <string name="logs_delete_all">删除日志</string>
+    <string name="logs_open_details">打开详情</string>
+    <string name="logs_detailed_endpoint">%1$s  %2$s:%3$s  →  %4$s:%5$s</string>
+    <string name="logs_session_since_started_ago">自保护启动以来 • %1$s 前</string>
+    <string name="logs_session_since_started">自保护启动以来</string>
+    <string name="logs_session_inactive">保护未启用</string>
+    <string name="packet_protection_status">保护状态</string>
+    <string name="packet_status_allowed">已允许</string>
+    <string name="packet_status_dropped">已拦截</string>
+    <string name="packet_status_dns_blocked">被 DNS 保护拦截</string>
+    <string name="packet_why_blocked">为什么被拦截？</string>
+    <string name="block_reason_title">为什么被拦截？</string>
+    <string name="block_reason_searching">正在搜索列表…</string>
+    <string name="block_reason_searching_progress">正在搜索列表…（%1$d/%2$d）</string>
+    <string name="block_reason_failed">无法搜索列表，请稍后重试。</string>
+    <string name="block_reason_status_blocked_unknown">已被拦截，但在已下载的列表中未找到匹配规则。请更新列表。</string>
+    <string name="block_reason_status_allowed">此域名当前被允许：允许规则优先于屏蔽列表。</string>
+    <string name="block_reason_status_allowed_now">域名已允许。保护正在重新加载规则。</string>
+    <string name="block_reason_status_not_blocked">当前规则未拦截此域名。列表可能在此记录之后已更改。</string>
+    <string name="block_reason_section_blocked_by">拦截来源</string>
+    <string name="block_reason_section_allowed_by">允许来源</string>
+    <string name="block_reason_type_exact">精确域名</string>
+    <string name="block_reason_type_parent">父域名，包含子域名</string>
+    <string name="block_reason_type_tld">顶级域名</string>
+    <string name="block_reason_type_wildcard">通配符规则</string>
+    <string name="block_reason_type_regex">正则规则</string>
+    <string name="block_reason_source_list">列表</string>
+    <string name="block_reason_source_user_rule">你的规则</string>
+    <string name="block_reason_source_custom">自定义域名</string>
+    <string name="block_reason_note_custom_wins">自定义域名拦截优先于允许规则。请在域名管理中删除规则以解除拦截。</string>
+    <string name="block_reason_note_unreadable">尚未下载，因此未搜索：%1$s</string>
+    <string name="block_reason_allow">允许此域名</string>
+    <string name="block_reason_copy">复制域名</string>
+    <string name="block_reason_copied">域名已复制</string>
+    <string name="block_reason_packet_details">数据包详情</string>
+    <string name="logs_search_packets">筛选（应用、IP、域名）</string>
+    <string name="logs_no_dns_requests">未找到 DNS 请求</string>
+    <string name="logs_unknown_app">未知应用</string>
+    <string name="logs_stats_info">网络统计概览</string>
+
+    <!-- Behavior -->
+    <string name="behavior_notify_install">安装时通知</string>
+    <string name="behavior_notify_install_desc">应用安装时显示通知</string>
+    <string name="behavior_logs_desc">启用连接日志</string>
+    <string name="behavior_show_system_apps">显示系统应用</string>
+    <string name="behavior_show_system_apps_desc">在应用列表中显示系统应用</string>
+    <string name="behavior_show_offline_apps">显示离线应用</string>
+    <string name="behavior_show_offline_apps_desc">显示没有网络权限的应用</string>
+    <string name="behavior_block_wifi_default">默认阻止 Wi-Fi</string>
+    <string name="behavior_block_wifi_default_desc">新应用默认在 Wi-Fi 下被阻止</string>
+    <string name="behavior_block_cellular_default">默认阻止移动数据</string>
+    <string name="behavior_block_cellular_default_desc">新应用默认在移动数据下被阻止</string>
+    <string name="behavior_start_on_boot">开机启动</string>
+    <string name="behavior_start_on_boot_desc">设备启动时开启保护</string>
+    <string name="behavior_permanent_notification">常驻通知</string>
+    <string name="behavior_permanent_notification_desc">保持一条静音、低优先级的通知，以降低 Android 在后台停止 VPN 服务的可能性</string>
+    <string name="behavior_detailed_logs">详细日志</string>
+    <string name="behavior_detailed_logs_desc">在日志界面显示完整主机名、端口和源/目标端点。关闭后界面更简洁易读。</string>
+    <string name="behavior_protection_method">保护方式</string>
+    <string name="behavior_protection_method_desc">仅使用本地 VPN。不支持 root 模式和特权辅助模式。</string>
+
+    <!-- Privacy -->
+    <string name="privacy_screen_protection">屏幕保护</string>
+    <string name="privacy_screen_protection_desc">从最近任务中隐藏应用</string>
+    <string name="privacy_app_lock">应用锁</string>
+    <string name="privacy_app_lock_desc">打开应用时需要验证</string>
+    <string name="privacy_lock_on_resume">返回时锁定</string>
+    <string name="privacy_lock_on_resume_desc">应用返回前台时重新锁定</string>
+    <string name="privacy_block_port_80">阻止端口 80</string>
+    <string name="privacy_block_port_80_desc">为所有应用阻止未加密的 HTTP（端口 80）。数据无法以明文传输；仅支持 HTTP 的网站可能无法加载。HTTPS 不受影响</string>
+    <string name="privacy_passcode">密码</string>
+    <string name="privacy_pattern">图案</string>
+    <string name="privacy_authorize_passcode">使用密码验证</string>
+    <string name="privacy_authorize_fingerprint">使用指纹验证</string>
+    <string name="privacy_authorize_pattern">使用图案验证</string>
+    <string name="lock_backspace">退格</string>
+    <string name="lock_pattern_correct">正确！</string>
+    <string name="lock_pattern_wrong">图案错误</string>
+    <string name="lock_pattern_set">图案已设置！</string>
+
+    <!-- Backup -->
+    <string name="backup_export">导出备份</string>
+    <string name="backup_export_desc">备份设置、域名和屏蔽列表</string>
+    <string name="backup_import">导入备份</string>
+    <string name="backup_import_desc">从之前的备份恢复</string>
+    <string name="backup_export_success">备份导出成功</string>
+    <string name="backup_export_failed">备份导出失败：%s</string>
+    <string name="backup_import_success">备份导入成功</string>
+    <string name="backup_import_failed">备份导入失败：%s</string>
+    <string name="backup_selection_description">选择要包含在备份中的内容</string>
+    <string name="backup_option_settings">设置</string>
+    <string name="backup_option_domains">自定义域名</string>
+    <string name="backup_option_blocklists">屏蔽列表</string>
+    <string name="backup_option_applications">应用规则</string>
+
+    <!-- About -->
+    <string name="about_title">关于</string>
+    <string name="about_verified_build">已验证为官方版本！</string>
+    <string name="about_maintained_by">维护者</string>
+    <string name="about_translator">开发者</string>
+    <string name="about_build_type">构建类型</string>
+    <string name="about_latest_release">最新版本</string>
+    <string name="about_source_code">源代码</string>
+    <string name="about_your_name">buzzqw</string>
+    <string name="about_hagezi_title">HaGeZi DNS 屏蔽列表</string>
+    <string name="about_hagezi_desc">内置屏蔽列表目录</string>
+    <string name="about_stevenblack_title">StevenBlack Hosts</string>
+    <string name="about_stevenblack_desc">内置 hosts 屏蔽列表目录</string>
+    <string name="details_title">详情</string>
+    <string name="details_version">版本</string>
+
+    <!-- Network -->
+    <string name="network_manage_ips">管理 IP</string>
+    <string name="network_manage_ips_desc">IP 白名单/黑名单</string>
+    <string name="network_always_allow">允许本地 IP</string>
+    <string name="network_always_allow_desc">绕过保护的 IP</string>
+    <string name="network_wifi">Wi-Fi</string>
+    <string name="network_cellular">移动数据</string>
+    <string name="network_bypass_vpn">绕过 VPN</string>
+    <string name="proxy_title">代理</string>
+
+    <!-- Notifications -->
+    <string name="notification_install_channel">安装通知</string>
+    <string name="notification_install_channel_desc">应用安装通知</string>
+    <string name="notification_network_speed_channel">网络速度监控</string>
+    <string name="notification_network_speed_channel_desc">显示实时网络速度</string>
+    <string name="notification_allowed_blocked">已允许 %1$s，已拦截 %2$s</string>
+    <string name="notification_install_message">已安装</string>
+
+    <!-- Permissions -->
+    <string name="method_use_vpn">使用 VPN</string>
+    <string name="permissions_vpn_explanation">BBDNS 使用本地 VPN 过滤 DNS 查询，不需要 root，也不会修改系统。</string>
+    <string name="permissions_grant_required">请在系统对话框中授予所需权限</string>
+</resources>

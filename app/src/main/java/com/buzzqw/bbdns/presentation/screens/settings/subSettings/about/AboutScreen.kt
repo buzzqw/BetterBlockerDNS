@@ -33,7 +33,6 @@ import androidx.compose.material.icons.automirrored.rounded.ContactSupport
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Download
-import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material.icons.rounded.CheckCircle
@@ -57,14 +56,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.buzzqw.bbdns.R
 import com.buzzqw.bbdns.core.utils.constants.AppConstants
 import com.buzzqw.bbdns.core.utils.constants.ProjectConstants
 import com.buzzqw.bbdns.core.utils.extensions.safeNavigate
-import com.buzzqw.bbdns.presentation.components.material.MaterialTextField
 import com.buzzqw.bbdns.presentation.navigation.routes.HomeRoutes
 import com.buzzqw.bbdns.presentation.screens.settings.components.IconType
 import com.buzzqw.bbdns.presentation.screens.settings.components.SettingDialog
@@ -80,10 +77,6 @@ import androidx.compose.material.icons.rounded.Numbers
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Gavel
 import androidx.compose.material.icons.rounded.Camera
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
-import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun AboutScreen(
@@ -91,7 +84,6 @@ fun AboutScreen(
     settings: SettingsViewModel,
 ) {
     val uriHandler = LocalUriHandler.current
-    val context = LocalContext.current
     
     SettingsScaffold(
         settings = settings,
@@ -107,15 +99,17 @@ fun AboutScreen(
             SettingsVerification(
                 isValid = settings.getAppSignature() in ProjectConstants.SHA_256_SIGNING,
                 title = stringResource(id = R.string.about_verified_build),
-                description = stringResource(id = R.string.about_maintained_by) + " " + ProjectConstants.DEVELOPER
+                description = stringResource(id = R.string.about_maintained_by) + " " + ProjectConstants.DEVELOPER,
+                onClick = { uriHandler.openUri(ProjectConstants.DEVELOPER_URL) },
             )
         }
         settingsContainer {
             SettingsBox(
                 title = stringResource(id = R.string.about_translator),
                 description = stringResource(id = R.string.about_your_name),
-                actionType = SettingType.TEXT,
                 icon = IconType.VectorIcon(Icons.Rounded.Translate),
+                actionType = SettingType.LINK,
+                onLinkClicked = { uriHandler.openUri(ProjectConstants.DEVELOPER_URL) },
             )
             SettingsBox(
                 title = stringResource(id = R.string.details_version),
@@ -166,12 +160,6 @@ fun AboutScreen(
             )
         }
         settingsContainer {
-            SettingsBox(
-                title = stringResource(id = R.string.about_email),
-                icon = IconType.VectorIcon(Icons.Rounded.Email),
-                clipboardText = ProjectConstants.SUPPORT_MAIL,
-                actionType = SettingType.CLIPBOARD,
-            )
             SettingsBox(
                 title = stringResource(id = R.string.about_feature),
                 icon = IconType.VectorIcon(Icons.Rounded.BugReport),

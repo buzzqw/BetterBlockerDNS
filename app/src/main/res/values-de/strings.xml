@@ -82,7 +82,7 @@
     <string name="behavior_start_on_boot">Beim Start starten</string>
     <string name="behavior_start_on_boot_desc">­Firewall beim Start des Geräts starten</string>
     <string name="behavior_permanent_notification">Dauerhafte Benachrichtigung</string>
-    <string name="behavior_permanent_notification_desc">Benachrichtigungen stumm und nicht farbig anzeigen</string>
+    <string name="behavior_permanent_notification_desc">Hält eine stille Benachrichtigung mit niedriger Priorität, damit Android den VPN-Dienst seltener im Hintergrund beendet</string>
     <string name="method_use_vpn">VPN verwenden</string>
     <string name="permissions_grant_required">Bitte erteile die erforderlichen Berechtigungen in den Systemdialogen</string>
     <string name="tile_error">Fehler</string>
@@ -294,7 +294,7 @@
     <string name="privacy_lock_on_resume">Sperre beim Fortsetzen</string>
     <string name="privacy_lock_on_resume_desc">Bei Rückkehr zur App erneut sperren</string>
     <string name="privacy_block_port_80">Port 80 blockieren</string>
-    <string name="privacy_block_port_80_desc">Unverschlüsselten HTTP-Datenverkehr blockieren</string>
+    <string name="privacy_block_port_80_desc">Blockiert unverschlüsseltes HTTP (Port 80) für alle Apps. Daten können nicht im Klartext übertragen werden; Websites, die nur über HTTP funktionieren, laden möglicherweise nicht mehr. HTTPS ist nicht betroffen</string>
     <string name="privacy_passcode">Zugangscode</string>
     <string name="backup_export">Exportiere Sicherung</string>
     <string name="backup_export_desc">Sichere Einstellungen, Domains und Sperrlisten</string>

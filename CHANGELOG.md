@@ -10,6 +10,23 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Interface improvements
+- Removed the non-working email button from About and corrected the remaining
+  links, including the developer link to GitHub.
+- Logs are now enabled by default, and the protection method appears above the
+  log options.
+- Clearer descriptions for the permanent notification and for blocking port 80.
+- AMOLED colours are enabled automatically on first launch when the device
+  reports an OLED screen.
+- Added Simplified Chinese and Brazilian Portuguese. The language list now
+  follows the translation files shipped with the app, so new languages appear
+  automatically.
+- The About logo is now animated.
+- The protection profile can be selected directly from a drop-down in
+  Blocklists.
+- Removed the redundant "Manage blocklists" entry from the Blocked domains
+  screen.
+
 ### Continuous builds
 - Removed the nightly pre-release channel. Every commit is now built and
   checked by CI, without publishing a new package.

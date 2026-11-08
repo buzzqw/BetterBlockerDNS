@@ -36,7 +36,7 @@ data class Settings(
     val lockImmediately: Boolean = true,
 
     //Behaviour
-    val logs: Boolean = false,
+    val logs: Boolean = true,
     /** When true the log screen shows full hostnames, ports and packet endpoints. */
     val detailedLogs: Boolean = false,
     val showSystemPackages: Boolean = false,

@@ -81,7 +81,7 @@
     <string name="behavior_start_on_boot">Start on Boot</string>
     <string name="behavior_start_on_boot_desc">Start protection when device boots</string>
     <string name="behavior_permanent_notification">Permanent Notification</string>
-    <string name="behavior_permanent_notification_desc">Make notification silent and not colored</string>
+    <string name="behavior_permanent_notification_desc">Keep a silent, low-priority notification so Android is less likely to stop the VPN service in the background</string>
     <string name="method_use_vpn">Use VPN</string>
     <string name="permissions_grant_required">Please grant the required permissions in the system dialogs</string>
     <string name="tile_error">Error</string>
@@ -293,7 +293,7 @@
     <string name="privacy_lock_on_resume">Lock on Resume</string>
     <string name="privacy_lock_on_resume_desc">Re-lock when app returns</string>
     <string name="privacy_block_port_80">Block Port 80</string>
-    <string name="privacy_block_port_80_desc">Block unencrypted HTTP traffic</string>
+    <string name="privacy_block_port_80_desc">Block unencrypted HTTP (port 80) for every app. Data cannot travel in clear text; sites that only work over HTTP may stop loading. HTTPS is not affected</string>
     <string name="privacy_passcode">Passcode</string>
     <string name="backup_export">Export Backup</string>
     <string name="backup_export_desc">Backup settings, domains, and blocklists</string>

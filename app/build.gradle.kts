@@ -68,10 +68,6 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        androidResources {
-            // Shipped languages: English (default), Italian, German, French and Spanish.
-            localeFilters += listOf("en", "it", "de", "fr", "es")
-        }
         externalNativeBuild {
             cmake {
                 cppFlags += ""
@@ -209,6 +205,54 @@ android {
     packaging {
         jniLibs.useLegacyPackaging = true
     }
+}
+
+// Build the per-app language list from the translated resource folders:
+// adding values-<locale>/strings.xml is enough to expose a new language in the
+// picker and in Android's system settings.
+val generatedLocaleConfigDir = layout.buildDirectory.dir("generated/localeConfig/res")
+
+abstract class GenerateLocaleConfigTask : DefaultTask() {
+    @get:InputDirectory
+    abstract val resDir: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun generate() {
+        val qualifiers = resDir.get().asFile.listFiles()
+            ?.asSequence()
+            ?.filter { it.isDirectory && it.name.startsWith("values-") }
+            ?.map { it.name.removePrefix("values-") }
+            ?.filter { it.matches(Regex("""^[a-z]{2,3}(-r[A-Z]{2})?$""")) }
+            ?.toSortedSet()
+            ?.toMutableList()
+            ?: mutableListOf()
+        qualifiers.add(0, "en")
+
+        val xmlDir = outputDir.get().asFile.resolve("xml")
+        xmlDir.mkdirs()
+        xmlDir.resolve("locales_config.xml").writeText(
+            buildString {
+                appendLine("""<?xml version="1.0" encoding="utf-8"?>""")
+                appendLine("""<locale-config xmlns:android="http://schemas.android.com/apk/res/android">""")
+                qualifiers.distinct().forEach { qualifier ->
+                    appendLine("""    <locale android:name="$qualifier" />""")
+                }
+                appendLine("</locale-config>")
+            }
+        )
+    }
+}
+
+val generateLocaleConfig = tasks.register<GenerateLocaleConfigTask>("generateLocaleConfig") {
+    resDir.set(layout.projectDirectory.dir("src/main/res"))
+    outputDir.set(generatedLocaleConfigDir)
+}
+android.sourceSets.getByName("main").res.srcDir(generatedLocaleConfigDir)
+tasks.matching { it.name == "preBuild" }.configureEach {
+    dependsOn(generateLocaleConfig)
 }
 
 dependencies {

@@ -82,7 +82,7 @@
     <string name="behavior_start_on_boot">Lancement automatique au démarrage</string>
     <string name="behavior_start_on_boot_desc">Démarrer le pare-feu au démarrage de l\'appareil</string>
     <string name="behavior_permanent_notification">Notification Permanente</string>
-    <string name="behavior_permanent_notification_desc">Rendre la notification silencieuse et sans couleur</string>
+    <string name="behavior_permanent_notification_desc">Garde une notification silencieuse et de faible priorité, pour qu\'Android arrête moins souvent le service VPN en arrière-plan</string>
     <string name="method_use_vpn">Utiliser le VPN</string>
     <string name="permissions_grant_required">Veuillez accorder les autorisations requises dans les boîtes de dialogue système</string>
     <string name="tile_error">Erreur</string>
@@ -294,7 +294,7 @@
     <string name="privacy_lock_on_resume">Verrouillage à la reprise</string>
     <string name="privacy_lock_on_resume_desc">Re-verrouiller quand l\'app revient</string>
     <string name="privacy_block_port_80">Bloquer le port 80</string>
-    <string name="privacy_block_port_80_desc">Bloquer le trafic HTTP non chiffré</string>
+    <string name="privacy_block_port_80_desc">Bloque le HTTP non chiffré (port 80) pour toutes les applications. Les données ne peuvent plus circuler en clair ; les sites disponibles uniquement en HTTP peuvent ne plus se charger. HTTPS n\'est pas concerné</string>
     <string name="privacy_passcode">Code d\'accès</string>
     <string name="backup_export">Export Backup</string>
     <string name="backup_export_desc">Sauvegarde des paramètres, domaines et listes de blocage</string>

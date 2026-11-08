@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.buzzqw.bbdns.BuildConfig
 import com.buzzqw.bbdns.core.logging.Logger
+import com.buzzqw.bbdns.core.utils.DeviceDisplay
 import com.buzzqw.bbdns.domain.model.Settings
 import com.buzzqw.bbdns.domain.usecase.preferences.PreferencesUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -69,8 +70,24 @@ class SettingsViewModel @Inject constructor(
         val result = preferenceUseCases.loadSettings.execute()
         result.fold(
             ifSuccess = { loadedSettings ->
-                _settings.value = loadedSettings
-                defaultRoute = loadedSettings.defaultRoute
+                val migrationPrefs = context.getSharedPreferences("bbdns_migrations", Context.MODE_PRIVATE)
+                val amoledDefaultApplied = migrationPrefs.getBoolean("amoled_default_applied", false)
+                val enableAmoled = !amoledDefaultApplied &&
+                    !loadedSettings.amoledTheme &&
+                    DeviceDisplay.isProbablyAmoled()
+                val effective = if (enableAmoled) {
+                    loadedSettings.copy(amoledTheme = true)
+                } else {
+                    loadedSettings
+                }
+                _settings.value = effective
+                defaultRoute = effective.defaultRoute
+                if (!amoledDefaultApplied) {
+                    migrationPrefs.edit().putBoolean("amoled_default_applied", true).apply()
+                }
+                if (enableAmoled) {
+                    persist(effective)
+                }
             }
         )
     }

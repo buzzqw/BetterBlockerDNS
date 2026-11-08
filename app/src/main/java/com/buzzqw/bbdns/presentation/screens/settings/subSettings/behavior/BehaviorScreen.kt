@@ -62,7 +62,17 @@ fun BehaviorScreen(
         title = stringResource(id = R.string.settings_behavior),
         onBackNavClicked = { navController.navigateUp() }
     ) {
-        // Logs section - on top
+        // Protection method: BBDNS is VPN-only (no root, no privileged helpers)
+        settingsContainer {
+            SettingsBox(
+                title = stringResource(R.string.behavior_protection_method),
+                description = stringResource(R.string.behavior_protection_method_desc),
+                icon = IconType.VectorIcon(Icons.Rounded.SignalWifiBad),
+                actionType = SettingType.TEXT,
+            )
+        }
+
+        // Logs section
         settingsContainer {
             val logsTitle = stringResource(id = R.string.common_logs)
             val logsDescription = stringResource(id = R.string.behavior_logs_desc)
@@ -87,16 +97,6 @@ fun BehaviorScreen(
                 onSwitchEnabled = {
                     settings.update(settings.settings.value.copy(detailedLogs = it))
                 }
-            )
-        }
-
-        // Protection method: BBDNS is VPN-only (no root, no privileged helpers)
-        settingsContainer {
-            SettingsBox(
-                title = stringResource(R.string.behavior_protection_method),
-                description = stringResource(R.string.behavior_protection_method_desc),
-                icon = IconType.VectorIcon(Icons.Rounded.SignalWifiBad),
-                actionType = SettingType.TEXT,
             )
         }
 

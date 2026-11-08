@@ -18,6 +18,7 @@
 package com.buzzqw.bbdns.presentation.screens.settings.subSettings.about.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,13 +43,17 @@ fun SettingsVerification(
     isValid: Boolean,
     title: String,
     description: String,
-    shape: RoundedCornerShape = BbdnsShapes.card
+    shape: RoundedCornerShape = BbdnsShapes.card,
+    onClick: (() -> Unit)? = null
 ) {
     if (isValid) {
         Row(modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(MaterialTheme.colorScheme.primary),
+            .background(MaterialTheme.colorScheme.primary)
+            .then(
+                if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
+            ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(

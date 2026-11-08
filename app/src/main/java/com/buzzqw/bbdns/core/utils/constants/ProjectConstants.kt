@@ -30,8 +30,9 @@ object ProjectConstants {
         "628704bf1c86130eff49ad991c1b4dc9006700112e5ebe692da3da43f074d8fd"
     )
     const val DEVELOPER = "buzzqw"
+    const val DEVELOPER_URL = "https://github.com/buzzqw"
 
-    const val PROJECT_DOWNLOADS = "https://github.com/buzzqw/BetterBlockerDNS"
+    const val PROJECT_DOWNLOADS = "https://github.com/buzzqw/BetterBlockerDNS/releases/latest"
     const val PROJECT_SOURCE_CODE = "https://github.com/buzzqw/BetterBlockerDNS"
     const val LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.en.html"
     const val SUPPORT_MAIL = "azanzani@gmail.com"
