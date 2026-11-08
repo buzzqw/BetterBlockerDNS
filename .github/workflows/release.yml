@@ -1,0 +1,113 @@
+name: Release
+
+# Publishes a normal (non-prerelease) GitHub release for a version tag.
+# Push the tag after updating version.properties and CHANGELOG.md:
+#
+#   git tag -a v1.0.26 -m "BetterBlockerDNS 1.0.26"
+#   git push origin v1.0.26
+#
+# The APK is built from the tagged commit, signed with the project key and
+# attached to the release together with the matching changelog entry.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish (for example v1.0.26)'
+        required: true
+        type: string
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Java 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: gradle
+
+      - name: Set up Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: '1.25.x'
+          cache: false
+
+      - name: Set up Android NDK
+        uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779 # v1
+        with:
+          ndk-version: r27c
+
+      - name: Grant execution permission to Gradle Wrapper
+        run: chmod +x gradlew
+
+      - name: Build F-Droid release APK
+        run: ./gradlew assembleFdroidRelease
+        env:
+          BBDNS_SKIP_EMAIL: "1"
+
+      - name: Sign APK
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEY_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          trap 'rm -f "$RUNNER_TEMP/keystore.jks"' EXIT
+          umask 077
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/keystore.jks"
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
+          "$APKSIGNER" sign \
+            --ks "$RUNNER_TEMP/keystore.jks" \
+            --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass env:KEYSTORE_PASSWORD \
+            --key-pass env:KEYSTORE_PASSWORD \
+            --out app-fdroid-release-signed.apk \
+            app/build/outputs/apk/fdroid/release/app-fdroid-release.apk
+          mv app-fdroid-release-signed.apk app-fdroid-release.apk
+
+      - name: Prepare release notes
+        run: |
+          TAG="${{ inputs.tag || github.ref_name }}"
+          python3 - "$TAG" <<'PY' > release-notes.md
+          import pathlib
+          import re
+          import sys
+
+          tag = sys.argv[1]
+          version = tag[1:] if tag.startswith("v") else tag
+          changelog = pathlib.Path("CHANGELOG.md").read_text(encoding="utf-8")
+          match = re.search(
+              rf"^### Release {re.escape(version)}\s*$(.*?)(?=^### |^## |\Z)",
+              changelog,
+              re.MULTILINE | re.DOTALL,
+          )
+          body = match.group(1).strip() if match else "See CHANGELOG.md for details."
+          print(f"## BetterBlockerDNS {version}\n\n{body}")
+          PY
+          cat release-notes.md
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ inputs.tag || github.ref_name }}"
+          gh release create "$TAG" app-fdroid-release.apk \
+            --title "BetterBlockerDNS ${TAG#v}" \
+            --notes-file release-notes.md

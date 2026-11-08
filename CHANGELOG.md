@@ -10,6 +10,18 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Release 1.0.26
+- Added a security policy with clear instructions for reporting problems
+  privately.
+- Automatic Android backups no longer include the app-lock passcode/pattern or
+  the DNS query history.
+- Release packages now verify the integrity of the build tools they download,
+  and the build pipeline uses reviewed, pinned tool versions.
+- Removed unused code and a bundled library that the app did not need, reducing
+  the attack surface and the download size.
+- No changes to DNS blocking, DNS over HTTPS, the blocklist catalogues or the
+  app's interface.
+
 ### Repository cleanup
 - Removed the temporary self-hosted F-Droid repository and its publishing
   script; the source repository now has only the `main` branch.
