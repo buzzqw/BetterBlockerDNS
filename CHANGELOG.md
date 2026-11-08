@@ -6,15 +6,27 @@ Every commit gets an entry, written in English for end users: it explains what
 changed and how it affects the app, without implementation details. Entries are
 listed newest first.
 
+Entries dated before 2026-11-07 are kept from the project's earlier history.
+
 ## 2026-11-08
 
-### F-Droid readiness
+### Repository cleanup
+- Removed an unused local-tool entry from the project ignore rules.
+- No change to the app's behaviour.
+
+### F-Droid recipe alignment
+- The F-Droid recipe now points to the commit that contains the 1.0.23 release
+  metadata.
+- No change to the app's behaviour.
+
+### F-Droid build preparation
 - Version information now lives in the repository, so local, CI and F-Droid
   builds produce the same version name and code.
-- Release builds email the package only when explicitly requested, so external
+- Added an F-Droid build recipe and submission notes.
+- Added scripts to advance the version and to build the release package.
+- Release builds send email only when explicitly requested, so external
   builders such as F-Droid never try to send mail.
-- Added the F-Droid changelog and a ready build recipe for submission.
-- The F-Droid recipe now points to the 1.0.23 release commit.
+- Added the F-Droid changelog for version 1.0.23.
 - No change to the app's behaviour.
 
 ### Documentation: release process
@@ -37,15 +49,70 @@ listed newest first.
   "most blocked domains" card was removed to keep the dashboard shorter and
   easier to read.
 
-### Initial public release
-- System-wide ad, tracker, malware and phishing blocking through a local VPN,
-  without root or privileged helpers.
-- Native HaGeZi and StevenBlack catalogues, one-tap protection profiles and a
-  compatibility allowlist for banking, payments, public administration and
-  app stores.
-- DNS over HTTPS (RFC 8484) with a built-in provider catalogue, plus a wide
-  choice of plain DNS resolvers.
-- Simple or detailed logs, custom lists (hosts, ABP, DNSMasq, wildcard, regex,
-  domains and TLDs), automatic updates, per-app Wi-Fi and cellular rules,
-  backup/restore and Material 3 theming.
-- English, Italian, German, French and Spanish translations.
+### Smarter default protection
+- Malware and ad protection are now enabled by default for new installations.
+- Lists already covered by a broader list are skipped, so BBDNS does not
+  download or process the same domains twice.
+
+### Profile and DNS at a glance
+- The Home screen shows the active protection profile and the DNS resolver in
+  use.
+- Default blocklist selection is better balanced between protection and
+  compatibility.
+
+### Faster blocked-domain analysis
+- The app now finds the reason a domain was blocked much faster, especially
+  with large blocklists.
+
+### Clearer blocklist management
+- Blocked domains, protection profiles and the compatibility allowlist now have
+  separate, easier to find screens.
+- Added an **Active lists** screen that shows which lists are currently enabled.
+
+### Completed dashboard, statistics and blocklist management
+- Completed the Home dashboard and the statistics screen.
+- Added full management for blocklists.
+- Removed in-app purchases and premium gating: every feature is available to
+  everyone.
+- Expanded Italian, German, French and Spanish translations.
+
+## 2026-11-07
+
+### DNS over HTTPS (DoH)
+- Added encrypted DNS over HTTPS (RFC 8484) with a built-in catalogue of
+  providers.
+- DoH responses are cached for 60 seconds; the configured plain DNS server is
+  used only as a fallback.
+
+### Native StevenBlack lists and more DNS resolvers
+- Added native StevenBlack lists, including the fakenews, gambling, porn and
+  social extensions and their pre-built combinations.
+- Added many free plain DNS resolvers: Google, Cloudflare, Quad9, AdGuard,
+  OpenDNS, CleanBrowsing, DNS.SB, Control D, DNS4EU and Yandex.
+- Removed Shizuku and other privileged helper modes: protection is VPN-only.
+- Various quality fixes and translation updates.
+
+### TLD blocklists
+- Added support for top-level-domain lists, including HaGeZi Most Abused TLDs,
+  to block entire risky domain extensions.
+
+### BetterBlockerDNS identity
+- Introduced the BetterBlockerDNS (BBDNS) name, package and branding, with a new
+  shield logo.
+- Refreshed the store description and screenshots.
+- Updated translations and version metadata for the new project identity.
+
+## 2026-01-26
+
+### Download link update
+- Updated the download link to version 1.8.
+
+## 2026-01-12
+
+### Nightly builds and translations
+- Added the nightly build workflow.
+- Updated several interface translations.
+
+### New release preparation
+- Prepared a new release with updated build settings, store metadata and
+  screenshots.
