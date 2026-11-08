@@ -102,12 +102,15 @@ private fun availableLocaleQualifiers(context: Context): List<String> {
     var event = parser.eventType
     while (event != XmlPullParser.END_DOCUMENT) {
         if (event == XmlPullParser.START_TAG && parser.name == "locale") {
-            parser.getAttributeValue(null, "name")?.let(qualifiers::add)
+            // The attribute is android:name, so it lives in the Android namespace.
+            parser.getAttributeValue(ANDROID_NAMESPACE, "name")?.let(qualifiers::add)
         }
         event = parser.next()
     }
     return qualifiers
 }
+
+private const val ANDROID_NAMESPACE = "http://schemas.android.com/apk/res/android"
 
 /** Android resource qualifier (`zh-rCN`) to BCP 47 tag (`zh-CN`). */
 private fun qualifierToTag(qualifier: String): String = qualifier.replace("-r", "-")

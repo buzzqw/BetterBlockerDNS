@@ -10,6 +10,11 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Release 1.0.28
+- Fixed the language picker: every bundled language, including Simplified
+  Chinese and Brazilian Portuguese, is listed again.
+- No other changes.
+
 ### Automation
 - Protection can now be started, stopped, paused and resumed from automation
   apps and scripts such as Tasker, MacroDroid, Home Assistant or adb. Pausing
