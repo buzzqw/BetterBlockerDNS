@@ -81,7 +81,7 @@ jobs:
           path: BetterBlockerDNS-nightly.apk
 
       - name: Publish nightly release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: nightly
           name: Nightly
