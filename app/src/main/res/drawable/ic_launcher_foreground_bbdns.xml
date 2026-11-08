@@ -1,0 +1,47 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="3.2"
+        android:scaleY="3.2"
+        android:translateX="15.6"
+        android:translateY="15.6">
+        <!-- Shield silhouette -->
+        <path
+            android:pathData="M12,1.4L3.4,4.8V11.1C3.4,16.5 7.1,21.5 12,23C16.9,21.5 20.6,16.5 20.6,11.1V4.8Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="12"
+                    android:startY="1.4"
+                    android:endX="12"
+                    android:endY="23">
+                    <item android:offset="0" android:color="#FF5EEAD4" />
+                    <item android:offset="0.55" android:color="#FF2DD4BF" />
+                    <item android:offset="1" android:color="#FF0F766E" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <!-- Inner face keeps the mark readable on any background -->
+        <path
+            android:fillColor="#FF0F172A"
+            android:pathData="M12,3.3L5.2,5.7V11.1C5.2,15.4 8.1,19.5 12,20.9C15.9,19.5 18.8,15.4 18.8,11.1V5.7Z" />
+        <!-- List rows: bullet + rule -->
+        <path
+            android:fillColor="#FF99F6E4"
+            android:pathData="M5.95,7.35A0.55,0.55 0,1 0,7.05 7.35A0.55,0.55 0,1 0,5.95 7.35ZM8.3,6.85H17.1V7.85H8.3Z" />
+        <path
+            android:fillColor="#FF5EEAD4"
+            android:pathData="M5.95,10.15A0.55,0.55 0,1 0,7.05 10.15A0.55,0.55 0,1 0,5.95 10.15ZM8.3,9.65H17.1V10.65H8.3Z" />
+        <path
+            android:fillColor="#FF99F6E4"
+            android:pathData="M5.95,12.95A0.55,0.55 0,1 0,7.05 12.95A0.55,0.55 0,1 0,5.95 12.95ZM8.3,12.45H14.6V13.45H8.3Z" />
+        <!-- Check: protection confirmed -->
+        <path
+            android:fillColor="#FF5EEAD4"
+            android:pathData="M8.6,15.55L10.9,17.8L15.6,13.1L16.5,14L10.9,19.6L7.7,16.45Z" />
+    </group>
+</vector>

@@ -1,0 +1,42 @@
+BetterBlockerDNS (BBDNS) is a free, open-source DNS ad blocker for Android. It blocks ads, trackers, malware, phishing and unwanted content system-wide through a local VPN — no root required and no data leaves your device.
+
+✓ Native HaGeZi and StevenBlack blocklist catalogues
+✓ One-tap protection profiles (Essential, Balanced, Pro, Aggressive, Maximum)
+✓ Compatibility allowlist for banking, payments, public administration and app stores
+✓ DNS ad & tracker blocking
+✓ Custom and pre-made blocklists
+✓ Automatic blocklist updates
+✓ Per-app firewall rules
+✓ DNS request logging
+✓ Material 3 design
+
+🚫 DNS AD BLOCKING & FILTERING
+
+Stop ads and trackers before they load with powerful DNS filtering, system-wide and inside apps.
+
+- Native support for all HaGeZi lists: Multi LIGHT / NORMAL / PRO / PRO++ / ULTIMATE, Threat Intelligence Feeds, Fake, Pop-Up Ads, DynDNS, Badware Hoster, DoH/VPN bypass, Native Trackers, NSFW, Gambling, Social and more
+- Native StevenBlack unified hosts file and fakenews / gambling / porn / social extensions
+- One-tap protection profiles
+- Custom blocklists: hosts, ABP, DNSMasq, wildcard and regex formats
+- Automatic blocklist updates from 6 hours to 1 week
+- DNS over HTTPS (RFC 8484) with Cloudflare, Google, Quad9, AdGuard, DNS.SB, Control D, DNSBunker, DNS4EU and custom endpoints
+- Free plain DNS resolvers: Google, Cloudflare (standard, malware, family), Quad9, AdGuard (standard, family), OpenDNS, CleanBrowsing, DNS.SB, Control D, DNS4EU and Yandex
+- Custom DNS servers
+- Block specific domains manually
+- Simple or detailed DNS request logging in real time
+
+🔒 PRIVACY FIRST
+
+- Everything runs locally on your device
+- No analytics, no telemetry, no external account
+- No root and no system partition changes
+- VPN-based filtering only: no root and no privileged helper modes
+
+🎨 MODERN DESIGN
+
+- Material 3 with light, dark and dynamic colours
+- Quick Settings tile
+- Per-app Wi-Fi and cellular controls
+- Backup and restore of settings and lists
+
+BetterBlockerDNS is distributed under the GNU General Public License v3.0. Copyright notices of the original authors are retained in the source files.
