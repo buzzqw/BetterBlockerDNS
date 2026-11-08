@@ -23,6 +23,21 @@ BBDNS is designed to be easy enough for everyday users, while still offering det
 
 ---
 
+## Screenshots
+
+<p align="center">
+  <img src="metadata/en-US/images/phoneScreenshots/1.png" alt="Home dashboard with protection active" width="30%">
+  <img src="metadata/en-US/images/phoneScreenshots/2.png" alt="Blocklists and protection presets" width="30%">
+  <img src="metadata/en-US/images/phoneScreenshots/3.png" alt="Protection profiles" width="30%">
+</p>
+<p align="center">
+  <img src="metadata/en-US/images/phoneScreenshots/4.png" alt="DNS resolver and DNS over HTTPS" width="30%">
+  <img src="metadata/en-US/images/phoneScreenshots/5.png" alt="DNS server list" width="30%">
+  <img src="metadata/en-US/images/phoneScreenshots/6.png" alt="Settings" width="30%">
+</p>
+
+---
+
 ## Install
 
 - **GitHub Releases**: download the signed APK from the
