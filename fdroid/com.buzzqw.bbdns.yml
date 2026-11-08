@@ -25,7 +25,7 @@ Repo: https://github.com/buzzqw/BetterBlockerDNS.git
 Builds:
   - versionName: 1.0.25
     versionCode: 1000025
-    commit: <commit-hash>
+    commit: ce8921a680309a717d5ff380200b01998e98c7ae
     gradle:
       - fdroid
     ndk: 27.0.12077973

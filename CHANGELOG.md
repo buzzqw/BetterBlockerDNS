@@ -10,6 +10,11 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Donation links
+- Added PayPal and Ko-fi links to the README, the GitHub Sponsor button and the
+  repository homepage.
+- No change to the app's behaviour.
+
 ### Release 1.0.25
 - Release APKs are now signed with the project's release key, so GitHub
   builds install and update consistently.

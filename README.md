@@ -4,6 +4,9 @@
 
 BBDNS is designed to be easy enough for everyday users, while still offering detailed controls for anyone who wants them.
 
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20BBDNS-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/buzzqw)
+[![PayPal](https://img.shields.io/badge/PayPal-Donate-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?business=azanzani%40gmail.com&item_name=BetterBlockerDNS)
+
 ---
 
 ## Features
@@ -91,8 +94,10 @@ BBDNS is prepared for [F-Droid](https://f-droid.org/): the metadata lives in
 
 BBDNS is free and has no paywall. If you want to support development:
 
-- **PayPal**: [azanzani@gmail.com](mailto:azanzani@gmail.com)
+- **PayPal**: [Donate with PayPal](https://www.paypal.com/donate/?business=azanzani%40gmail.com&item_name=BetterBlockerDNS)
 - **Ko-fi**: [ko-fi.com/buzzqw](https://ko-fi.com/buzzqw)
+
+The same links appear in the **Sponsor** button in the GitHub sidebar.
 
 ---
 
