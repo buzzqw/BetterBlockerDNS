@@ -97,8 +97,6 @@ BBDNS is free and has no paywall. If you want to support development:
 - **PayPal**: [Donate with PayPal](https://www.paypal.com/donate/?business=azanzani%40gmail.com&item_name=BetterBlockerDNS)
 - **Ko-fi**: [ko-fi.com/buzzqw](https://ko-fi.com/buzzqw)
 
-The same links appear in the **Sponsor** button in the GitHub sidebar.
-
 ---
 
 ## License
