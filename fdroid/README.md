@@ -15,15 +15,15 @@ own repository.
   ./gradlew bumpVersion
   # update CHANGELOG.md and metadata/en-US/changelogs/<versionCode>.txt
   git add version.properties CHANGELOG.md metadata/en-US/changelogs
-  git commit -m "Release 1.0.23"
-  git tag -a v1.0.23 -m "BBDNS 1.0.23"
-  git push origin main v1.0.23
+  git commit -m "Release 1.0.24"
+  git tag -a v1.0.24 -m "BBDNS 1.0.24"
+  git push origin main v1.0.24
   ```
 
 - Fill `<commit-hash>` with the full hash of the tagged commit:
 
   ```bash
-  git rev-list -n 1 v1.0.23
+  git rev-list -n 1 v1.0.24
   ```
 
 ## Submit

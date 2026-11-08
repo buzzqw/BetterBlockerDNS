@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Release 1.0.24
+- Published the F-Droid-ready build. No visible changes: this release contains
+  the release tooling, metadata and repository cleanup.
+
 ### Repository cleanup
 - Removed an unused local-tool entry from the project ignore rules.
 - No change to the app's behaviour.

@@ -2,7 +2,7 @@
 #
 # 1. Copy this file to a fork of https://gitlab.com/fdroid/fdroiddata.
 # 2. Replace <commit-hash> with the full hash of the released tag
-#    (for example: git rev-list -n 1 v1.0.23).
+#    (for example: git rev-list -n 1 v1.0.24).
 # 3. Run `fdroid lint com.buzzqw.bbdns` and `fdroid rewritemeta com.buzzqw.bbdns`.
 # 4. Push the branch and open a merge request with the "New App" label.
 
@@ -23,9 +23,9 @@ RepoType: git
 Repo: https://github.com/buzzqw/BetterBlockerDNS.git
 
 Builds:
-  - versionName: 1.0.23
-    versionCode: 1000023
-    commit: 83948e5158cf0261c9594623af66e908b9a6c130
+  - versionName: 1.0.24
+    versionCode: 1000024
+    commit: <commit-hash>
     gradle:
       - fdroid
     ndk: 27.0.12077973
@@ -40,5 +40,5 @@ Builds:
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
 UpdateCheckData: version.properties|versionCode=(\d+)|.|versionName=(\d+\.\d+\.\d+)
-CurrentVersion: 1.0.23
-CurrentVersionCode: 1000023
+CurrentVersion: 1.0.24
+CurrentVersionCode: 1000024
