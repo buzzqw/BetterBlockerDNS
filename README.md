@@ -135,6 +135,16 @@ The metadata lives in `metadata/en-US/` and the build recipe template in
 
 ---
 
+## Security
+
+Found a security issue? **Do not open a public issue.** Report it privately via
+[GitHub Security Advisories](https://github.com/buzzqw/BetterBlockerDNS/security/advisories/new)
+or email **azanzani@gmail.com** with `[BBDNS SECURITY]` in the subject. See
+[SECURITY.md](.github/SECURITY.md) for the supported versions, scope and
+coordinated-disclosure policy.
+
+---
+
 ## Support the project
 
 BBDNS is free and has no paywall. If you want to support development:
