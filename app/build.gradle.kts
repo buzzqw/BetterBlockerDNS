@@ -35,6 +35,25 @@ val bbdnsVersionName = bbdnsEnvBuildNumber?.let { "1.0.$it" }
     ?: bbdnsVersionValue("versionName")
     ?: "1.0.1"
 
+// Release signing: set these environment variables for signed release builds
+// (scripts/build_release.sh loads them from ~/.config/bbdns/release.env).
+// External builders such as F-Droid leave them unset and keep the debug
+// signing config; F-Droid re-signs the APK with its own key anyway.
+val bbdnsKeystorePath = providers.environmentVariable("BBDNS_KEYSTORE")
+    .orNull?.trim()?.takeIf { it.isNotEmpty() }
+val bbdnsKeystorePassword = providers.environmentVariable("BBDNS_KEYSTORE_PASSWORD")
+    .orNull?.takeIf { it.isNotEmpty() }
+val bbdnsKeyAlias = providers.environmentVariable("BBDNS_KEY_ALIAS")
+    .orNull?.trim()?.takeIf { it.isNotEmpty() }
+val bbdnsKeyPassword = providers.environmentVariable("BBDNS_KEY_PASSWORD")
+    .orNull?.takeIf { it.isNotEmpty() } ?: bbdnsKeystorePassword
+val bbdnsHasReleaseSigning = bbdnsKeystorePath != null &&
+    bbdnsKeystorePassword != null &&
+    bbdnsKeyAlias != null
+if (bbdnsHasReleaseSigning && !file(bbdnsKeystorePath!!).exists()) {
+    throw GradleException("BBDNS_KEYSTORE not found: $bbdnsKeystorePath")
+}
+
 android {
     namespace = "com.buzzqw.bbdns"
     compileSdk = 36
@@ -73,12 +92,26 @@ android {
             dimension = "store"
         }
     }
+    signingConfigs {
+        if (bbdnsHasReleaseSigning) {
+            create("release") {
+                storeFile = file(bbdnsKeystorePath!!)
+                storePassword = bbdnsKeystorePassword
+                keyAlias = bbdnsKeyAlias
+                keyPassword = bbdnsKeyPassword
+            }
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (bbdnsHasReleaseSigning) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
         debug {
             isMinifyEnabled = false

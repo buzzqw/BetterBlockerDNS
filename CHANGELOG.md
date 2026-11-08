@@ -10,6 +10,12 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Release 1.0.25
+- Release APKs are now signed with the project's release key, so GitHub
+  builds install and update consistently.
+- The F-Droid recipe and changelog point to version 1.0.25.
+- No visible changes.
+
 ### Release 1.0.24
 - Published the F-Droid-ready build. No visible changes: this release contains
   the release tooling, metadata and repository cleanup.

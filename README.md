@@ -66,9 +66,16 @@ The APK is written to `app/build/outputs/apk/`.
 
 Release builds are deterministic: the version lives in `version.properties`.
 Before a release, run `./gradlew bumpVersion`, commit the new version, tag the
-commit (for example `v1.0.23`) and build with `scripts/build_release.sh`. The
+commit (for example `v1.0.25`) and build with `scripts/build_release.sh`. The
 script sets `BBDNS_EMAIL_BUILD=1`, so the package is emailed to the owner;
 external builders such as F-Droid call Gradle directly and never send mail.
+
+Release signing reads `BBDNS_KEYSTORE`, `BBDNS_KEYSTORE_PASSWORD`,
+`BBDNS_KEY_ALIAS` and `BBDNS_KEY_PASSWORD` from the environment.
+`scripts/build_release.sh` loads them from `~/.config/bbdns/release.env`; keep
+the keystore outside the repository and back it up. Without these variables
+(for example on F-Droid) the build falls back to debug signing, which is fine
+because F-Droid signs the APK with its own key.
 
 ---
 

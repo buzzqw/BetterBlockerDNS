@@ -15,15 +15,15 @@ own repository.
   ./gradlew bumpVersion
   # update CHANGELOG.md and metadata/en-US/changelogs/<versionCode>.txt
   git add version.properties CHANGELOG.md metadata/en-US/changelogs
-  git commit -m "Release 1.0.24"
-  git tag -a v1.0.24 -m "BBDNS 1.0.24"
-  git push origin main v1.0.24
+  git commit -m "Release 1.0.25"
+  git tag -a v1.0.25 -m "BBDNS 1.0.25"
+  git push origin main v1.0.25
   ```
 
 - Fill `<commit-hash>` with the full hash of the tagged commit:
 
   ```bash
-  git rev-list -n 1 v1.0.24
+  git rev-list -n 1 v1.0.25
   ```
 
 ## Submit
@@ -54,5 +54,7 @@ repository within 24-48 hours.
   with `BBDNS_EMAIL_BUILD=1` (`scripts/build_release.sh`).
 - `m3color` is resolved from JitPack. If the F-Droid build rejects that
   repository, replace it with an equivalent Maven Central artifact.
-- F-Droid signs with its own key. Reproducible builds and upstream signing
-  need a real release keystore; the current release build uses the debug key.
+- F-Droid signs with its own key. Release builds use the project keystore when
+  its environment variables are set; F-Droid does not have them, so it builds
+  with the debug fallback and then re-signs the APK. Reproducible builds can be
+  enabled later with `Binaries` and `AllowedAPKSigningKeys`.

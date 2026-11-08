@@ -1,0 +1,1 @@
+Maintenance release: properly signed release builds and F-Droid metadata updates. No visible changes.
