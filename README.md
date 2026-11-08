@@ -95,7 +95,7 @@ Requirements:
 - Android Studio Ladybug or newer
 - JDK 17+
 - Android SDK 36 (minSdk 24)
-- Go 1.21+ and Android NDK 27 (the native `nflog` libraries are built at compile time and are not committed)
+- Go 1.25+ and Android NDK 27 (the native `nflog` libraries are built at compile time and are not committed)
 
 From the command line:
 
@@ -106,6 +106,10 @@ From the command line:
 ```
 
 The APK is written to `app/build/outputs/apk/`.
+
+Every commit is also built by the `Build` workflow. CI artifacts are for
+verification only, are not signed with the release key and are never published
+as a release.
 
 Release builds are deterministic: the version lives in `version.properties`.
 Before a release, run `./gradlew bumpVersion`, commit the new version, tag the

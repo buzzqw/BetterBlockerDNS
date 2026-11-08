@@ -10,6 +10,13 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Continuous builds
+- Removed the nightly pre-release channel. Every commit is now built and
+  checked by CI, without publishing a new package.
+- Stable versions continue to be published only as tagged releases with their
+  changelog.
+- No change to the app's behaviour.
+
 ### Code scanning
 - Code security scanning now covers the Android app's Kotlin code in addition
   to the native, Go and script sources.

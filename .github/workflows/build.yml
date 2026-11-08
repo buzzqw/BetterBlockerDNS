@@ -1,0 +1,60 @@
+name: Build
+
+# Every commit is built here for verification. This workflow never publishes
+# a release: stable versions are tagged and built with the documented release
+# process (`scripts/build_release.sh`), which also emails the package.
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Set up Java 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: gradle
+
+      - name: Set up Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: '1.25.x'
+          cache: false
+
+      - name: Set up Android NDK
+        uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779 # v1
+        with:
+          ndk-version: r27c
+
+      - name: Grant execution permission to Gradle Wrapper
+        run: chmod +x gradlew
+
+      - name: Build F-Droid release APK
+        run: ./gradlew :app:assembleFdroidRelease --no-daemon --console=plain
+        env:
+          BBDNS_SKIP_EMAIL: "1"
+
+      - name: Upload verification APK
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: BBDNS-verification-${{ github.sha }}
+          path: app/build/outputs/apk/fdroid/release/app-fdroid-release.apk
+          retention-days: 7

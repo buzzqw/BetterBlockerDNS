@@ -9,7 +9,6 @@ taken seriously.
 | Version | Supported |
 | ------- | --------- |
 | Latest stable release (1.0.x) | :white_check_mark: |
-| `nightly` pre-release | :white_check_mark: |
 | Older releases | :x: (please reproduce on the latest version first) |
 
 F-Droid builds are built and signed by F-Droid from the same source. A report
@@ -98,6 +97,6 @@ Real findings are fixed in code; a dismissal always carries a written reason.
   mechanism.
 - The VPN service and the quick-settings tile are exported only with
   system-level permissions (`BIND_VPN_SERVICE`, `BIND_QUICK_SETTINGS_TILE`).
-- Release APKs are signed with the project key; nightly builds are signed with
-  the same key from `main`. Debug builds are signed with the debug key and
-  must never be treated as official.
+- Release APKs are signed with the project key. CI builds every commit for
+  verification only, produces unsigned or debug-signed artifacts and never
+  publishes a release. Debug builds must never be treated as official.
