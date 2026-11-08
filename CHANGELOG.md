@@ -10,6 +10,11 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Code scanning
+- Code security scanning now covers the Android app's Kotlin code in addition
+  to the native, Go and script sources.
+- No change to the app's behaviour.
+
 ### Release 1.0.26
 - Added a security policy with clear instructions for reporting problems
   privately.
