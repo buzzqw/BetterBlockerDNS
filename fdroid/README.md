@@ -2,10 +2,11 @@
 
 ## Submission to the official F-Droid repository
 
-**Status: submitted and in approval.** The merge request is
-[!56352](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/56352); the
-F-Droid CI builds the app successfully. This section documents the submission
-for future releases.
+**Status: closed on 8 November 2026.** The merge request
+[!56352](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/56352) was closed
+by the F-Droid maintainers because the template was not followed, the app had
+not been maintained for more than three months, and it was not considered to
+offer unique features. The recipe is kept up to date for a future submission.
 
 `com.buzzqw.bbdns.yml` is a template for the
 [fdroiddata](https://gitlab.com/fdroid/fdroiddata) repository. F-Droid builds
@@ -22,15 +23,15 @@ own repository.
   ./gradlew bumpVersion
   # update CHANGELOG.md and metadata/en-US/changelogs/<versionCode>.txt
   git add version.properties CHANGELOG.md metadata/en-US/changelogs
-  git commit -m "Release 1.0.25"
-  git tag -a v1.0.25 -m "BBDNS 1.0.25"
-  git push origin main v1.0.25
+  git commit -m "Release 1.0.29"
+  git tag -a v1.0.29 -m "BBDNS 1.0.29"
+  git push origin main v1.0.29
   ```
 
 - Fill `<commit-hash>` with the full hash of the tagged commit:
 
   ```bash
-  git rev-list -n 1 v1.0.25
+  git rev-list -n 1 v1.0.29
   ```
 
 ## Submit
@@ -58,7 +59,7 @@ repository within 24-48 hours.
   build, so the recipe installs Go and declares NDK `27.0.12077973`. That
   version must stay in sync with `app/src/main/go/build-android.sh`.
 - While the official Gradle CDN returns 504 errors, the recipe caches Gradle
-  8.14.3 from a mirror in `prebuild`; `gradlew-fdroid` verifies the archive
+  9.9.0 from a mirror in `prebuild`; `gradlew-fdroid` verifies the archive
   against the official Gradle transparency log before using it.
 - The release Gradle hooks never send email: `emailReleaseBuild` only runs
   with `BBDNS_EMAIL_BUILD=1` (`scripts/build_release.sh`).

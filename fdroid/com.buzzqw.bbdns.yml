@@ -5,6 +5,11 @@
 #    use `git rev-list -n 1 v1.0.29` to verify it).
 # 3. Run `fdroid lint com.buzzqw.bbdns` and `fdroid rewritemeta com.buzzqw.bbdns`.
 # 4. Push the branch and open a merge request with the "New App" label.
+#
+# The F-Droid submission (MR !56352) was closed on 2026-11-08 because the app
+# had not been maintained for more than three months and was not considered to
+# offer unique features. Keep this recipe aligned with releases and resubmit
+# once those conditions are met.
 
 Categories:
   - Internet
