@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home top bar -->
+    <string name="home_top_bar_title">BetterBlockerDNS - BBDNS</string>
+    <string name="home_search_clear">Clear search</string>
+
+    <!-- Pause protection -->
+    <string name="home_status_paused">Paused</string>
+    <string name="home_status_paused_desc">Blocking is paused. Protection resumes at %1$s.</string>
+    <string name="home_pause">Pause</string>
+    <string name="home_resume_now">Resume now</string>
+    <plurals name="home_pause_minutes">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <plurals name="home_pause_hours">
+        <item quantity="one">%1$d hour</item>
+        <item quantity="other">%1$d hours</item>
+    </plurals>
+    <string name="notification_paused_text">Protection paused – resumes at %1$s</string>
+    <string name="notification_action_pause_15">Pause 15 min</string>
+    <string name="notification_action_resume">Resume</string>
+    <string name="tile_status_paused_until">Paused until %1$s</string>
+    <string name="tile_protection_resumed">Protection resumed</string>
+
+    <!-- Daily history -->
+    <string name="home_history_title">History</string>
+    <string name="home_history_days">%1$d days</string>
+    <string name="home_history_today">today</string>
+    <string name="home_history_empty">No history yet. Daily totals appear here while protection is on.</string>
+    <string name="home_history_summary">%1$s blocked of %2$s queries in the last %3$d days</string>
+
+    <!-- First-run hint -->
+    <string name="home_onboarding_title">Turn on protection</string>
+    <string name="home_onboarding_desc">Tap the power button to start blocking ads, trackers and malware.</string>
+    <string name="home_onboarding_skip">Skip</string>
+</resources>

@@ -1,0 +1,90 @@
+name: Nightly Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: gradle
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.21'
+          cache: false
+
+      - name: Set up Android NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r27c
+
+      - name: Grant execution permission to Gradle Wrapper
+        run: chmod +x gradlew
+
+      - name: Build F-Droid release APK
+        run: ./gradlew assembleFdroidRelease
+        env:
+          BBDNS_SKIP_EMAIL: "1"
+          BBDNS_BUILD_NUMBER: ${{ github.run_number }}
+
+      - name: Sign APK
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEY_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/keystore.jks"
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
+          "$APKSIGNER" sign \
+            --ks "$RUNNER_TEMP/keystore.jks" \
+            --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass env:KEYSTORE_PASSWORD \
+            --key-pass env:KEYSTORE_PASSWORD \
+            --out BetterBlockerDNS-nightly.apk \
+            app/build/outputs/apk/fdroid/release/app-fdroid-release.apk
+          rm -f "$RUNNER_TEMP/keystore.jks"
+
+      - name: Create release notes
+        run: |
+          {
+            echo "Automated nightly build of BetterBlockerDNS."
+            echo
+            echo "**Build Info:**"
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          } > nightly-changelog.txt
+
+      - name: Upload the APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BetterBlockerDNS-Nightly
+          path: BetterBlockerDNS-nightly.apk
+
+      - name: Publish nightly release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly
+          name: Nightly
+          prerelease: true
+          files: BetterBlockerDNS-nightly.apk
+          body_path: nightly-changelog.txt

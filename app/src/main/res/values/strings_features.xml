@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Download dialog: per-list progress (item 9) -->
+    <string name="download_item_pending">Waiting…</string>
+    <string name="download_item_downloading">Downloading…</string>
+    <string name="download_item_done">Downloaded</string>
+    <string name="download_item_up_to_date">Already up to date</string>
+    <string name="download_item_failed">Download failed</string>
+
+    <!-- Home dashboard: saved data, DNS, profile and active lists -->
+    <string name="home_saved_data">≈ %1$s saved</string>
+    <string name="home_dns_using">DNS: %1$s</string>
+    <string name="home_dns_doh">DoH · %1$s</string>
+    <string name="home_profile_title">Protection profile</string>
+    <string name="home_profile_hint">Tap to change the aggressiveness of the blocklists</string>
+    <string name="home_profile_busy">Updating blocklists…</string>
+    <string name="home_saved_data_hint">Traffic not downloaded thanks to blocking</string>
+    <string name="home_active_lists_title">Active blocklists</string>
+    <string name="home_active_lists_summary">%1$d lists · %2$s domains</string>
+    <string name="home_active_lists_empty">No blocklist enabled yet</string>
+    <string name="home_view_lists">Manage lists</string>
+
+    <!-- Settings: active DNS resolver (item 5) -->
+    <string name="settings_dns_resolver_option_active">Active: %1$s</string>
+    <string name="settings_dns_resolver_option_doh_active">Active: DoH · %1$s</string>
+
+    <!-- Protection profile on the main Blocklists page (item 4) -->
+    <string name="blocklists_profile_title">Protection profile</string>
+    <string name="blocklists_profile_desc">%1$s · %2$s</string>
+    <string name="blocklists_profile_help">The profile chooses the base HaGeZi lists and their aggressiveness. The switches below add extra categories on top of it.</string>
+    <string name="blocklists_profile_dialog_title">Choose a protection profile</string>
+    <string name="blocklists_profile_custom">Custom mix</string>
+    <string name="blocklists_included_in">Already included in %1$s</string>
+    <string name="blocklists_compatibility_title">Compatibility allowlist</string>
+    <string name="blocklists_compatibility_desc">Keeps banking, payments, app stores and push notifications working. Enabled by default.</string>
+    <string name="blocklists_section_profile">Profile</string>
+
+    <!-- Dedicated blocked-domains page (item 1) -->
+    <string name="active_lists_title">Blocked domains</string>
+    <string name="active_lists_subtitle">Lists currently enabled and how many hosts each one blocks.</string>
+    <string name="active_lists_total">%1$s hosts from %2$d lists</string>
+    <string name="active_lists_empty">No list is enabled yet. Open the blocklists page to choose a protection profile.</string>
+    <string name="active_lists_manage">Manage blocklists</string>
+    <string name="active_lists_entries">%1$s hosts</string>
+    <string name="active_lists_compatibility_on">Compatibility allowlist active</string>
+    <string name="active_lists_compatibility_off">Compatibility allowlist off</string>
+
+    <!-- Apps tab: exclusion presets (item 3) -->
+    <string name="apps_presets_title">Quick exclusions</string>
+    <string name="apps_presets_banking">Banking apps</string>
+    <string name="apps_presets_system">System apps</string>
+    <string name="apps_presets_gms">Google services</string>
+    <string name="apps_preset_dialog_title">Exclude %1$s?</string>
+    <string name="apps_preset_dialog_desc">%1$d apps will bypass the VPN and will not be filtered. You can change each app later from its detail page.</string>
+    <string name="apps_preset_dialog_desc_gms">%1$d apps will keep using the VPN but their DNS requests will no longer be filtered.</string>
+    <string name="apps_preset_apply">Exclude</string>
+    <string name="apps_preset_none">No matching app found</string>
+    <string name="apps_preset_done">%1$d apps updated</string>
+
+    <!-- Statistics detail page (items 1, 5, 6) -->
+    <string name="stats_title">Statistics</string>
+    <string name="stats_overview">Session overview</string>
+    <string name="stats_block_rate">Block rate</string>
+    <string name="stats_total">Total queries</string>
+    <string name="stats_allowed">Allowed</string>
+    <string name="stats_blocked">Blocked</string>
+    <string name="stats_data_saved">Traffic saved</string>
+    <string name="stats_data_saved_desc">Estimated traffic that was not downloaded because requests were blocked.</string>
+    <string name="stats_top_apps">Apps with most blocks</string>
+    <string name="stats_top_apps_desc">Blocked queries by application in this session.</string>
+    <string name="stats_history_title">Last 30 days</string>
+    <string name="stats_history_desc">%1$s blocked of %2$s queries</string>
+    <string name="stats_open_logs">Open request log</string>
+    <string name="stats_open_lists">Manage blocklists</string>
+    <string name="stats_live_speed">Download / upload</string>
+    <string name="stats_live_speed_value">%1$s ↓  %2$s ↑</string>
+    <string name="stats_live_blocks">Blocked, last 5 min</string>
+    <string name="stats_live_blocks_value">%1$d</string>
+    <string name="stats_app_counts">%1$s / %2$s</string>
+    <string name="stats_no_activity">No activity recorded yet.</string>
+
+    <!-- Logs: merged traffic page and filters (item 5) -->
+    <string name="logs_traffic">Traffic</string>
+    <string name="logs_filter_all">All</string>
+    <string name="logs_filter_dns">DNS</string>
+    <string name="logs_filter_packets">Connections</string>
+    <string name="logs_filter_blocked">Blocked</string>
+
+    <!-- Blocklists: active lists with host counts (item 10) -->
+    <string name="blocklists_active_title">Active lists</string>
+    <string name="blocklists_active_desc">Every enabled source and how many hosts it contributes.</string>
+    <string name="blocklists_active_empty">No list is enabled. Turn on a preset above to start blocking.</string>
+    <string name="blocklists_list_entries">%1$s hosts</string>
+    <string name="blocklists_list_disabled">Disabled</string>
+    <string name="blocklists_total_entries">%1$s hosts loaded from %2$d lists</string>
+
+    <!-- Domain management: explanation and enable toggle (item 11) -->
+    <string name="dns_domain_management_help_title">How domain rules work</string>
+    <string name="dns_domain_management_help_desc">Allow rules always win: a domain in the allowlist is never blocked, even if a blocklist contains it. Block rules win over allow rules for the same domain. Use the switch on each row to enable or pause a rule without deleting it.</string>
+    <string name="dns_domain_management_allow_hint">Allowlist: domains and subdomains that must always work (for example your bank or a smart-home service).</string>
+    <string name="dns_domain_management_deny_hint">Blocklist: extra domains to block on top of the downloaded lists.</string>
+    <string name="dns_domain_enabled">Rule active</string>
+    <string name="dns_domain_disabled">Rule paused</string>
+</resources>

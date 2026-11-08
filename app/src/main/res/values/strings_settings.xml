@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings: section headers -->
+    <string name="settings_section_protection">Protection</string>
+    <string name="settings_section_network">Network &amp; apps</string>
+    <string name="settings_section_general">Behaviour &amp; notifications</string>
+    <string name="settings_section_privacy">Privacy &amp; backup</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_section_about">Information</string>
+
+    <!-- Settings: main entries -->
+    <string name="settings_blocklists">Blocklists</string>
+    <string name="settings_blocklists_option_presets">Protection presets</string>
+    <string name="settings_blocklists_option_sources">HaGeZi &amp; StevenBlack</string>
+    <string name="settings_blocklists_option_rules">Allow/deny rules</string>
+    <string name="settings_dns_resolver">DNS resolver</string>
+    <string name="settings_dns_resolver_option_server">DNS server</string>
+    <string name="settings_dns_resolver_option_doh">DNS over HTTPS</string>
+    <string name="settings_dns_resolver_option_doh_on">DNS over HTTPS active</string>
+    <string name="settings_dns_resolver_option_private_dns">Private DNS</string>
+    <string name="settings_privacy_option_backup">Backup</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_option_system">System default</string>
+
+    <!-- DNS resolver screen -->
+    <string name="dns_resolver_section_server">Resolver</string>
+    <string name="dns_resolver_section_encrypted">Encrypted DNS</string>
+    <string name="dns_resolver_section_android">Android</string>
+    <string name="dns_resolver_server_title">DNS server</string>
+    <string name="dns_resolver_server_custom">Custom: %1$s</string>
+    <string name="dns_resolver_doh_title">DNS over HTTPS (DoH)</string>
+    <string name="dns_resolver_doh_on_desc">Encrypted DNS via %1$s. Restart protection to apply changes. Disable Android Private DNS to avoid conflicts.</string>
+    <string name="dns_resolver_doh_off_desc">Encrypt DNS queries with an RFC 8484 endpoint. The selected plain DNS server is used only as a fallback.</string>
+    <string name="dns_resolver_doh_provider_title">DoH provider</string>
+    <string name="dns_resolver_private_dns_title">Android Private DNS</string>
+    <string name="dns_resolver_private_dns_desc">Open the Android Private DNS settings. Keep it off so that DNS queries go through BBDNS.</string>
+    <string name="dns_resolver_private_dns_doh_desc">Disable Private DNS in Android settings while using BBDNS DoH, otherwise the system resolver may bypass the app.</string>
+    <string name="dns_resolver_private_dns_unavailable">Private DNS settings are not available on this device. Open Settings → Network &amp; internet → Private DNS.</string>
+
+    <!-- Blocklists screen -->
+    <string name="blocklists_section_presets">Protection presets</string>
+    <string name="blocklists_section_content">Content filters</string>
+    <string name="blocklists_section_advanced">Advanced</string>
+    <string name="blocklists_section_updates">Updates &amp; status</string>
+    <string name="blocklists_sources_title">Blocklist sources</string>
+    <string name="blocklists_sources_desc">Pick individual HaGeZi lists (Multi tiers, Threat Intelligence Feeds, trackers, family filters) and StevenBlack hosts lists.</string>
+    <string name="blocklists_count_blocked">%1$s domains blocked</string>
+    <string name="blocklists_count_updating">Updating domains…</string>
+    <string name="blocklists_count_loading">Loading domains…</string>
+    <string name="blocklists_count_none">No domains loaded</string>
+    <string name="blocklists_downloading_rules">Downloading rules</string>
+    <string name="blocklists_interval_days">%1$d days</string>
+    <string name="blocklists_interval_hours">%1$d hours</string>
+
+    <!-- About screen -->
+    <string name="about_hagezi_title">HaGeZi DNS Blocklists</string>
+    <string name="about_hagezi_desc">Native blocklist catalogue</string>
+    <string name="about_stevenblack_title">StevenBlack Hosts</string>
+    <string name="about_stevenblack_desc">Native hosts blocklist catalogue</string>
+</resources>

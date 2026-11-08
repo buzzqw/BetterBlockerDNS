@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- BBDNS brand palette -->
+    <color name="bbdns_brand">#1B7F5B</color>
+    <color name="bbdns_brand_light">#4ADE9F</color>
+    <color name="bbdns_navy">#0F172A</color>
+
+    <color name="background">@color/bbdns_navy</color>
+    <color name="primary">@color/bbdns_brand_light</color>
+    <color name="onBackground">#000000</color>
+</resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="details_skip_dns_filtering">Skip DNS filtering</string>
+    <string name="details_skip_dns_filtering_desc">The app stays protected by the VPN rules, but its DNS queries are not checked against the blocklists. Works on Android 10 and newer; recently blocked domains may stay blocked until the system DNS cache expires.</string>
+</resources>

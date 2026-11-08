@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Logs screen -->
+    <string name="logs_delete_all">Delete logs</string>
+    <string name="logs_open_details">Open details</string>
+    <string name="logs_detailed_endpoint">%1$s  %2$s:%3$s  →  %4$s:%5$s</string>
+    <string name="logs_session_since_started_ago">Since protection started • %1$s ago</string>
+    <string name="logs_session_since_started">Since protection started</string>
+    <string name="logs_session_inactive">Protection inactive</string>
+
+    <!-- Packet details -->
+    <string name="packet_protection_status">Protection status</string>
+    <string name="packet_status_allowed">Allowed</string>
+    <string name="packet_status_dropped">Blocked</string>
+    <string name="packet_status_dns_blocked">Blocked by DNS protection</string>
+    <string name="packet_why_blocked">Why is this blocked?</string>
+
+    <!-- "Why is this blocked?" sheet -->
+    <string name="block_reason_title">Why is this blocked?</string>
+    <string name="block_reason_searching">Searching your lists…</string>
+    <string name="block_reason_searching_progress">Searching your lists… (%1$d of %2$d)</string>
+    <string name="block_reason_failed">The lists could not be searched. Try again later.</string>
+    <plurals name="block_reason_status_blocked">
+        <item quantity="one">Blocked by %1$d rule</item>
+        <item quantity="other">Blocked by %1$d rules</item>
+    </plurals>
+    <string name="block_reason_status_blocked_unknown">Blocked, but no matching rule was found in the downloaded lists. Update the lists to refresh them.</string>
+    <string name="block_reason_status_allowed">This domain is currently allowed: an allow rule wins over the blocklists.</string>
+    <string name="block_reason_status_allowed_now">Domain allowed. The protection is reloading its rules.</string>
+    <string name="block_reason_status_not_blocked">This domain is not blocked by the current rules. The lists may have changed since this entry was logged.</string>
+    <string name="block_reason_section_blocked_by">Blocked by</string>
+    <string name="block_reason_section_allowed_by">Allowed by</string>
+    <string name="block_reason_type_exact">Exact domain</string>
+    <string name="block_reason_type_parent">Parent domain, covers subdomains</string>
+    <string name="block_reason_type_tld">Top-level domain</string>
+    <string name="block_reason_type_wildcard">Wildcard rule</string>
+    <string name="block_reason_type_regex">Regex rule</string>
+    <string name="block_reason_source_list">List</string>
+    <string name="block_reason_source_user_rule">Your rule</string>
+    <string name="block_reason_source_custom">Custom domain</string>
+    <string name="block_reason_note_custom_wins">Custom domain blocks win over allow rules. Remove the rule in Domain management to unblock it.</string>
+    <string name="block_reason_note_unreadable">Not downloaded yet, so not searched: %1$s</string>
+    <string name="block_reason_allow">Allow this domain</string>
+    <string name="block_reason_copy">Copy domain</string>
+    <string name="block_reason_copied">Domain copied</string>
+    <string name="block_reason_packet_details">Packet details</string>
+</resources>
