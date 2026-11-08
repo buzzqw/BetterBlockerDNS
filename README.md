@@ -16,7 +16,6 @@ BBDNS is designed to be easy enough for everyday users, while still offering det
   <a href="https://github.com/buzzqw/BetterBlockerDNS/releases/latest"><img src="https://img.shields.io/github/v/release/buzzqw/BetterBlockerDNS?label=release" alt="Latest release"></a>
   <a href="https://www.gnu.org/licenses/gpl-3.0.html"><img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="License: GPL-3.0"></a>
   <img src="https://img.shields.io/badge/Android-7.0%2B-3DDC84?logo=android&logoColor=white" alt="Android 7.0+">
-  <img src="https://img.shields.io/badge/F--Droid-not%20available-lightgrey?logo=fdroid&logoColor=white" alt="F-Droid: not available">
   <a href="https://ko-fi.com/buzzqw"><img src="https://img.shields.io/badge/Ko--fi-Support%20BBDNS-FF5E5B?logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
   <a href="https://www.paypal.com/donate/?business=azanzani%40gmail.com&item_name=BetterBlockerDNS"><img src="https://img.shields.io/badge/PayPal-Donate-00457C?logo=paypal&logoColor=white" alt="PayPal"></a>
 </p>
@@ -42,10 +41,8 @@ BBDNS is designed to be easy enough for everyday users, while still offering det
 
 - **GitHub Releases**: download the signed APK from the
   [latest release](https://github.com/buzzqw/BetterBlockerDNS/releases/latest).
-- **F-Droid**: not available yet. The submission
-  ([merge request !56352](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/56352))
-  was closed on 8 November 2026 because the app does not yet meet F-Droid's
-  maintenance-duration and uniqueness policies. Use the GitHub Releases APK.
+
+BBDNS will be proposed to F-Droid after three months of maintenance.
 
 ---
 
@@ -144,31 +141,13 @@ Release builds are deterministic: the version lives in `version.properties`.
 Before a release, run `./gradlew bumpVersion`, commit the new version, tag the
 commit (for example `v1.0.29`) and build with `scripts/build_release.sh`. The
 script sets `BBDNS_EMAIL_BUILD=1`, so the package is emailed to the owner;
-external builders such as F-Droid call Gradle directly and never send mail.
+external builders that call Gradle directly never send mail.
 
 Release signing reads `BBDNS_KEYSTORE`, `BBDNS_KEYSTORE_PASSWORD`,
 `BBDNS_KEY_ALIAS` and `BBDNS_KEY_PASSWORD` from the environment.
 `scripts/build_release.sh` loads them from `~/.config/bbdns/release.env`; keep
 the keystore outside the repository and back it up. Without these variables
-(for example on F-Droid) the build falls back to debug signing, which is fine
-because F-Droid signs the APK with its own key.
-
----
-
-## F-Droid
-
-BBDNS is **not available on F-Droid yet**. The submission
-([merge request !56352](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/56352))
-was closed by the F-Droid maintainers on 8 November 2026 because the merge
-request template was not followed, the app had not been maintained for more
-than three months, and it was not considered to offer unique features.
-
-The recipe in `fdroid/` is kept aligned with every release, so the app can be
-submitted again once it has a longer maintenance history and a clear unique
-feature set. Until then, install the APK from GitHub Releases.
-
-The metadata lives in `metadata/en-US/`; see `fdroid/README.md` for the
-submission details.
+the build falls back to debug signing.
 
 ---
 
