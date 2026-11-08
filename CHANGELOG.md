@@ -13,6 +13,7 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 ### Release 1.0.24
 - Published the F-Droid-ready build. No visible changes: this release contains
   the release tooling, metadata and repository cleanup.
+- The F-Droid recipe now points to the 1.0.24 release commit.
 
 ### Repository cleanup
 - Removed an unused local-tool entry from the project ignore rules.
