@@ -116,6 +116,18 @@
         </receiver>
 
         <receiver
+            android:name=".service.utils.receiver.ProtectionControlReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.buzzqw.bbdns.action.START_PROTECTION" />
+                <action android:name="com.buzzqw.bbdns.action.STOP_PROTECTION" />
+                <action android:name="com.buzzqw.bbdns.action.TOGGLE_PROTECTION" />
+                <action android:name="com.buzzqw.bbdns.action.PAUSE_PROTECTION" />
+                <action android:name="com.buzzqw.bbdns.action.RESUME_PROTECTION" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
             android:name=".data.service.BootReceiver"
             android:exported="true">
             <intent-filter>

@@ -10,6 +10,12 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Automation
+- Protection can now be started, stopped, paused and resumed from automation
+  apps and scripts such as Tasker, MacroDroid, Home Assistant or adb. Pausing
+  accepts a duration. The receiver only changes the protection state and never
+  exposes logs, settings or blocked domains.
+
 ### Home screen widget
 - New home screen widget: it shows whether protection is on, off or paused,
   how many requests were blocked today, and starts, stops or resumes
