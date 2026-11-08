@@ -42,21 +42,26 @@ import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.net.URL
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.LinkedHashMap
-import javax.net.ssl.HttpsURLConnection
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class TunnelManager(
     private val ruleHandler: RuleHandler? = null,
     private val dnsServerV4: String = "9.9.9.9",
     private val dnsServerV6: String = "2620:fe::fe",
+    /** Secondary IPv4 resolver, used when the primary does not answer. */
+    private val dnsServerV4Alt: String = "",
     private val dohUrl: String? = null
 ) {
 
@@ -73,13 +78,20 @@ class TunnelManager(
     }
     private val dohCacheLock = Any()
 
+    private val dohClient = OkHttpClient.Builder()
+        .connectTimeout(DOH_CONNECT_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        .readTimeout(DOH_READ_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        .callTimeout(DOH_CALL_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+        .retryOnConnectionFailure(true)
+        .build()
+
 
 
     fun initialize(): Boolean {
         contextPtr = jni_init(Build.VERSION.SDK_INT)
         if (contextPtr != 0L) {
             // Set DNS servers in native code
-            jni_set_dns_servers(contextPtr, dnsServerV4, dnsServerV6)
+            jni_set_dns_servers(contextPtr, dnsServerV4, dnsServerV4Alt, dnsServerV6)
         }
         return contextPtr != 0L
     }
@@ -119,7 +131,7 @@ class TunnelManager(
     
     fun setDnsServers(dnsV4: String, dnsV6: String) {
         if (contextPtr != 0L) {
-            jni_set_dns_servers(contextPtr, dnsV4, dnsV6)
+            jni_set_dns_servers(contextPtr, dnsV4, dnsServerV4Alt, dnsV6)
         }
     }
     
@@ -331,7 +343,7 @@ class TunnelManager(
         }
 
         val response = try {
-            fetchDoh(endpoint, query)
+            fetchDohWithRetry(endpoint, query)
         } catch (e: Exception) {
             Logger.warn("DoH: ${e.message}; falling back to plain DNS")
             try {
@@ -360,36 +372,67 @@ class TunnelManager(
         return withTransactionId(cached, query)
     }
 
+    /**
+     * POST the DNS message to the DoH endpoint. A shared OkHttp client keeps
+     * connections alive and multiplexes them over HTTP/2, so most queries do
+     * not pay for a new TLS handshake.
+     */
     private fun fetchDoh(endpoint: String, query: ByteArray): ByteArray {
-        val connection = URL(endpoint).openConnection() as HttpsURLConnection
-        return try {
-            connection.requestMethod = "POST"
-            connection.connectTimeout = DOH_TIMEOUT_MS
-            connection.readTimeout = DOH_TIMEOUT_MS
-            connection.doOutput = true
-            connection.setFixedLengthStreamingMode(query.size)
-            connection.setRequestProperty("Content-Type", "application/dns-message")
-            connection.setRequestProperty("Accept", "application/dns-message")
-            connection.setRequestProperty("User-Agent", "BBDNS/1.0")
-            connection.outputStream.use { it.write(query) }
-
-            val code = connection.responseCode
-            if (code != HttpsURLConnection.HTTP_OK) {
-                throw IOException("HTTP $code from $endpoint")
+        val request = Request.Builder()
+            .url(endpoint)
+            .post(query.toRequestBody(DNS_MEDIA_TYPE))
+            .header("Accept", "application/dns-message")
+            .header("User-Agent", "BBDNS/1.0")
+            .build()
+        dohClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw IOException("HTTP ${response.code} from $endpoint")
             }
-            val response = connection.inputStream.use { it.readBytes() }
-            if (response.size < 12) throw IOException("Short DoH response")
-            response
-        } finally {
-            connection.disconnect()
+            val body = response.body?.bytes() ?: throw IOException("Empty DoH response")
+            if (body.size < 12) throw IOException("Short DoH response")
+            return body
+        }
+    }
+
+    /**
+     * Retry once when the first DoH attempt failed immediately (refused
+     * connection, DNS error). A timeout already used the whole budget, so it
+     * goes straight to the plain-DNS fallback instead of doubling the delay.
+     */
+    private fun fetchDohWithRetry(endpoint: String, query: ByteArray): ByteArray {
+        val startedAt = System.currentTimeMillis()
+        return try {
+            fetchDoh(endpoint, query)
+        } catch (e: IOException) {
+            if (System.currentTimeMillis() - startedAt > DOH_FAST_RETRY_MS) throw e
+            Logger.warn("DoH: ${e.message}; retrying once")
+            fetchDoh(endpoint, query)
         }
     }
 
     private fun fetchPlainDns(query: ByteArray): ByteArray {
-        if (dnsServerV4.isBlank()) throw IOException("No fallback DNS server")
+        val servers = listOf(dnsServerV4, dnsServerV4Alt)
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .distinct()
+        if (servers.isEmpty()) throw IOException("No fallback DNS server")
+
+        var lastError: Exception? = null
+        for (server in servers) {
+            try {
+                return queryPlainDns(server, query)
+            } catch (e: Exception) {
+                lastError = e
+                Logger.warn("Plain DNS $server failed: ${e.message}")
+            }
+        }
+        throw lastError ?: IOException("No fallback DNS server")
+    }
+
+    private fun queryPlainDns(server: String, query: ByteArray): ByteArray {
         DatagramSocket().use { socket ->
             socket.soTimeout = PLAIN_DNS_TIMEOUT_MS
-            val address = InetAddress.getByName(dnsServerV4)
+            val address = InetAddress.getByName(server)
             socket.send(DatagramPacket(query, query.size, address, 53))
             val buffer = ByteArray(4096)
             val response = DatagramPacket(buffer, buffer.size)
@@ -462,15 +505,19 @@ class TunnelManager(
     private external fun jni_getprop(name: String): String
     private external fun jni_get_mtu(): Int
     private external fun jni_clear_sessions(context: Long)
-    private external fun jni_set_dns_servers(context: Long, dnsV4: String, dnsV6: String)
+    private external fun jni_set_dns_servers(context: Long, dnsV4: String, dnsV4Alt: String, dnsV6: String)
     private external fun jni_send_complete_packet(context: Long, packetData: ByteArray)
 
     companion object {
-        private const val DOH_TIMEOUT_MS = 3000
+        private const val DOH_CONNECT_TIMEOUT_MS = 1_500L
+        private const val DOH_READ_TIMEOUT_MS = 2_500L
+        private const val DOH_CALL_TIMEOUT_MS = 3_000L
+        private const val DOH_FAST_RETRY_MS = 1_000L
         private const val DOH_MAX_CONCURRENT = 8
-        private const val PLAIN_DNS_TIMEOUT_MS = 2000
+        private const val PLAIN_DNS_TIMEOUT_MS = 1_500
         private const val DOH_CACHE_TTL_MS = 60_000L
         private const val DOH_CACHE_MAX_ENTRIES = 256
+        private val DNS_MEDIA_TYPE = "application/dns-message".toMediaType()
 
         init {
             System.loadLibrary("bbdns")

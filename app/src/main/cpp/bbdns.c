@@ -145,7 +145,7 @@ JNIEXPORT void JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_j
     }
 }
 
-JNIEXPORT void JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_jni_1set_1dns_1servers(JNIEnv *env, jobject instance, jlong context, jstring dnsV4, jstring dnsV6) {
+JNIEXPORT void JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_jni_1set_1dns_1servers(JNIEnv *env, jobject instance, jlong context, jstring dnsV4, jstring dnsV4Alt, jstring dnsV6) {
     if (context == 0) return;
 
     struct context *ctx = (struct context *) context;
@@ -153,6 +153,7 @@ JNIEXPORT void JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_j
 
     // Get UTF strings from Java
     const char *dns_v4_str = (*env)->GetStringUTFChars(env, dnsV4, 0);
+    const char *dns_v4_alt_str = (*env)->GetStringUTFChars(env, dnsV4Alt, 0);
     const char *dns_v6_str = (*env)->GetStringUTFChars(env, dnsV6, 0);
 
     if (dns_v4_str != NULL) {
@@ -160,6 +161,13 @@ JNIEXPORT void JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_j
         ctx->dns_server_v4[INET_ADDRSTRLEN - 1] = '\0';
         log_android(ANDROID_LOG_INFO, "DNS IPv4 server set to: %s", ctx->dns_server_v4);
         (*env)->ReleaseStringUTFChars(env, dnsV4, dns_v4_str);
+    }
+
+    if (dns_v4_alt_str != NULL) {
+        strncpy(ctx->dns_server_v4_alt, dns_v4_alt_str, INET_ADDRSTRLEN - 1);
+        ctx->dns_server_v4_alt[INET_ADDRSTRLEN - 1] = '\0';
+        log_android(ANDROID_LOG_INFO, "DNS IPv4 secondary set to: %s", ctx->dns_server_v4_alt);
+        (*env)->ReleaseStringUTFChars(env, dnsV4Alt, dns_v4_alt_str);
     }
 
     if (dns_v6_str != NULL) {

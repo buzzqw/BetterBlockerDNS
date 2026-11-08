@@ -10,6 +10,16 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### DNS reliability
+- DNS queries that the system retries over TCP now go to the configured
+  resolver instead of failing. This fixes some apps and websites that could
+  not load after a truncated answer.
+- The secondary DNS resolver chosen in the settings is now actually used:
+  Android can fall back to it when the primary does not answer.
+- DNS over HTTPS is more reliable and faster: the app reuses the encrypted
+  connection, retries once after an immediate failure and waits less before
+  falling back to plain DNS.
+
 ### Quick Settings
 - The BBDNS Quick Settings tile can now start protection when it is off,
   instead of only opening the app. The app still opens when the VPN permission

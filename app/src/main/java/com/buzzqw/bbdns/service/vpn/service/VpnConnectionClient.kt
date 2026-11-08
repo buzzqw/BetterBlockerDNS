@@ -122,6 +122,11 @@ class VpnConnectionClient : VpnService() {
     private fun createVpnBuilder() = Builder().apply {
         loadSettings()
         addDnsServer(NetworkConstants.VPN_DNS_ADDRESS)    // IPv4 DNS
+        // The secondary resolver is reachable through the same tunnel address
+        // family: Android falls back to it when the primary does not answer.
+        if (!settings!!.dnsServer2.isBlank()) {
+            addDnsServer(NetworkConstants.VPN_DNS_ADDRESS_ALT)
+        }
         addAddress(settings!!.ipv4, 32)
         // IPv6 disabled - filtering not implemented, would allow unfiltered traffic
         // addAddress(settings!!.ipv6, 128)

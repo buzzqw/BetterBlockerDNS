@@ -141,13 +141,23 @@ jboolean handle_udp(const struct arguments *args, const uint8_t *pkt, size_t len
             s->udp.saddr.ip4 = (__be32) ip4->saddr;
             s->udp.daddr.ip4 = (__be32) ip4->daddr;
 
-            // Check for DNS redirection: 198.18.0.1 -> user's DNS server
+            // DNS redirection: 198.18.0.1 is the primary resolver and
+            // 198.18.0.2 the secondary one (see VpnConnectionClient).
             uint32_t target_ip = htonl(0xC6120001); // 198.18.0.1 in network byte order
+            uint32_t target_ip_alt = htonl(0xC6120002); // 198.18.0.2
 
-            if (s->udp.daddr.ip4 == target_ip && ntohs(udphdr->dest) == 53) {
+            if ((s->udp.daddr.ip4 == target_ip || s->udp.daddr.ip4 == target_ip_alt) &&
+                ntohs(udphdr->dest) == 53) {
+                const char *dns_server =
+                    (s->udp.daddr.ip4 == target_ip_alt &&
+                     args->ctx->dns_server_v4_alt[0] != '\0')
+                    ? args->ctx->dns_server_v4_alt
+                    : args->ctx->dns_server_v4;
                 // Convert user's DNS server from string to network byte order
                 struct in_addr dns_addr;
-                if (inet_pton(AF_INET, args->ctx->dns_server_v4, &dns_addr) == 1) {
+                if (inet_pton(AF_INET, dns_server, &dns_addr) == 1) {
+                    s->udp.daddr.ip4 = dns_addr.s_addr;
+                } else if (inet_pton(AF_INET, args->ctx->dns_server_v4, &dns_addr) == 1) {
                     s->udp.daddr.ip4 = dns_addr.s_addr;
                 } else {
                     // Fallback to 9.9.9.9 if parsing fails
@@ -292,18 +302,30 @@ ssize_t write_udp(const struct arguments *args, const struct udp_session *cur, u
         ip4->tot_len = htons(len);
         ip4->ttl = IPDEFTTL;
         ip4->protocol = IPPROTO_UDP;
-        // Check if this is a response from redirected DNS (user's DNS -> 198.18.0.1)
+        // Check if this is a response from a redirected DNS server
+        // (198.18.0.1 -> primary, 198.18.0.2 -> secondary)
         uint32_t target_ip = htonl(0xC6120001); // 198.18.0.1 in network byte order
+        uint32_t target_ip_alt = htonl(0xC6120002); // 198.18.0.2
 
-        // Parse user's DNS server to check if this is a DNS response
+        // Parse user's DNS servers to check if this is a DNS response
         struct in_addr user_dns_addr;
+        struct in_addr user_dns_addr_alt;
         int is_dns_response = 0;
+        int is_dns_response_alt = 0;
         if (inet_pton(AF_INET, args->ctx->dns_server_v4, &user_dns_addr) == 1) {
             is_dns_response = (cur->daddr.ip4 == user_dns_addr.s_addr && ntohs(cur->dest) == 53);
+        }
+        if (!is_dns_response &&
+            args->ctx->dns_server_v4_alt[0] != '\0' &&
+            inet_pton(AF_INET, args->ctx->dns_server_v4_alt, &user_dns_addr_alt) == 1) {
+            is_dns_response_alt =
+                (cur->daddr.ip4 == user_dns_addr_alt.s_addr && ntohs(cur->dest) == 53);
         }
 
         if (is_dns_response) {
             ip4->saddr = target_ip;
+        } else if (is_dns_response_alt) {
+            ip4->saddr = target_ip_alt;
         } else {
             ip4->saddr = cur->daddr.ip4;
         }

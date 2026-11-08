@@ -523,7 +523,39 @@ jboolean handle_tcp(const struct arguments *args, const uint8_t *pkt, size_t len
                 s->tcp.forward->next = NULL;
             }
 
-            s->socket = open_tcp_socket(args, &s->tcp, redirect);
+            // DNS over TCP: the VPN hands out 198.18.0.1 (primary) and
+            // 198.18.0.2 (secondary) as resolvers, but only udp.c redirects
+            // them to the configured DNS servers. Without this, an app
+            // retrying a truncated answer over TCP would connect to the fake
+            // address and fail. The session keeps the original addresses, so
+            // packets written back still look like the address the app used.
+            const struct allowed *tcp_redirect = redirect;
+            struct allowed dns_redirect;
+            if (version == 4 && redirect == NULL &&
+                s->tcp.dest == htons(53) &&
+                (s->tcp.daddr.ip4 == htonl(0xC6120001) ||
+                 s->tcp.daddr.ip4 == htonl(0xC6120002))) {
+                const char *dns_server =
+                    (s->tcp.daddr.ip4 == htonl(0xC6120002) &&
+                     args->ctx->dns_server_v4_alt[0] != '\0')
+                    ? args->ctx->dns_server_v4_alt
+                    : args->ctx->dns_server_v4;
+                struct in_addr dns_addr;
+                if (inet_pton(AF_INET, dns_server, &dns_addr) != 1 &&
+                    inet_pton(AF_INET, args->ctx->dns_server_v4, &dns_addr) != 1) {
+                    dns_server = NULL;
+                }
+                if (dns_server != NULL) {
+                    memset(&dns_redirect, 0, sizeof(dns_redirect));
+                    strncpy(dns_redirect.raddr, dns_server, sizeof(dns_redirect.raddr) - 1);
+                    dns_redirect.rport = 53;
+                    tcp_redirect = &dns_redirect;
+                    log_android(ANDROID_LOG_DEBUG,
+                                "TCP DNS redirected to: %s", dns_redirect.raddr);
+                }
+            }
+
+            s->socket = open_tcp_socket(args, &s->tcp, tcp_redirect);
             if (s->socket < 0) {
                 ng_free(s, __FILE__, __LINE__);
                 return 0;

@@ -312,22 +312,31 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
 
     private fun initializeVpnComponents(vpnInterface: ParcelFileDescriptor): Boolean {
         // Get DNS servers and DoH settings
-        val (dnsServerV4, dnsServerV6, dohUrl) = runBlocking {
+        var dnsServerV4 = "9.9.9.9"
+        var dnsServerV4Alt = "149.112.112.112"
+        var dnsServerV6 = "2620:fe::fe"
+        var dohUrl: String? = null
+        runBlocking {
             preferencesUseCases.loadSettings.execute().fold(
                 ifSuccess = {
-                    Triple(
-                        it.dnsServer1,
-                        it.dnsServer1v6,
-                        if (it.dohEnabled && it.dohUrl.isNotBlank()) it.dohUrl else null
-                    )
+                    dnsServerV4 = it.dnsServer1
+                    dnsServerV4Alt = it.dnsServer2
+                    dnsServerV6 = it.dnsServer1v6
+                    dohUrl = if (it.dohEnabled && it.dohUrl.isNotBlank()) it.dohUrl else null
                 },
-                ifFailure = { Triple("9.9.9.9", "2620:fe::fe", null) }
+                ifFailure = { Logger.error("Cannot read DNS settings: ${it.message}") }
             )
         }
 
         // Initialize TunnelManager with the injected RuleHandler and user's DNS settings
-        tunnelManager = TunnelManager(ruleManager, dnsServerV4, dnsServerV6, dohUrl)
-        Logger.info("Tunnel Manager DNS mode: ${if (dohUrl != null) "DoH ($dohUrl)" else "plain ($dnsServerV4)"}")
+        tunnelManager = TunnelManager(
+            ruleManager,
+            dnsServerV4,
+            dnsServerV6,
+            dnsServerV4Alt,
+            dohUrl,
+        )
+        Logger.info("Tunnel Manager DNS mode: ${if (dohUrl != null) "DoH ($dohUrl)" else "plain ($dnsServerV4 / $dnsServerV4Alt)"}")
         
         if (!tunnelManager.initialize()) {
             Logger.error("Failed to initialize Tunnel Manager")

@@ -88,6 +88,8 @@ object NetworkConstants {
     }
     const val VPN_ADDRESS: String = "10.0.10.1"
     const val VPN_DNS_ADDRESS: String = "198.18.0.1"  // Local DNS for IPv4
+    /** Second local DNS address: Android uses it when the primary times out. */
+    const val VPN_DNS_ADDRESS_ALT: String = "198.18.0.2"
     const val VPN_DNS6_ADDRESS: String = "fd00::53"    // Local DNS for IPv6
     const val ALL_TRAFFIC: String = "0.0.0.0"
     const val VPN6_ADDRESS: String = "fd00:1:fd00:1:fd00:1:fd00:1"
