@@ -13,6 +13,7 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 ### Release 1.0.29
 - Updated the Android build toolchain to Android Gradle Plugin 9.5 and
   Gradle 9.9, which removes the Kotlin metadata warnings from release builds.
+- Updated the F-Droid build recipe to 1.0.29.
 - No changes to the app's behaviour.
 
 ### Release 1.0.28

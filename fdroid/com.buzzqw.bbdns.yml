@@ -1,8 +1,8 @@
 # Template for fdroiddata/metadata/com.buzzqw.bbdns.yml.
 #
 # 1. Copy this file to a fork of https://gitlab.com/fdroid/fdroiddata.
-# 2. Use the full hash of the released tag (already filled below for 1.0.25;
-#    use `git rev-list -n 1 v1.0.25` to verify it).
+# 2. Use the full hash of the released tag (already filled below for 1.0.29;
+#    use `git rev-list -n 1 v1.0.29` to verify it).
 # 3. Run `fdroid lint com.buzzqw.bbdns` and `fdroid rewritemeta com.buzzqw.bbdns`.
 # 4. Push the branch and open a merge request with the "New App" label.
 
@@ -23,9 +23,9 @@ RepoType: git
 Repo: https://github.com/buzzqw/BetterBlockerDNS.git
 
 Builds:
-  - versionName: 1.0.25
-    versionCode: 1000025
-    commit: ce8921a680309a717d5ff380200b01998e98c7ae
+  - versionName: 1.0.29
+    versionCode: 1000029
+    commit: da616aa382adc7faea6ec2a04ec5cf578f976053
     gradle:
       - fdroid
     ndk: 27.0.12077973
@@ -42,11 +42,11 @@ Builds:
     # gradlew-fdroid verifies the archive against the Gradle transparency log.
     prebuild:
       - mkdir -p "$HOME/.cache/gradlew-fdroid"
-      - curl -L --fail --retry 3 -o "$HOME/.cache/gradlew-fdroid/gradle-8.14.3-bin.zip" https://mirrors.cloud.tencent.com/gradle/gradle-8.14.3-bin.zip
-      - echo "bd71102213493060956ec229d946beee57158dbd89d0e62b91bca0fa2c5f3531  $HOME/.cache/gradlew-fdroid/gradle-8.14.3-bin.zip" | sha256sum -c -
+      - curl -L --fail --retry 3 -o "$HOME/.cache/gradlew-fdroid/gradle-9.9.0-bin.zip" https://mirrors.cloud.tencent.com/gradle/gradle-9.9.0-bin.zip
+      - echo "0b00b0ffe07c4d4789c12d4935a44a7057d55774b7540bd4a3f76f336deb177a  $HOME/.cache/gradlew-fdroid/gradle-9.9.0-bin.zip" | sha256sum -c -
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
 UpdateCheckData: version.properties|versionCode=(\d+)|.|versionName=(\d+\.\d+\.\d+)
-CurrentVersion: 1.0.25
-CurrentVersionCode: 1000025
+CurrentVersion: 1.0.29
+CurrentVersionCode: 1000029
