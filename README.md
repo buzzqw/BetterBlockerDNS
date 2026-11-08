@@ -16,7 +16,6 @@ BBDNS is designed to be easy enough for everyday users, while still offering det
   <a href="https://github.com/buzzqw/BetterBlockerDNS/releases/latest"><img src="https://img.shields.io/github/v/release/buzzqw/BetterBlockerDNS?label=release" alt="Latest release"></a>
   <a href="https://www.gnu.org/licenses/gpl-3.0.html"><img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="License: GPL-3.0"></a>
   <img src="https://img.shields.io/badge/Android-7.0%2B-3DDC84?logo=android&logoColor=white" alt="Android 7.0+">
-  <a href="https://buzzqw.github.io/BetterBlockerDNS/repo"><img src="https://img.shields.io/badge/F--Droid-repo-1976D2?logo=fdroid&logoColor=white" alt="F-Droid repository"></a>
   <a href="https://gitlab.com/fdroid/fdroiddata/-/merge_requests/56352"><img src="https://img.shields.io/badge/F--Droid-in%20approval-orange?logo=fdroid&logoColor=white" alt="F-Droid: in approval"></a>
   <a href="https://ko-fi.com/buzzqw"><img src="https://img.shields.io/badge/Ko--fi-Support%20BBDNS-FF5E5B?logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
   <a href="https://www.paypal.com/donate/?business=azanzani%40gmail.com&item_name=BetterBlockerDNS"><img src="https://img.shields.io/badge/PayPal-Donate-00457C?logo=paypal&logoColor=white" alt="PayPal"></a>
@@ -46,18 +45,7 @@ BBDNS is designed to be easy enough for everyday users, while still offering det
 - **F-Droid (in approval)**: BBDNS has been submitted to the official F-Droid
   repository and is awaiting review
   ([merge request !56352](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/56352)).
-  Until it is accepted, add the signed self-hosted repository in F-Droid under
-  **Settings → Repositories**:
-
-  ```text
-  https://buzzqw.github.io/BetterBlockerDNS/repo
-  ```
-
-  Repository fingerprint:
-
-  ```text
-  13:64:2D:F1:5D:EC:D4:EE:11:9B:EE:11:C1:9C:61:5F:B1:B8:3C:CD:79:3C:52:75:F7:36:65:F8:40:A3:54:8D
-  ```
+  Until it is accepted, use the GitHub Releases APK above.
 
 ---
 
@@ -142,7 +130,6 @@ repository and is **in the approval phase**
 The F-Droid CI already builds the app successfully; once the merge request is
 reviewed and accepted, BBDNS will be installable directly from F-Droid.
 
-Until then, the signed self-hosted repository is available (see **Install**).
 The metadata lives in `metadata/en-US/` and the build recipe template in
 `fdroid/`; see `fdroid/README.md` for details.
 

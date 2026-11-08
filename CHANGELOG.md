@@ -10,6 +10,12 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Repository cleanup
+- Removed the temporary self-hosted F-Droid repository and its publishing
+  script; the source repository now has only the `main` branch.
+- The official F-Droid submission remains in approval.
+- No change to the app's behaviour.
+
 ### Self-hosted F-Droid repository
 - Added a signed F-Droid repository on GitHub Pages, so BBDNS can be installed
   and updated from F-Droid while official inclusion is pending.
