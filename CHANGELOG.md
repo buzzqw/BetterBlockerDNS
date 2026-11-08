@@ -8,6 +8,12 @@ listed newest first.
 
 ## 2026-11-08
 
+### Documentation: release process
+- After each commit, BBDNS now asks whether to publish a new version on GitHub
+  together with its changelog.
+- Every new version is built and sent to the project owner.
+- No change to the app's behaviour.
+
 ### Documentation: public changelog
 - Added this changelog so every change to BBDNS is explained in plain English.
 - No change to the app's behaviour.
