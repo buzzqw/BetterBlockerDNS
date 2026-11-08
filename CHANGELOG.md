@@ -10,6 +10,11 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### F-Droid recipe validation
+- Validated the F-Droid build metadata with `fdroid lint`; the donation field
+  and changelog URL now follow F-Droid conventions.
+- No change to the app's behaviour.
+
 ### Donation links
 - Added PayPal and Ko-fi links to the README, the GitHub Sponsor button and the
   repository homepage.

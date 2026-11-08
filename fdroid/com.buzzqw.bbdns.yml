@@ -1,8 +1,8 @@
 # Template for fdroiddata/metadata/com.buzzqw.bbdns.yml.
 #
 # 1. Copy this file to a fork of https://gitlab.com/fdroid/fdroiddata.
-# 2. Replace <commit-hash> with the full hash of the released tag
-#    (for example: git rev-list -n 1 v1.0.25).
+# 2. Use the full hash of the released tag (already filled below for 1.0.25;
+#    use `git rev-list -n 1 v1.0.25` to verify it).
 # 3. Run `fdroid lint com.buzzqw.bbdns` and `fdroid rewritemeta com.buzzqw.bbdns`.
 # 4. Push the branch and open a merge request with the "New App" label.
 
@@ -15,9 +15,8 @@ AuthorName: buzzqw
 AuthorEmail: azanzani@gmail.com
 SourceCode: https://github.com/buzzqw/BetterBlockerDNS
 IssueTracker: https://github.com/buzzqw/BetterBlockerDNS/issues
-Changelog: https://github.com/buzzqw/BetterBlockerDNS/blob/main/CHANGELOG.md
-Donate:
-  - https://ko-fi.com/buzzqw
+Changelog: https://github.com/buzzqw/BetterBlockerDNS/blob/HEAD/CHANGELOG.md
+Donate: https://ko-fi.com/buzzqw
 
 RepoType: git
 Repo: https://github.com/buzzqw/BetterBlockerDNS.git
