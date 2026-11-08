@@ -259,6 +259,14 @@ dependencies {
 
 }
 
+// Hilt 2.57 validates Kotlin metadata with kotlin-metadata-jvm 2.2.x, which
+// cannot read the 2.4 metadata emitted by Kotlin 2.4. Keep the annotation
+// processor's metadata reader in sync with the compiler. This only affects the
+// build-time processor classpath; the library is not packaged in the APK.
+configurations.matching { it.name.startsWith("hiltAnnotationProcessor") }.configureEach {
+    resolutionStrategy.force("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
+}
+
 // Email the package after a release build, using scripts/email_latest_build.sh.
 // This is opt-in so external builders such as F-Droid never try to send mail:
 // set BBDNS_EMAIL_BUILD=1 (scripts/build_release.sh does it). Delivery is
