@@ -57,6 +57,7 @@ if (bbdnsHasReleaseSigning && !file(bbdnsKeystorePath!!).exists()) {
 android {
     namespace = "com.buzzqw.bbdns"
     compileSdk = 36
+    ndkVersion = "27.0.12077973"
 
     defaultConfig {
         applicationId = "com.buzzqw.bbdns"
@@ -130,9 +131,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
         }
     }
     buildFeatures {
@@ -207,6 +208,24 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+// AGP 9.5 builds Compose Preview metadata for every variant and expects unit
+// tests to package Android resources. Keep them enabled for all variants.
+androidComponents {
+    beforeVariants(selector().all()) { variant ->
+        runCatching {
+            variant.javaClass
+                .getMethod("setEnableUnitTest", Boolean::class.javaPrimitiveType)
+                .invoke(variant, true)
+        }
+    }
+}
+
 // Build the per-app language list from the translated resource folders:
 // adding values-<locale>/strings.xml is enough to expose a new language in the
 // picker and in Android's system settings.
@@ -250,7 +269,7 @@ val generateLocaleConfig = tasks.register<GenerateLocaleConfigTask>("generateLoc
     resDir.set(layout.projectDirectory.dir("src/main/res"))
     outputDir.set(generatedLocaleConfigDir)
 }
-android.sourceSets.getByName("main").res.srcDir(generatedLocaleConfigDir)
+android.sourceSets.getByName("main").res.srcDir(generatedLocaleConfigDir.get().asFile)
 tasks.matching { it.name == "preBuild" }.configureEach {
     dependsOn(generateLocaleConfig)
 }

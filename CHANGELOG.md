@@ -10,6 +10,11 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Release 1.0.29
+- Updated the Android build toolchain to Android Gradle Plugin 9.5 and
+  Gradle 9.9, which removes the Kotlin metadata warnings from release builds.
+- No changes to the app's behaviour.
+
 ### Release 1.0.28
 - Fixed the language picker: all bundled languages, including Simplified
   Chinese and Brazilian Portuguese, are listed again.
