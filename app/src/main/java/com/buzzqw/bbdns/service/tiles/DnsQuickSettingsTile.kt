@@ -26,6 +26,7 @@ import com.buzzqw.bbdns.R
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.service.utils.manager.VpnManager
 import com.buzzqw.bbdns.service.utils.manager.FirewallManager
+import com.buzzqw.bbdns.service.utils.manager.FirewallMode
 import com.buzzqw.bbdns.service.utils.manager.ProtectionState
 import com.buzzqw.bbdns.service.vpn.service.VpnConnectionServer
 import dagger.hilt.android.AndroidEntryPoint
@@ -58,10 +59,9 @@ class DnsQuickSettingsTile : TileService() {
         
         try {
             if (!isVpnActive()) {
-                // VPN is not running, cannot toggle DNS blocking
-                Logger.warn("Quick Settings: VPN not active, cannot toggle DNS blocking")
-                showToast(getString(R.string.error_vpn_not_running))
-                openApp()
+                // Protection is off: the tile can start it when the VPN
+                // permission is already granted.
+                startProtection()
                 return
             }
 
@@ -176,6 +176,33 @@ class DnsQuickSettingsTile : TileService() {
         } catch (e: Exception) {
             Logger.error("Error checking VPN status: ${e.message}", e)
             false
+        }
+    }
+
+    /** Start protection from the tile when the VPN permission is available. */
+    private fun startProtection() {
+        if (!VpnManager.permissionChecker(this)) {
+            Logger.warn("Quick Settings: VPN permission missing, opening the app")
+            showToast(getString(R.string.error_vpn_not_running))
+            openApp()
+            return
+        }
+        try {
+            Logger.info("Quick Settings: starting protection")
+            firewallManager.setFirewallMode(FirewallMode.VPN)
+            firewallManager.startFirewall()
+            // Show the new state immediately; onStartListening corrects it.
+            qsTile?.let { tile ->
+                tile.state = Tile.STATE_ACTIVE
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    tile.subtitle = getString(R.string.tile_status_active)
+                }
+                tile.icon = Icon.createWithResource(applicationContext, R.drawable.ic_shield_check)
+                tile.updateTile()
+            }
+        } catch (e: Exception) {
+            Logger.error("Quick Settings: cannot start protection: ${e.message}", e)
+            openApp()
         }
     }
 

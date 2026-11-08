@@ -10,6 +10,11 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Quick Settings
+- The BBDNS Quick Settings tile can now start protection when it is off,
+  instead of only opening the app. The app still opens when the VPN permission
+  has not been granted yet.
+
 ### Notification actions
 - The Wi-Fi and mobile data buttons in the "new app installed" notification
   now change the permission they are labelled with.
