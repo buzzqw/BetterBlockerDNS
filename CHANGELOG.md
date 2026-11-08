@@ -11,9 +11,20 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 ## 2026-11-08
 
 ### Release 1.0.28
-- Fixed the language picker: every bundled language, including Simplified
-  Chinese and Brazilian Portuguese, is listed again.
-- No other changes.
+- Fixed the language picker: all bundled languages, including Simplified
+  Chinese and Brazilian Portuguese, are listed again.
+- Protection can be controlled from automation apps and scripts, including a
+  pause duration.
+- Added a home screen widget that shows the protection state and today's
+  blocked count, with one-tap start, stop and resume.
+- A temporary pause now survives a VPN service restart.
+- The active blocklist screen shows when each list was last updated.
+- DNS is more reliable: TCP retries use the configured resolver, the secondary
+  resolver is used as a fallback, and DNS over HTTPS reuses connections and
+  retries sooner.
+- The Quick Settings tile can start protection when it is off.
+- Fixed the Wi-Fi and mobile data actions in the "new app installed"
+  notification.
 
 ### Automation
 - Protection can now be started, stopped, paused and resumed from automation
