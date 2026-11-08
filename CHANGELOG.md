@@ -14,6 +14,8 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 - Code security scanning now covers the Android app's Kotlin code in addition
   to the native, Go and script sources.
 - Scans run on every update to the main branch and on a weekly schedule.
+- The Go helper and the native code are built during the scan, so they are
+  analysed together with the app.
 - No change to the app's behaviour.
 
 ### Release 1.0.26
