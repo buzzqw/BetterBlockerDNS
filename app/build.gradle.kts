@@ -144,9 +144,6 @@ android {
         buildConfig = true
         aidl = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
-    }
     packaging {
         resources {
             excludes += setOf(
@@ -259,7 +256,6 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.dnsjava)
-    implementation(libs.pcap4j.core)
 
 }
 
