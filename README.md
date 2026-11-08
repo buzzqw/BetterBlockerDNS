@@ -1,11 +1,25 @@
-# BetterBlockerDNS (BBDNS)
+<p align="center">
+  <img src="metadata/en-US/images/icon.png" alt="BetterBlockerDNS icon" width="96" height="96">
+</p>
+
+<h1 align="center">BetterBlockerDNS (BBDNS)</h1>
 
 **BetterBlockerDNS** is a free, open-source DNS ad blocker for Android. It blocks ads, trackers, malware, phishing and unwanted content system-wide through a local VPN — **no root, no privileged helpers and no data sent to external services**.
 
 BBDNS is designed to be easy enough for everyday users, while still offering detailed controls for anyone who wants them.
 
-[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20BBDNS-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/buzzqw)
-[![PayPal](https://img.shields.io/badge/PayPal-Donate-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?business=azanzani%40gmail.com&item_name=BetterBlockerDNS)
+<p align="center">
+  <img src="metadata/en-US/images/featureGraphic.png" alt="BetterBlockerDNS — DNS ad blocking, no root" width="800">
+</p>
+
+<p align="center">
+  <a href="https://github.com/buzzqw/BetterBlockerDNS/releases/latest"><img src="https://img.shields.io/github/v/release/buzzqw/BetterBlockerDNS?label=release" alt="Latest release"></a>
+  <a href="https://www.gnu.org/licenses/gpl-3.0.html"><img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="License: GPL-3.0"></a>
+  <img src="https://img.shields.io/badge/Android-7.0%2B-3DDC84?logo=android&logoColor=white" alt="Android 7.0+">
+  <a href="https://buzzqw.github.io/BetterBlockerDNS/repo"><img src="https://img.shields.io/badge/F--Droid-repo-1976D2?logo=fdroid&logoColor=white" alt="F-Droid repository"></a>
+  <a href="https://ko-fi.com/buzzqw"><img src="https://img.shields.io/badge/Ko--fi-Support%20BBDNS-FF5E5B?logo=ko-fi&logoColor=white" alt="Ko-fi"></a>
+  <a href="https://www.paypal.com/donate/?business=azanzani%40gmail.com&item_name=BetterBlockerDNS"><img src="https://img.shields.io/badge/PayPal-Donate-00457C?logo=paypal&logoColor=white" alt="PayPal"></a>
+</p>
 
 ---
 
@@ -31,16 +45,16 @@ BBDNS is designed to be easy enough for everyday users, while still offering det
 ## Features
 
 - **VPN-only protection** — root mode, systemless hosts and privileged helper modes are not supported.
-- **Native HaGeZi support** — the full catalogue is available in the app:
+- **Native [HaGeZi](https://github.com/hagezi/dns-blocklists) support** — the full catalogue is available in the app:
   - Multi LIGHT, NORMAL, PRO, PRO mini, PRO++, PRO++ mini, ULTIMATE, ULTIMATE mini
   - Threat Intelligence Feeds (full, medium, mini)
   - Fake, Pop-Up Ads, DynDNS, Badware Hoster, Most Abused TLDs
   - DoH / VPN / Tor / Proxy Bypass, URL Shortener, Anti-Piracy
   - Native Trackers (Apple, Samsung, Xiaomi, TikTok)
   - No Safesearch, NSFW, Gambling, Social Networks
-- **Native StevenBlack support** — the unified hosts file plus the fakenews, gambling, porn and social extensions, including the pre-built combinations.
-- **One-tap protection profiles** — Essential, Balanced, Pro (recommended), Aggressive and Maximum. Profiles only manage the HaGeZi Multi/TIF group, so your add-on selections are preserved.
-- **Compatibility allowlist** — banking, payments, Italian public administration, app stores, push notifications and captive portals. The rule engine uses suffix matching, so `paypal.com` also covers `www.paypal.com`.
+- **Native [StevenBlack](https://github.com/StevenBlack/hosts) support** — the unified hosts file plus the fakenews, gambling, porn and social extensions, including the pre-built combinations.
+- **One-tap protection profiles** — Essential, Balanced, Pro (recommended), Aggressive and Maximum. Profiles only manage the [HaGeZi](https://github.com/hagezi/dns-blocklists) Multi/TIF group, so your add-on selections are preserved.
+- **Compatibility allowlist** — banking, payments, public administration, app stores, push notifications and captive portals. The rule engine uses suffix matching, so `paypal.com` also covers `www.paypal.com`.
 - **DNS over HTTPS (RFC 8484)** — encrypted DNS with a built-in provider catalogue: Cloudflare (standard/security/family), Google, Quad9 (standard/unsecured/ECS), AdGuard (standard/family), DNS.SB, Control D (standard/malware/ads/family), DNSBunker, DNS4EU (unfiltered/protective/child/noads/child+noads) and a custom endpoint. Responses are cached for 60 seconds and the configured plain DNS server is used only as a fallback. Disable Android Private DNS when DoH is active.
 - **Many free plain DNS resolvers** — Google, Cloudflare (standard, malware, family), Quad9 (standard, unsecured, ECS), AdGuard (standard, family, non-filtering), OpenDNS (Home, FamilyShield), CleanBrowsing (Family, Adult, Security), DNS.SB, Control D (standard, malware, ads, family), DNS4EU (unfiltered/protective/child/adblock) and Yandex (Basic, Safe, Family).
 - **Simple or detailed logs** — the log screen is readable by default; enable “Detailed logs” to see full hostnames, ports and source/destination endpoints.
