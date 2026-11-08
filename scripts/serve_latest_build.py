@@ -49,7 +49,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(data)))
-        self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+        # Never reflect control characters or quotes into a response header.
+        safe_name = filename.replace("\r", "").replace("\n", "").replace('"', "")
+        self.send_header("Content-Disposition", f'attachment; filename="{safe_name}"')
         # New builds must never be masked by a cached copy in the browser.
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
         self.send_header("Pragma", "no-cache")
