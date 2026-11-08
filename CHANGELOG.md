@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Release 1.0.27
+- Published the interface and translation improvements listed below.
+- No changes to DNS blocking, DNS over HTTPS or the blocklist catalogues.
+
 ### Interface improvements
 - Removed the non-working email button from About and corrected the remaining
   links, including the developer link to GitHub.
