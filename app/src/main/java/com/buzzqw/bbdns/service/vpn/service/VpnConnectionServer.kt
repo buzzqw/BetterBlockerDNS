@@ -42,6 +42,7 @@ import com.buzzqw.bbdns.service.utils.manager.FirewallService
 import com.buzzqw.bbdns.service.utils.manager.VpnManager
 import com.buzzqw.bbdns.service.utils.notifications.showInstallNotification
 import com.buzzqw.bbdns.service.utils.notifications.showStartNotification
+import com.buzzqw.bbdns.service.widget.BbdsWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
@@ -287,8 +288,9 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
             // Start foreground service immediately to avoid timing issues
             FirewallCounters.init(appContext)
             FirewallCounters.reset()
-            // A new VPN session always starts with blocking on.
-            ProtectionPause.resume()
+            // A new session starts with blocking on. A pause saved before the
+            // process was killed is restored below, once the rules are ready.
+            ProtectionPause.resetSession()
             runBlocking {
                 loadApplications()
                 showStartNotification(preferencesUseCases)
@@ -303,6 +305,11 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
                 startVpnCoroutines()
                 startNotificationUpdates()
                 appChangeReceiver.register(this)
+                // Honour a pause that was running when the service was killed.
+                ProtectionPause.restore(appContext) { enabled ->
+                    ruleManager.setDnsBlocking(enabled)
+                }
+                BbdsWidgetProvider.updateAll(appContext)
             } ?: run {
                 Logger.error("Invalid VPN interface file descriptor received. Service is stopping.")
                 stopSelf()
@@ -449,7 +456,14 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
         appChangeReceiver.unregister(this)
         ProtectionState.isRunning = false
         ProtectionState.sessionStartedAt = 0L
-        ProtectionPause.resume()
+        // Turning protection off ends the pause; a system stop keeps it, so a
+        // watchdog restart can restore the remaining time.
+        if (userInitiated) {
+            ProtectionPause.clear(appContext)
+        } else {
+            ProtectionPause.resetSession()
+        }
+        BbdsWidgetProvider.updateAll(appContext)
         FirewallCounters.flush()
         notificationJob?.cancel()
         if (userInitiated) {

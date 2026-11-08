@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home screen widget -->
+    <string name="widget_description">Protection status and blocked requests</string>
+    <string name="widget_status_on">Protection on</string>
+    <string name="widget_status_off">Protection off</string>
+    <string name="widget_status_paused">Paused</string>
+    <string name="widget_paused_until">Resumes at %1$s</string>
+    <string name="widget_blocked_today">%1$s blocked today</string>
+    <string name="widget_off_hint">Tap to start blocking</string>
+    <string name="widget_turn_on">Turn on</string>
+    <string name="widget_turn_off">Turn off</string>
+    <string name="widget_resume">Resume</string>
+</resources>

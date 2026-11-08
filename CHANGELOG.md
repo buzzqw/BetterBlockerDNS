@@ -10,6 +10,16 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Home screen widget
+- New home screen widget: it shows whether protection is on, off or paused,
+  how many requests were blocked today, and starts, stops or resumes
+  protection with one tap.
+
+### Protection pause
+- A temporary pause now survives a service restart: if Android stops the VPN
+  during the pause, protection comes back still paused for the remaining time
+  instead of blocking again early.
+
 ### Blocklists
 - The active blocklist screen now shows when each list was last updated, so it
   is easy to see whether automatic updates are working.

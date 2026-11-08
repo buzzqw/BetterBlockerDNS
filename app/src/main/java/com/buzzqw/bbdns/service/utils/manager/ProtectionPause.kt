@@ -24,11 +24,18 @@ import android.os.Looper
 import android.service.quicksettings.TileService
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.service.tiles.DnsQuickSettingsTile
+import com.buzzqw.bbdns.service.widget.BbdsWidgetProvider
 
 /**
  * Temporary pause of DNS blocking. The VPN keeps running: only the DNS rule
  * is switched off, and a timer owned by the service process switches it back
- * on, so the pause ends even when the UI is closed. A VPN restart clears it.
+ * on, so the pause ends even when the UI is closed.
+ *
+ * The deadline is also saved in private preferences: if Android kills the
+ * service during a pause, the watchdog restarts the VPN and
+ * [restore] re-applies the remaining pause instead of silently turning
+ * blocking back on. The pause is forgotten only when the user turns
+ * protection off.
  */
 object ProtectionPause {
     const val ACTION_PAUSE = "com.buzzqw.bbdns.action.PAUSE_PROTECTION"
@@ -37,6 +44,9 @@ object ProtectionPause {
 
     /** Durations offered by the home and the notification, in minutes. */
     val PRESETS = listOf(5, 15, 60)
+
+    private const val PREFS = "bbdns_protection_pause"
+    private const val KEY_PAUSED_UNTIL = "paused_until"
 
     private val handler = Handler(Looper.getMainLooper())
     private val resumeTask = Runnable { resume() }
@@ -53,15 +63,18 @@ object ProtectionPause {
      */
     fun pause(context: Context?, minutes: Int, setDnsBlocking: (Boolean) -> Unit) {
         if (minutes <= 0) return
-        context?.applicationContext?.let { appContext = it }
+        val until = System.currentTimeMillis() + minutes * 60_000L
+        context?.applicationContext?.let {
+            appContext = it
+            persist(it, until)
+        }
         setBlocking = setDnsBlocking
-        val durationMs = minutes * 60_000L
         setDnsBlocking(false)
-        ProtectionState.setPausedUntil(System.currentTimeMillis() + durationMs)
+        ProtectionState.setPausedUntil(until)
         handler.removeCallbacks(resumeTask)
-        handler.postDelayed(resumeTask, durationMs)
+        handler.postDelayed(resumeTask, minutes * 60_000L)
         Logger.info("Protection paused for $minutes min")
-        refreshTile()
+        refreshSurfaces()
     }
 
     /** End the pause now. Does nothing when protection is not paused. */
@@ -71,8 +84,9 @@ object ProtectionPause {
         ProtectionState.setPausedUntil(0L)
         setBlocking?.invoke(true)
         setBlocking = null
+        appContext?.let { persist(it, 0L) }
         Logger.info("Protection resumed")
-        refreshTile()
+        refreshSurfaces()
     }
 
     /**
@@ -84,7 +98,63 @@ object ProtectionPause {
         if (until > 0L && System.currentTimeMillis() >= until) resume()
     }
 
-    private fun refreshTile() {
+    /**
+     * Re-apply a pause saved before the process was killed. Call it once the
+     * VPN rules are ready, right after a session starts.
+     */
+    fun restore(context: Context?, setDnsBlocking: (Boolean) -> Unit) {
+        val ctx = context?.applicationContext ?: return
+        appContext = ctx
+        val saved = read(ctx)
+        if (saved <= System.currentTimeMillis()) {
+            if (saved != 0L) persist(ctx, 0L)
+            return
+        }
+        setBlocking = setDnsBlocking
+        setDnsBlocking(false)
+        ProtectionState.setPausedUntil(saved)
+        handler.removeCallbacks(resumeTask)
+        handler.postDelayed(resumeTask, saved - System.currentTimeMillis())
+        Logger.info("Protection pause restored, resumes at ${java.util.Date(saved)}")
+        refreshSurfaces()
+    }
+
+    /** Drop the in-process timer and state, keeping the saved deadline. */
+    fun resetSession() {
+        handler.removeCallbacks(resumeTask)
+        setBlocking = null
+        ProtectionState.setPausedUntil(0L)
+    }
+
+    /** Forget the pause completely. Used when the user stops protection. */
+    fun clear(context: Context?) {
+        context?.applicationContext?.let { appContext = it }
+        handler.removeCallbacks(resumeTask)
+        setBlocking = null
+        ProtectionState.setPausedUntil(0L)
+        appContext?.let { persist(it, 0L) }
+    }
+
+    private fun persist(context: Context, until: Long) {
+        try {
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .edit()
+                .putLong(KEY_PAUSED_UNTIL, until)
+                .apply()
+        } catch (e: Exception) {
+            Logger.warn("Cannot save the pause deadline: ${e.message}")
+        }
+    }
+
+    private fun read(context: Context): Long = try {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getLong(KEY_PAUSED_UNTIL, 0L)
+    } catch (e: Exception) {
+        0L
+    }
+
+    /** Keep the Quick Settings tile and the home screen widget in sync. */
+    private fun refreshSurfaces() {
         val context = appContext ?: return
         try {
             TileService.requestListeningState(
@@ -94,5 +164,6 @@ object ProtectionPause {
         } catch (e: Exception) {
             Logger.debug("Cannot refresh the Quick Settings tile: ${e.message}")
         }
+        BbdsWidgetProvider.updateAll(context)
     }
 }

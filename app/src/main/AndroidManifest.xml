@@ -104,6 +104,18 @@
         </service>
 
         <receiver
+            android:name=".service.widget.BbdsWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_description">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_bbdns_info" />
+        </receiver>
+
+        <receiver
             android:name=".data.service.BootReceiver"
             android:exported="true">
             <intent-filter>
