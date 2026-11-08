@@ -9,6 +9,25 @@ BBDNS is designed to be easy enough for everyday users, while still offering det
 
 ---
 
+## Install
+
+- **GitHub Releases**: download the signed APK from the
+  [latest release](https://github.com/buzzqw/BetterBlockerDNS/releases/latest).
+- **F-Droid**: add this repository in F-Droid under
+  **Settings → Repositories** while official inclusion is pending:
+
+  ```text
+  https://buzzqw.github.io/BetterBlockerDNS/repo
+  ```
+
+  Repository fingerprint:
+
+  ```text
+  13:64:2D:F1:5D:EC:D4:EE:11:9B:EE:11:C1:9C:61:5F:B1:B8:3C:CD:79:3C:52:75:F7:36:65:F8:40:A3:54:8D
+  ```
+
+---
+
 ## Features
 
 - **VPN-only protection** — root mode, systemless hosts and privileged helper modes are not supported.

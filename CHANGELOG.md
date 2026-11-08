@@ -10,6 +10,12 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Self-hosted F-Droid repository
+- Added a signed F-Droid repository on GitHub Pages, so BBDNS can be installed
+  and updated from F-Droid while official inclusion is pending.
+- Added a script to publish new releases to that repository.
+- No change to the app's behaviour.
+
 ### README cleanup
 - Removed a redundant note about the GitHub Sponsor button from the README.
 - No change to the app's behaviour.
