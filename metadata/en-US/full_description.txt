@@ -1,4 +1,4 @@
-BetterBlockerDNS (BBDNS) is a free, open-source DNS ad blocker for Android. It blocks ads, trackers, malware, phishing and unwanted content system-wide through a local VPN — no root required and no data leaves your device.
+BetterBlockerDNS (BBDNS) is a free, open-source DNS ad blocker for Android. It blocks ads, trackers, malware, phishing and unwanted content system-wide through a local VPN — no root required and no account. Filtering runs on the device; DNS queries go only to the resolver you choose.
 
 ✓ Native HaGeZi and StevenBlack blocklist catalogues
 ✓ One-tap protection profiles (Essential, Balanced, Pro, Aggressive, Maximum)
@@ -40,3 +40,5 @@ Stop ads and trackers before they load with powerful DNS filtering, system-wide 
 - Backup and restore of settings and lists
 
 BetterBlockerDNS is distributed under the GNU General Public License v3.0. Copyright notices of the original authors are retained in the source files.
+
+BBDNS includes GPL-3.0 code derived from DNSNet (https://github.com/t895/DNSNet), DNS66 and NetGuard. The original copyright notices are kept in the source files. The name, icon, screenshots and feature set are specific to BBDNS.

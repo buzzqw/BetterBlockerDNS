@@ -1,1 +1,1 @@
-BetterBlockerDNS: DNS AdBlocker
+BetterBlockerDNS (BBDNS)
