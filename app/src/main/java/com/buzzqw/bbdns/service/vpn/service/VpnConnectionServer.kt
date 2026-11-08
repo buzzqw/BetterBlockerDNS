@@ -203,8 +203,8 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            NetworkConstants.ACTION_TOGGLE_CELLURAL -> toggleWifiAccess(intent.getStringExtra("packageName"))
-            NetworkConstants.ACTION_TOGGLE_WIFI -> toggleCellularAccess(intent.getStringExtra("packageName"))
+            NetworkConstants.ACTION_TOGGLE_CELLURAL -> toggleCellularAccess(intent.getStringExtra("packageName"))
+            NetworkConstants.ACTION_TOGGLE_WIFI -> toggleWifiAccess(intent.getStringExtra("packageName"))
             NetworkConstants.ACTION_STOP_VPN -> stopVpn(userInitiated = true)
             ProtectionPause.ACTION_PAUSE, ProtectionPause.ACTION_RESUME -> {
                 if (!ProtectionState.isRunning) {

@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-08
 
+### Notification actions
+- The Wi-Fi and mobile data buttons in the "new app installed" notification
+  now change the permission they are labelled with.
+
 ### Release 1.0.27
 - Published the interface and translation improvements listed below.
 - No changes to DNS blocking, DNS over HTTPS or the blocklist catalogues.
