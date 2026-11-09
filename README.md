@@ -66,35 +66,8 @@ BBDNS will be proposed to F-Droid after three months of maintenance.
 - **Automatic updates** — from 6 hours to 1 week.
 - **Per-app control** — Wi-Fi and cellular access, plus VPN bypass.
 - **Quick Settings tile and home screen widget** — see the status and blocked requests at a glance, and start, stop or resume protection with one tap.
-- **Automation intents** — let Tasker, MacroDroid, Home Assistant or `adb` control protection (see below).
+- **Automation intents** — let Tasker, MacroDroid, Home Assistant or `adb` control protection. See [Automation](docs/AUTOMATION.md).
 - Notifications, backup/restore and Material 3 theming.
-
----
-
-## Automation
-
-Protection can be controlled by automation apps and scripts through these
-broadcasts, sent explicitly to `com.buzzqw.bbdns`:
-
-| Action | Effect |
-|---|---|
-| `com.buzzqw.bbdns.action.START_PROTECTION` | Start protection. Requires the VPN permission already granted. |
-| `com.buzzqw.bbdns.action.STOP_PROTECTION` | Stop protection. |
-| `com.buzzqw.bbdns.action.TOGGLE_PROTECTION` | Stop if running, start otherwise. |
-| `com.buzzqw.bbdns.action.PAUSE_PROTECTION` | Pause DNS blocking; add the `minutes` integer extra (default 15, max 1440). The VPN stays up. |
-| `com.buzzqw.bbdns.action.RESUME_PROTECTION` | End a pause now. |
-
-The receiver only changes the protection state: it never exposes logs, settings
-or blocked domains. Examples:
-
-```bash
-adb shell am broadcast -a com.buzzqw.bbdns.action.START_PROTECTION -p com.buzzqw.bbdns
-adb shell am broadcast -a com.buzzqw.bbdns.action.PAUSE_PROTECTION --ei minutes 30 -p com.buzzqw.bbdns
-adb shell am broadcast -a com.buzzqw.bbdns.action.RESUME_PROTECTION -p com.buzzqw.bbdns
-```
-
-A temporary pause now survives a service restart: if Android kills the VPN
-during the pause, protection comes back still paused for the remaining time.
 
 ---
 
