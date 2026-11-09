@@ -128,7 +128,7 @@ Requirements:
 - Android Studio Ladybug or newer
 - JDK 17+
 - Android SDK 36 (minSdk 24)
-- Go 1.25+ and Android NDK 27 (the native `nflog` libraries are built at compile time and are not committed)
+- Android NDK 27 (the native packet engine is built at compile time)
 
 From the command line:
 

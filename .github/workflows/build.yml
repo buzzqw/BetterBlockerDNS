@@ -33,12 +33,6 @@ jobs:
           distribution: temurin
           cache: gradle
 
-      - name: Set up Go
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
-        with:
-          go-version: '1.25.x'
-          cache: false
-
       - name: Set up Android NDK
         uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779 # v1
         with:

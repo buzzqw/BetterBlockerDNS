@@ -10,6 +10,12 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-09
 
+### Smaller build and download
+- The unused native nflog helper and the unused Retrofit/Gson libraries are
+  gone, so the APK is smaller and the HTTP client is declared directly.
+- Building from source no longer needs the Go toolchain: only the Android NDK
+  is required.
+
 ### Logs
 - The logs screen now shows the newest entries first and stays fast when the
   stored history is full.

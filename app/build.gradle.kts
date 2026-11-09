@@ -122,11 +122,6 @@ android {
         }
     }
     
-    tasks.whenTaskAdded {
-        if (name.startsWith("merge") && name.contains("JniLibFolders")) {
-            dependsOn("buildGoLibraries")
-        }
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -150,47 +145,6 @@ android {
                 "/META-INF/DEPENDENCIES",
                 "/META-INF/INDEX.LIST"
             )
-        }
-    }
-    sourceSets {
-        getByName("main") {
-            jniLibs.srcDirs("libs/")
-        }
-    }
-    
-    tasks.register<Exec>("buildGoLibraries") {
-        group = "build"
-        description = "Build Go libraries for Android"
-        
-        val goDir = layout.projectDirectory.dir("src/main/go")
-        val libsDir = layout.projectDirectory.dir("libs")
-        
-        inputs.dir(goDir)
-        outputs.files(
-            libsDir.file("arm64-v8a/libnflog.so"),
-            libsDir.file("armeabi-v7a/libnflog.so")
-        )
-        outputs.upToDateWhen { false }
-        
-        workingDir(goDir)
-        
-        val isWindows = org.gradle.internal.os.OperatingSystem.current().isWindows
-        val buildScript = if (isWindows) "build-android.bat" else "build-android.sh"
-        
-        if (isWindows) {
-            commandLine("cmd", "/c", buildScript)
-        } else {
-            commandLine("bash", buildScript)
-        }
-        
-        doFirst {
-            val buildScriptFile = goDir.file(buildScript).asFile
-            if (!buildScriptFile.exists()) {
-                throw GradleException("Build script $buildScript not found in ${goDir.asFile}")
-            }
-            
-            libsDir.dir("arm64-v8a").asFile.mkdirs()
-            libsDir.dir("armeabi-v7a").asFile.mkdirs()
         }
     }
     ksp {
@@ -303,10 +257,8 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.datastore.preferences)
 
-    // Retrofit
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-    implementation(libs.converter.scalars)
+    // HTTP client (DNS over HTTPS and blocklist downloads)
+    implementation(libs.okhttp)
 
     // Notification
     implementation(libs.androidx.core)

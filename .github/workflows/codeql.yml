@@ -1,8 +1,8 @@
 name: CodeQL
 
 # Advanced setup: default setup cannot build this Android project for
-# Java/Kotlin analysis (it needs the NDK and the Go toolchain), so the Kotlin
-# code is traced through a manual Gradle build instead.
+# Java/Kotlin analysis (it needs the NDK), so the Kotlin code is traced
+# through a manual Gradle build instead.
 on:
   push:
     branches:
@@ -37,8 +37,6 @@ jobs:
             build-mode: none
           - language: c-cpp
             build-mode: none
-          - language: go
-            build-mode: manual
           - language: python
             build-mode: none
           - language: java-kotlin
@@ -55,13 +53,6 @@ jobs:
           java-version: 17
           distribution: temurin
           cache: gradle
-
-      - name: Set up Go
-        if: matrix.language == 'java-kotlin' || matrix.language == 'go'
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
-        with:
-          go-version: '1.25.x'
-          cache: false
 
       - name: Set up Android NDK
         if: matrix.language == 'java-kotlin'
@@ -84,11 +75,6 @@ jobs:
         env:
           BBDNS_SKIP_EMAIL: "1"
         run: ./gradlew :app:assembleFdroidDebug --no-daemon --console=plain
-
-      - name: Build the Go helper
-        if: matrix.language == 'go'
-        working-directory: app/src/main/go
-        run: go build ./...
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4

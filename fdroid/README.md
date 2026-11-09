@@ -55,9 +55,11 @@ repository within 24-48 hours.
 
 ## Build notes
 
-- The app compiles its Go native library (`libnflog.so`) during the Gradle
-  build, so the recipe installs Go and declares NDK `27.0.12077973`. That
-  version must stay in sync with `app/src/main/go/build-android.sh`.
+- The recipe entry below builds version 1.0.29, whose Gradle build still
+  compiles the Go helper (`libnflog.so`); that is why it installs Go. Current
+  sources no longer ship that helper and only need NDK `27.0.12077973` for the
+  C packet engine. When the recipe is updated to a newer version, the Go steps
+  can be dropped.
 - While the official Gradle CDN returns 504 errors, the recipe caches Gradle
   9.9.0 from a mirror in `prebuild`; `gradlew-fdroid` verifies the archive
   against the official Gradle transparency log before using it.
