@@ -17,28 +17,54 @@
 
 package com.buzzqw.bbdns.core.utils.extensions
 
-import com.buzzqw.bbdns.core.logging.Logger
+import android.util.LruCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.InetAddress
-import java.net.UnknownHostException
+
+/**
+ * Reverse DNS answers are cached for a while: resolving the same address once
+ * per connection (or worse, once per packet) is a needless radio and CPU cost.
+ * An empty string means "no hostname", so failures are cached too.
+ */
+private const val HOSTNAME_CACHE_ENTRIES = 256
+private const val HOSTNAME_CACHE_TTL_MS = 10 * 60 * 1000L
+
+private class HostnameEntry(val hostname: String, val expiresAt: Long)
+
+private val hostnameCache = object : LruCache<String, HostnameEntry>(HOSTNAME_CACHE_ENTRIES) {}
 
 /**
  * Extension function to resolve an IP address to a hostname.
  *
- * @return The hostname as a String, or null if the resolution fails.
+ * @return the hostname as a String, or null if the resolution fails.
  */
 suspend fun String.resolveIpToHostname(): String? {
-    return withContext(Dispatchers.IO) {
-        try {
-            val address = InetAddress.getByName(this@resolveIpToHostname)
-            if (address.hostName == this@resolveIpToHostname) {
-                null
-            } else {
-                address.hostName
+    val address = this
+    val now = System.currentTimeMillis()
+    synchronized(hostnameCache) {
+        hostnameCache.get(address)?.let { entry ->
+            if (entry.expiresAt > now) {
+                return entry.hostname.ifEmpty { null }
             }
+            hostnameCache.remove(address)
+        }
+    }
+
+    val hostname = withContext(Dispatchers.IO) {
+        try {
+            val resolved = InetAddress.getByName(address)
+            if (resolved.hostName == address) null else resolved.hostName
         } catch (e: Exception) {
             null
         }
     }
+
+    synchronized(hostnameCache) {
+        hostnameCache.put(
+            address,
+            HostnameEntry(hostname ?: "", System.currentTimeMillis() + HOSTNAME_CACHE_TTL_MS)
+        )
+    }
+    return hostname
 }

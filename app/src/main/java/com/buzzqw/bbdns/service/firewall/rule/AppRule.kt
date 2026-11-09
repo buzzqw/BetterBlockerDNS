@@ -26,6 +26,7 @@ import com.buzzqw.bbdns.domain.usecase.log.LogUseCases
 import com.buzzqw.bbdns.service.firewall.model.FireWallModel
 import com.buzzqw.bbdns.service.firewall.model.FirewallResult
 import com.buzzqw.bbdns.service.firewall.utils.ConnectivityUtils
+import com.buzzqw.bbdns.service.firewall.utils.FlowUidCache
 import com.buzzqw.bbdns.service.vpn.network.transport.dns.DNSModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -66,7 +67,14 @@ class AppRule @Inject constructor(
         result: FirewallResult
     ): FirewallResult {
         if (packet.uid == 0) {
-            packet.uid = connectionUtils.getConnectionOwnerUid(packet)
+            // Resolve the UID once per flow: a hidden framework lookup (and a
+            // /proc scan on older devices) for every packet would waste CPU
+            // and battery. Only the first packet of the flow is logged.
+            val flow = FlowUidCache.resolve(packet) {
+                connectionUtils.getConnectionOwnerUid(packet)
+            }
+            packet.uid = flow.uid
+            packet.shouldLog = flow.firstPacket
         } else {
             packet.shouldLog = false
         }

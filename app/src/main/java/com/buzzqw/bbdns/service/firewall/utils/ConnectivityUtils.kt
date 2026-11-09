@@ -27,6 +27,7 @@ import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.service.firewall.model.FireWallModel
 import java.io.File
 import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Method
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.UnknownHostException
@@ -55,37 +56,47 @@ fun isLocalIPv4(ip: String): Boolean {
 }
 
 
+private val WHITESPACE_REGEX = Regex("\\s+")
+
 class ConnectivityUtils @Inject constructor(
     private val context: Context
 ) {
     private val connectivityManager = ContextCompat.getSystemService(context, ConnectivityManager::class.java)
 
+    /**
+     * The hidden framework method, looked up once: reflection on every packet
+     * is expensive and this method is only needed for a new flow.
+     */
+    private val connectionOwnerUidMethod: Method? = try {
+        ConnectivityManager::class.java.getMethod(
+            "getConnectionOwnerUid",
+            Int::class.javaPrimitiveType,
+            InetSocketAddress::class.java,
+            InetSocketAddress::class.java
+        )
+    } catch (_: Exception) {
+        null
+    }
+
     fun getConnectionOwnerUid(packet: FireWallModel): Int {
-        if (connectivityManager == null) {
+        val manager = connectivityManager
+        if (manager == null) {
             Logger.error("ConnectivityManager is not available")
             return INVALID_UID
         }
+
+        val method = connectionOwnerUidMethod ?: return getUidForConnectionOldMethodSafely(packet)
 
         return try {
             val localInetSocketAddress = InetSocketAddress(packet.sourceIP, packet.sourcePort)
             val remoteInetSocketAddress = InetSocketAddress(packet.destinationIP, packet.destinationPort)
 
-            val method = ConnectivityManager::class.java.getMethod(
-                "getConnectionOwnerUid",
-                Int::class.javaPrimitiveType,
-                InetSocketAddress::class.java,
-                InetSocketAddress::class.java
-            )
-
-            val uid = method.invoke(connectivityManager, packet.protocol, localInetSocketAddress, remoteInetSocketAddress) as? Int ?: INVALID_UID
-            uid
-        } catch (e: NoSuchMethodException) {
-            try {
-                val uid = getUidForConnectionOldMethod(packet)
-                return uid
-            } catch (e: Exception) {
-                INVALID_UID
-            }
+            method.invoke(
+                manager,
+                packet.protocol.toInt(),
+                localInetSocketAddress,
+                remoteInetSocketAddress
+            ) as? Int ?: INVALID_UID
         } catch (e: IllegalAccessException) {
             Logger.error("Illegal access to method: ${e.message}")
             INVALID_UID
@@ -95,6 +106,12 @@ class ConnectivityUtils @Inject constructor(
             Logger.error("Unexpected error: ${e.message}")
             INVALID_UID
         }
+    }
+
+    private fun getUidForConnectionOldMethodSafely(packet: FireWallModel): Int = try {
+        getUidForConnectionOldMethod(packet)
+    } catch (_: Exception) {
+        INVALID_UID
     }
 
     /**
@@ -107,21 +124,27 @@ class ConnectivityUtils @Inject constructor(
             else -> return -1
         }
 
-        val connectionList = File(filePath).readLines()
+        val connectionList = try {
+            File(filePath).readLines()
+        } catch (_: Exception) {
+            return INVALID_UID
+        }
 
         for (line in connectionList.drop(1)) {
-            val columns = line.trim().split(Regex("\\s+"))
+            val columns = line.trim().split(WHITESPACE_REGEX)
 
             if (columns.size >= 8) {
                 val localAddr = columns[1].split(":")
+                val remoteAddr = columns[2].split(":")
+                if (localAddr.size < 2 || remoteAddr.size < 2) continue
+
                 val localIp = parseHexToIp(localAddr[0])
                 val localPort = parseHexToPort(localAddr[1])
 
-                val remoteAddr = columns[2].split(":")
                 val remoteIp = parseHexToIp(remoteAddr[0])
                 val remotePort = parseHexToPort(remoteAddr[1])
 
-                val uid = columns[7].toInt()
+                val uid = columns[7].toIntOrNull() ?: continue
 
                 if (localIp == fireWallModel.sourceIP && localPort == fireWallModel.sourcePort &&
                     remoteIp == fireWallModel.destinationIP && remotePort == fireWallModel.destinationPort) {
@@ -130,7 +153,7 @@ class ConnectivityUtils @Inject constructor(
             }
         }
 
-        return -1
+        return INVALID_UID
     }
     private fun parseHexToIp(hexIp: String): String {
         val ipBytes = hexIp.chunked(2).map { it.toInt(16) }

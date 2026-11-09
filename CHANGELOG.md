@@ -10,6 +10,15 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-09
 
+### Battery usage
+- BBDNS now resolves and records each connection only once, so background
+  traffic no longer keeps the processor, the radio and the database busy.
+- Automatic blocklist updates follow the saved interval after a restart and
+  skip the full list reload when nothing changed, saving processor time on
+  every run.
+- The VPN handles TCP data with less overhead and refreshes the status
+  notification less often, reducing background wake-ups.
+
 ### Release 1.0.31
 - Added an "Update now" button to the blocklist update section and its interval
   dialog, so the lists can be refreshed immediately.

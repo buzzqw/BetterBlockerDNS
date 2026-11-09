@@ -27,6 +27,105 @@ static int current_tun_fd = -1;  // Global TUN file descriptor
 jclass clsPacket;
 jclass clsRR;
 
+/*
+ * The packet filtering callbacks are invoked for a very large number of
+ * packets. Looking up the class, the method IDs and the direction string every
+ * time is pure overhead, so they are cached once. The reusable byte array
+ * avoids creating a Java array for every packet as well.
+ */
+static jclass cached_tunnel_class = NULL;
+static jmethodID cached_tcp_method = NULL;
+static jmethodID cached_udp_method = NULL;
+static jmethodID cached_icmp_method = NULL;
+static jstring cached_tun_in = NULL;
+static jbyteArray cached_packet_buffer = NULL;
+static jsize cached_packet_capacity = 0;
+
+static void clear_jni_cache(JNIEnv *env) {
+    if (cached_packet_buffer != NULL) {
+        (*env)->DeleteGlobalRef(env, cached_packet_buffer);
+        cached_packet_buffer = NULL;
+        cached_packet_capacity = 0;
+    }
+    if (cached_tun_in != NULL) {
+        (*env)->DeleteGlobalRef(env, cached_tun_in);
+        cached_tun_in = NULL;
+    }
+    if (cached_tunnel_class != NULL) {
+        (*env)->DeleteGlobalRef(env, cached_tunnel_class);
+        cached_tunnel_class = NULL;
+    }
+    cached_tcp_method = NULL;
+    cached_udp_method = NULL;
+    cached_icmp_method = NULL;
+}
+
+static jboolean ensure_jni_cache(JNIEnv *env, jobject instance) {
+    if (cached_tunnel_class != NULL && cached_tcp_method != NULL &&
+        cached_udp_method != NULL && cached_icmp_method != NULL &&
+        cached_tun_in != NULL)
+        return JNI_TRUE;
+
+    if (cached_tunnel_class == NULL) {
+        jclass local = (*env)->GetObjectClass(env, instance);
+        if (local == NULL)
+            return JNI_FALSE;
+        cached_tunnel_class = (jclass) (*env)->NewGlobalRef(env, local);
+        (*env)->DeleteLocalRef(env, local);
+        if (cached_tunnel_class == NULL)
+            return JNI_FALSE;
+    }
+
+    if (cached_tcp_method == NULL)
+        cached_tcp_method = (*env)->GetMethodID(env, cached_tunnel_class, "onTcpPacketReceived", "([BILjava/lang/String;)Z");
+    if (cached_udp_method == NULL)
+        cached_udp_method = (*env)->GetMethodID(env, cached_tunnel_class, "onUdpPacketReceived", "([BILjava/lang/String;)Z");
+    if (cached_icmp_method == NULL)
+        cached_icmp_method = (*env)->GetMethodID(env, cached_tunnel_class, "onIcmpPacketReceived", "([BILjava/lang/String;)Z");
+
+    if (cached_tun_in == NULL) {
+        jstring local = (*env)->NewStringUTF(env, "TUN_IN");
+        if (local != NULL) {
+            cached_tun_in = (jstring) (*env)->NewGlobalRef(env, local);
+            (*env)->DeleteLocalRef(env, local);
+        }
+    }
+
+    return (cached_tcp_method != NULL && cached_udp_method != NULL &&
+            cached_icmp_method != NULL && cached_tun_in != NULL) ? JNI_TRUE : JNI_FALSE;
+}
+
+static jstring direction_string(JNIEnv *env, const char *direction, jboolean *local_ref) {
+    *local_ref = JNI_FALSE;
+    if (direction == NULL || strcmp(direction, "TUN_IN") == 0)
+        return cached_tun_in;
+    jstring local = (*env)->NewStringUTF(env, direction);
+    *local_ref = (local != NULL) ? JNI_TRUE : JNI_FALSE;
+    return local;
+}
+
+static jbyteArray packet_array(JNIEnv *env, jsize length) {
+    if (cached_packet_buffer != NULL && cached_packet_capacity >= length)
+        return cached_packet_buffer;
+
+    if (cached_packet_buffer != NULL) {
+        (*env)->DeleteGlobalRef(env, cached_packet_buffer);
+        cached_packet_buffer = NULL;
+        cached_packet_capacity = 0;
+    }
+
+    jsize capacity = (length < 2048 ? 2048 : length);
+    jbyteArray local = (*env)->NewByteArray(env, capacity);
+    if (local == NULL)
+        return NULL;
+    cached_packet_buffer = (jbyteArray) (*env)->NewGlobalRef(env, local);
+    (*env)->DeleteLocalRef(env, local);
+    if (cached_packet_buffer == NULL)
+        return NULL;
+    cached_packet_capacity = capacity;
+    return cached_packet_buffer;
+}
+
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
     if ((*vm)->GetEnv(vm, (void **) &env, JNI_VERSION_1_6) != JNI_OK) return -1;
@@ -46,6 +145,7 @@ void JNI_OnUnload(JavaVM *vm, void *reserved) {
     if ((*vm)->GetEnv(vm, (void **) &env, JNI_VERSION_1_6) == JNI_OK) {
         (*env)->DeleteGlobalRef(env, clsPacket);
         (*env)->DeleteGlobalRef(env, clsRR);
+        clear_jni_cache(env);
     }
 }
 
@@ -54,6 +154,8 @@ JNIEXPORT jlong JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_
     ctx->sdk = sdk;
     if (pthread_mutex_init(&ctx->lock, NULL)) log_android(ANDROID_LOG_ERROR, "pthread_mutex_init failed");
     if (pipe(ctx->pipefds)) log_android(ANDROID_LOG_ERROR, "Create pipe error %d: %s", errno, strerror(errno));
+    // Cache the callbacks once, before the packet loop starts.
+    ensure_jni_cache(env, instance);
     return (jlong) ctx;
 }
 
@@ -66,6 +168,7 @@ ctx->stopping = 0;
 JNIEXPORT void JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_jni_1run(JNIEnv *env, jobject instance, jlong context, jint tun, jboolean fwd53, jint rcode) {
 struct context *ctx = (struct context *) context;
 current_tun_fd = tun;  // Store TUN file descriptor globally
+ensure_jni_cache(env, instance);
 struct arguments *args = ng_malloc(sizeof(struct arguments), "arguments");
 args->env = env;
 args->instance = instance;
@@ -293,39 +396,30 @@ jboolean filter_tcp_packet(const struct arguments *args, const uint8_t *data, si
     if (args == NULL || args->env == NULL || args->instance == NULL || data == NULL) {
         return JNI_TRUE; // Allow packet if arguments are invalid
     }
-    
+
     JNIEnv *env = args->env;
-    
-    jclass cls = (*env)->GetObjectClass(env, args->instance);
-    if (cls == NULL) return JNI_TRUE;
-    
-    jmethodID methodID = (*env)->GetMethodID(env, cls, "onTcpPacketReceived", "([BILjava/lang/String;)Z");
-    if (methodID == NULL) {
-        (*env)->DeleteLocalRef(env, cls);
+    if (!ensure_jni_cache(env, args->instance) || cached_tcp_method == NULL)
         return JNI_TRUE;
-    }
-    
-    jbyteArray dataArray = (*env)->NewByteArray(env, (jsize)length);
-    if (dataArray == NULL) {
-        (*env)->DeleteLocalRef(env, cls);
+
+    jbyteArray dataArray = packet_array(env, (jsize) length);
+    if (dataArray == NULL)
         return JNI_TRUE;
-    }
-    
-    (*env)->SetByteArrayRegion(env, dataArray, 0, (jsize)length, (const jbyte*)data);
-    
-    jstring directionStr = (*env)->NewStringUTF(env, direction);
-    if (directionStr == NULL) {
-        (*env)->DeleteLocalRef(env, dataArray);
-        (*env)->DeleteLocalRef(env, cls);
+
+    jboolean local_direction = JNI_FALSE;
+    jstring directionStr = direction_string(env, direction, &local_direction);
+    if (directionStr == NULL)
         return JNI_TRUE;
+
+    (*env)->SetByteArrayRegion(env, dataArray, 0, (jsize) length, (const jbyte*)data);
+    jboolean result = (*env)->CallBooleanMethod(env, args->instance, cached_tcp_method, dataArray, (jint) length, directionStr);
+
+    if ((*env)->ExceptionCheck(env)) {
+        (*env)->ExceptionClear(env);
+        result = JNI_TRUE;
     }
-    
-    jboolean result = (*env)->CallBooleanMethod(env, args->instance, methodID, dataArray, (jint)length, directionStr);
-    
-    (*env)->DeleteLocalRef(env, dataArray);
-    (*env)->DeleteLocalRef(env, directionStr);
-    (*env)->DeleteLocalRef(env, cls);
-    
+    if (local_direction == JNI_TRUE)
+        (*env)->DeleteLocalRef(env, directionStr);
+
     return result;
 }
 
@@ -333,39 +427,30 @@ jboolean filter_udp_packet(const struct arguments *args, const uint8_t *data, si
     if (args == NULL || args->env == NULL || args->instance == NULL || data == NULL) {
         return JNI_TRUE; // Allow packet if arguments are invalid
     }
-    
+
     JNIEnv *env = args->env;
-    
-    jclass cls = (*env)->GetObjectClass(env, args->instance);
-    if (cls == NULL) return JNI_TRUE;
-    
-    jmethodID methodID = (*env)->GetMethodID(env, cls, "onUdpPacketReceived", "([BILjava/lang/String;)Z");
-    if (methodID == NULL) {
-        (*env)->DeleteLocalRef(env, cls);
+    if (!ensure_jni_cache(env, args->instance) || cached_udp_method == NULL)
         return JNI_TRUE;
-    }
-    
-    jbyteArray dataArray = (*env)->NewByteArray(env, (jsize)length);
-    if (dataArray == NULL) {
-        (*env)->DeleteLocalRef(env, cls);
+
+    jbyteArray dataArray = packet_array(env, (jsize) length);
+    if (dataArray == NULL)
         return JNI_TRUE;
-    }
-    
-    (*env)->SetByteArrayRegion(env, dataArray, 0, (jsize)length, (const jbyte*)data);
-    
-    jstring directionStr = (*env)->NewStringUTF(env, direction);
-    if (directionStr == NULL) {
-        (*env)->DeleteLocalRef(env, dataArray);
-        (*env)->DeleteLocalRef(env, cls);
+
+    jboolean local_direction = JNI_FALSE;
+    jstring directionStr = direction_string(env, direction, &local_direction);
+    if (directionStr == NULL)
         return JNI_TRUE;
+
+    (*env)->SetByteArrayRegion(env, dataArray, 0, (jsize) length, (const jbyte*)data);
+    jboolean result = (*env)->CallBooleanMethod(env, args->instance, cached_udp_method, dataArray, (jint) length, directionStr);
+
+    if ((*env)->ExceptionCheck(env)) {
+        (*env)->ExceptionClear(env);
+        result = JNI_TRUE;
     }
-    
-    jboolean result = (*env)->CallBooleanMethod(env, args->instance, methodID, dataArray, (jint)length, directionStr);
-    
-    (*env)->DeleteLocalRef(env, dataArray);
-    (*env)->DeleteLocalRef(env, directionStr);
-    (*env)->DeleteLocalRef(env, cls);
-    
+    if (local_direction == JNI_TRUE)
+        (*env)->DeleteLocalRef(env, directionStr);
+
     return result;
 }
 
@@ -373,38 +458,29 @@ jboolean filter_icmp_packet(const struct arguments *args, const uint8_t *data, s
     if (args == NULL || args->env == NULL || args->instance == NULL || data == NULL) {
         return JNI_TRUE; // Allow packet if arguments are invalid
     }
-    
+
     JNIEnv *env = args->env;
-    
-    jclass cls = (*env)->GetObjectClass(env, args->instance);
-    if (cls == NULL) return JNI_TRUE;
-    
-    jmethodID methodID = (*env)->GetMethodID(env, cls, "onIcmpPacketReceived", "([BILjava/lang/String;)Z");
-    if (methodID == NULL) {
-        (*env)->DeleteLocalRef(env, cls);
+    if (!ensure_jni_cache(env, args->instance) || cached_icmp_method == NULL)
         return JNI_TRUE;
-    }
-    
-    jbyteArray dataArray = (*env)->NewByteArray(env, (jsize)length);
-    if (dataArray == NULL) {
-        (*env)->DeleteLocalRef(env, cls);
+
+    jbyteArray dataArray = packet_array(env, (jsize) length);
+    if (dataArray == NULL)
         return JNI_TRUE;
-    }
-    
-    (*env)->SetByteArrayRegion(env, dataArray, 0, (jsize)length, (const jbyte*)data);
-    
-    jstring directionStr = (*env)->NewStringUTF(env, direction);
-    if (directionStr == NULL) {
-        (*env)->DeleteLocalRef(env, dataArray);
-        (*env)->DeleteLocalRef(env, cls);
+
+    jboolean local_direction = JNI_FALSE;
+    jstring directionStr = direction_string(env, direction, &local_direction);
+    if (directionStr == NULL)
         return JNI_TRUE;
+
+    (*env)->SetByteArrayRegion(env, dataArray, 0, (jsize) length, (const jbyte*)data);
+    jboolean result = (*env)->CallBooleanMethod(env, args->instance, cached_icmp_method, dataArray, (jint) length, directionStr);
+
+    if ((*env)->ExceptionCheck(env)) {
+        (*env)->ExceptionClear(env);
+        result = JNI_TRUE;
     }
-    
-    jboolean result = (*env)->CallBooleanMethod(env, args->instance, methodID, dataArray, (jint)length, directionStr);
-    
-    (*env)->DeleteLocalRef(env, dataArray);
-    (*env)->DeleteLocalRef(env, directionStr);
-    (*env)->DeleteLocalRef(env, cls);
-    
+    if (local_direction == JNI_TRUE)
+        (*env)->DeleteLocalRef(env, directionStr);
+
     return result;
 }

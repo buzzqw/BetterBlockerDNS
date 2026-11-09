@@ -76,6 +76,16 @@ class RuleDatabaseUpdateWorker @AssistedInject constructor(
     private val pending = ArrayList<String>()
     private val done = ArrayList<String>()
 
+    /** True when at least one list was actually downloaded in this run. */
+    @Volatile
+    private var anyListChanged = false
+
+    /** Called after a successful download, before the worker parses the lists. */
+    @Synchronized
+    fun markListChanged() {
+        anyListChanged = true
+    }
+
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val start = System.currentTimeMillis()
         _isRefreshing.value = true
@@ -136,16 +146,22 @@ class RuleDatabaseUpdateWorker @AssistedInject constructor(
         // Update progress for parsing stage
         setProgress(workDataOf("progress" to 75, "stage" to "parsing"))
 
-        // Update domains once after all downloads complete with progress callback
-        Logger.info("Reloading domain rules from downloaded files")
-        try {
-            ruleDatabase.initialize { progress ->
-                setProgress(workDataOf("progress" to progress, "stage" to "parsing"))
+        // Reload the rules only when a list was downloaded or the selection of
+        // enabled lists changed. A periodic update where every server answered
+        // "304 Not Modified" must not re-read and rebuild the whole database.
+        if (anyListChanged || ruleDatabase.configurationChanged()) {
+            Logger.info("Reloading domain rules from downloaded files")
+            try {
+                ruleDatabase.initialize { progress ->
+                    setProgress(workDataOf("progress" to progress, "stage" to "parsing"))
+                }
+            } catch (e: Exception) {
+                // The files are downloaded: a failed reload must not report the
+                // download as failed. The next reload picks them up.
+                Logger.error("Reloading domain rules failed: ${e.message}", e)
             }
-        } catch (e: Exception) {
-            // The files are downloaded: a failed reload must not report the
-            // download as failed. The next reload picks them up.
-            Logger.error("Reloading domain rules failed: ${e.message}", e)
+        } else {
+            Logger.info("Blocklists unchanged: skipping domain rule reload")
         }
 
         FileHelper.cleanupOrphanedCache(config.hosts.items)

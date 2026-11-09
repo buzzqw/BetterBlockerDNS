@@ -28,6 +28,7 @@ import android.os.ParcelFileDescriptor
 import com.buzzqw.bbdns.service.vpn.network.util.NetworkConstants
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.domain.model.Application
+import com.buzzqw.bbdns.domain.model.Settings
 import com.buzzqw.bbdns.service.utils.receiver.AppChangeCallback
 import com.buzzqw.bbdns.service.utils.receiver.AppChangeReceiver
 import com.buzzqw.bbdns.domain.usecase.application.ApplicationUseCases
@@ -49,6 +50,11 @@ import kotlinx.coroutines.*
 import java.io.IOException
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
+
+/** How often the foreground counters are refreshed (was 5 s). */
+private const val NOTIFICATION_REFRESH_MS = 15_000L
+/** How often the notification settings are re-read. */
+private const val SETTINGS_REFRESH_MS = 5 * 60_000L
 
 @AndroidEntryPoint
 class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeCallback, FirewallService {
@@ -360,9 +366,11 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
     private fun startNotificationUpdates() {
         notificationJob?.cancel()
         notificationJob = launch(Dispatchers.IO) {
-            var lastSnapshot: Any? = null
+            var lastSnapshot: Any? = FirewallCounters.snapshot() to ProtectionState.pausedUntil.value
+            var cachedSettings: Settings? = null
+            var settingsLoadedAt = 0L
             while (isActive) {
-                delay(5_000)
+                delay(NOTIFICATION_REFRESH_MS)
                 if (isShuttingDown || !ProtectionState.isRunning) break
                 // Catch a pause that expired while the device was asleep.
                 ProtectionPause.resumeIfExpired()
@@ -371,7 +379,25 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
                 val snapshot = FirewallCounters.snapshot() to ProtectionState.pausedUntil.value
                 if (snapshot == lastSnapshot) continue
                 lastSnapshot = snapshot
-                this@VpnConnectionServer.showStartNotification(preferencesUseCases, appContext)
+
+                // Re-read the settings only every few minutes instead of on
+                // every refresh: the notification is rebuilt often enough.
+                val now = System.currentTimeMillis()
+                if (cachedSettings == null || now - settingsLoadedAt >= SETTINGS_REFRESH_MS) {
+                    cachedSettings = preferencesUseCases.loadSettings.execute().fold(
+                        ifSuccess = { it },
+                        ifFailure = { error ->
+                            Logger.error("Cannot refresh notification settings: ${error.message}")
+                            cachedSettings
+                        }
+                    )
+                    settingsLoadedAt = now
+                }
+                this@VpnConnectionServer.showStartNotification(
+                    preferencesUseCases,
+                    appContext,
+                    settings = cachedSettings
+                )
             }
         }
     }

@@ -39,6 +39,8 @@ class LogRule @Inject constructor(
 ) : FirewallRule {
 
     private val mutex = Mutex()
+
+    @Volatile
     private var isLogEnabled = false
 
     init {
@@ -70,29 +72,36 @@ class LogRule @Inject constructor(
         logUseCases: LogUseCases,
         result: FirewallResult
     ): FirewallResult {
+        // DNS queries always carry the domain shown in the log screen, so they
+        // are recorded every time. For all other traffic only the first packet
+        // of a flow is logged (see FlowUidCache): writing a row for every
+        // datagram filled the database and drained the battery.
+        if (!isLogEnabled || (dnsModel == null && !packet.shouldLog)) {
+            return FirewallResult.ACCEPT
+        }
+
         externalScope.launch(Dispatchers.IO) {
             mutex.withLock {
-                if (isLogEnabled && packet.shouldLog) {
-                    val log = Log(
-                        packageID = packet.uid,
-                        destinationIP = packet.destinationIP,
-                        destinationPort = packet.destinationPort.toString(),
-                        packetStatus = result,
-                        sourceIP = packet.sourceIP,
-                        sourcePort = packet.sourcePort.toString(),
-                        protocol = when (packet.protocol) {
-                            NetworkConstants.TCP_PROTOCOL -> "TCP"
-                            NetworkConstants.UDP_PROTOCOL -> "UDP"
-                            NetworkConstants.ICMP_PROTOCOL -> "ICMP"
-                            else -> "UKW"
-                        },
-                        destinationAddress = dnsModel?.domainName ?: packet.destinationIP.resolveIpToHostname()
-                    )
-                    try {
-                        logUseCases.addLog.execute(log)
-                    } catch (e: Exception) {
-                        Logger.error("Failed to add log: ${e.message}")
-                    }
+                if (!isLogEnabled) return@withLock
+                val log = Log(
+                    packageID = packet.uid,
+                    destinationIP = packet.destinationIP,
+                    destinationPort = packet.destinationPort.toString(),
+                    packetStatus = result,
+                    sourceIP = packet.sourceIP,
+                    sourcePort = packet.sourcePort.toString(),
+                    protocol = when (packet.protocol) {
+                        NetworkConstants.TCP_PROTOCOL -> "TCP"
+                        NetworkConstants.UDP_PROTOCOL -> "UDP"
+                        NetworkConstants.ICMP_PROTOCOL -> "ICMP"
+                        else -> "UKW"
+                    },
+                    destinationAddress = dnsModel?.domainName ?: packet.destinationIP.resolveIpToHostname()
+                )
+                try {
+                    logUseCases.addLog.execute(log)
+                } catch (e: Exception) {
+                    Logger.error("Failed to add log: ${e.message}")
                 }
             }
         }

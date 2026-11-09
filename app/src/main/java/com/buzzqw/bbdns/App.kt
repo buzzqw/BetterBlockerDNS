@@ -28,8 +28,13 @@ import androidx.work.WorkManager
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.data.cache.DomainCacheService
 import com.buzzqw.bbdns.data.service.ProtectionWatchdogWorker
+import com.buzzqw.bbdns.domain.usecase.preferences.PreferencesUseCases
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.AutoUpdateManager
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -41,6 +46,9 @@ class App : Application(), Configuration.Provider {
     
     @Inject
     lateinit var domainCacheService: DomainCacheService
+
+    @Inject
+    lateinit var preferencesUseCases: PreferencesUseCases
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -68,14 +76,22 @@ class App : Application(), Configuration.Provider {
     }
     
     private fun initializeAutoUpdate() {
-        try {
-            // Use default interval of 15 minutes if settings aren't available yet
-            // The actual interval and enabled state will be updated when settings are loaded
-            val defaultInterval = 15 * 60 * 1000L // 15 minutes
-            val defaultEnabled = true // Default to enabled
-            AutoUpdateManager.initializeAutoUpdate(this, defaultEnabled, defaultInterval)
-        } catch (e: Exception) {
-            // Silently handle initialization errors
+        // Read the saved interval and enabled flag before scheduling: the old
+        // code always scheduled a 15-minute job, even when the user had turned
+        // automatic updates off or kept the default 24 hours.
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            preferencesUseCases.loadSettings.execute().fold(
+                ifSuccess = { settings ->
+                    AutoUpdateManager.initializeAutoUpdate(
+                        this@App,
+                        settings.autoUpdateEnabled,
+                        settings.autoUpdateInterval
+                    )
+                },
+                ifFailure = { error ->
+                    Logger.error("Cannot schedule blocklist auto-update: ${error.message}")
+                }
+            )
         }
     }
 

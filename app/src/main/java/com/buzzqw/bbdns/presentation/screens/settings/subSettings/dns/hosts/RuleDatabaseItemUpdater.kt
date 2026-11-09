@@ -111,6 +111,7 @@ class RuleDatabaseItemUpdate(
                     return
                 }
                 downloadFile(file!!, singleWriterMultipleReaderFile, connection)
+                worker.markListChanged()
                 Logger.info("${item.title}: Download completed successfully")
                 worker.addDone(item)
                 return

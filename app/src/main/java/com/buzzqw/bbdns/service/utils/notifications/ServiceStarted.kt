@@ -29,6 +29,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.buzzqw.bbdns.R
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.core.utils.NotificationUtils
+import com.buzzqw.bbdns.domain.model.Settings
 import com.buzzqw.bbdns.domain.usecase.preferences.PreferencesUseCases
 import com.buzzqw.bbdns.presentation.MainActivity
 import com.buzzqw.bbdns.service.firewall.utils.FirewallCounters
@@ -43,89 +44,94 @@ suspend fun Service.showStartNotification(
     context: Context? = null,
     allowed: Long = FirewallCounters.snapshot().first,
     blocked: Long = FirewallCounters.snapshot().second,
+    settings: Settings? = null,
 ) {
     val contextNot = context ?: this
+    // The live counter refresh reloads the settings at most every few minutes
+    // and passes them in, instead of reading DataStore for every notification.
+    val currentSettings = settings ?: preferencesUseCases.loadSettings.execute().fold(
+        ifSuccess = { it },
+        ifFailure = { error ->
+            Logger.error("Failed to load settings: ${error.message}")
+            null
+        }
+    ) ?: return
 
-    preferencesUseCases.loadSettings.execute().fold(
-        ifSuccess = { settings ->
-            val channelID = NotificationUtils.createNotificationChannel(
-                context = contextNot,
-                channelId = "service_running",
-                channelName = R.string.vpn_service_channel_name,
-                channelDescription = R.string.vpn_service_channel_description,
-                importance = if (settings.permanentNotification) NotificationManager.IMPORTANCE_LOW else NotificationManager.IMPORTANCE_DEFAULT
-            )
-
-            val notificationPendingIntent = PendingIntent.getActivity(
-                contextNot,
-                0,
-                Intent(contextNot, MainActivity::class.java),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-
-            val pausedUntil = ProtectionState.pausedUntil.value
-            val pauseAction = if (pausedUntil > 0L) {
-                NotificationCompat.Action(
-                    0,
-                    contextNot.getString(R.string.notification_action_resume),
-                    servicePendingIntent(contextNot, ProtectionPause.ACTION_RESUME, 0)
-                )
-            } else {
-                NotificationCompat.Action(
-                    0,
-                    contextNot.getString(R.string.notification_action_pause_15),
-                    servicePendingIntent(contextNot, ProtectionPause.ACTION_PAUSE, 15)
-                )
-            }
-
-            val notificationNotColorized =
-                NotificationCompat.Builder(contextNot, channelID).apply {
-                    setContentTitle(contextNot.getString(R.string.vpn_service_running))
-                    setContentText(
-                        if (pausedUntil > 0L) {
-                            contextNot.getString(
-                                R.string.notification_paused_text,
-                                android.text.format.DateFormat.getTimeFormat(contextNot)
-                                    .format(Date(pausedUntil))
-                            )
-                        } else {
-                            contextNot.getString(
-                                R.string.notification_allowed_blocked,
-                                allowed,
-                                blocked
-                            )
-                        }
-                    )
-                    addAction(pauseAction)
-                    if (settings.permanentNotification) {
-                        // "Permanent" means quiet and uncoloured: it should not
-                        // attract attention while the VPN is running.
-                        setSilent(true)
-                        setOngoing(true)
-                        setColorized(false)
-                        setPriority(NotificationCompat.PRIORITY_LOW)
-                    } else {
-                        setColorized(true)
-                        setPriority(NotificationCompat.PRIORITY_HIGH)
-                    }
-                    // The notification is refreshed with live counters: alert
-                    // only the first time and keep it attached to the service.
-                    setOnlyAlertOnce(true)
-                    setOngoing(true)
-                    setShowWhen(false)
-                    // BBDNS brand green accent (small icon, app name, actions).
-                    setColor(ContextCompat.getColor(contextNot, R.color.bbdns_brand))
-                    setSmallIcon(R.drawable.logo)
-                    setContentIntent(notificationPendingIntent)
-                }.build()
-            if (context == null) {
-                startForeground(2, notificationNotColorized)
-            } else {
-                NotificationManagerCompat.from(contextNot).notify(2, notificationNotColorized)
-            }
-        },
-        ifFailure = { Logger.error("Failed to load settings: ${it.message}") }
+    val channelID = NotificationUtils.createNotificationChannel(
+        context = contextNot,
+        channelId = "service_running",
+        channelName = R.string.vpn_service_channel_name,
+        channelDescription = R.string.vpn_service_channel_description,
+        importance = if (currentSettings.permanentNotification) NotificationManager.IMPORTANCE_LOW else NotificationManager.IMPORTANCE_DEFAULT
     )
+
+    val notificationPendingIntent = PendingIntent.getActivity(
+        contextNot,
+        0,
+        Intent(contextNot, MainActivity::class.java),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
+    val pausedUntil = ProtectionState.pausedUntil.value
+    val pauseAction = if (pausedUntil > 0L) {
+        NotificationCompat.Action(
+            0,
+            contextNot.getString(R.string.notification_action_resume),
+            servicePendingIntent(contextNot, ProtectionPause.ACTION_RESUME, 0)
+        )
+    } else {
+        NotificationCompat.Action(
+            0,
+            contextNot.getString(R.string.notification_action_pause_15),
+            servicePendingIntent(contextNot, ProtectionPause.ACTION_PAUSE, 15)
+        )
+    }
+
+    val notificationNotColorized =
+        NotificationCompat.Builder(contextNot, channelID).apply {
+            setContentTitle(contextNot.getString(R.string.vpn_service_running))
+            setContentText(
+                if (pausedUntil > 0L) {
+                    contextNot.getString(
+                        R.string.notification_paused_text,
+                        android.text.format.DateFormat.getTimeFormat(contextNot)
+                            .format(Date(pausedUntil))
+                    )
+                } else {
+                    contextNot.getString(
+                        R.string.notification_allowed_blocked,
+                        allowed,
+                        blocked
+                    )
+                }
+            )
+            addAction(pauseAction)
+            if (currentSettings.permanentNotification) {
+                // "Permanent" means quiet and uncoloured: it should not
+                // attract attention while the VPN is running.
+                setSilent(true)
+                setOngoing(true)
+                setColorized(false)
+                setPriority(NotificationCompat.PRIORITY_LOW)
+            } else {
+                setColorized(true)
+                setPriority(NotificationCompat.PRIORITY_HIGH)
+            }
+            // The notification is refreshed with live counters: alert
+            // only the first time and keep it attached to the service.
+            setOnlyAlertOnce(true)
+            setOngoing(true)
+            setShowWhen(false)
+            // BBDNS brand green accent (small icon, app name, actions).
+            setColor(ContextCompat.getColor(contextNot, R.color.bbdns_brand))
+            setSmallIcon(R.drawable.logo)
+            setContentIntent(notificationPendingIntent)
+        }.build()
+    if (context == null) {
+        startForeground(2, notificationNotColorized)
+    } else {
+        NotificationManagerCompat.from(contextNot).notify(2, notificationNotColorized)
+    }
 }
 
 /** Intent delivered to the VPN service by a notification action. */

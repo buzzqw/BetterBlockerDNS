@@ -134,6 +134,7 @@ class RuleDatabase {
     @Volatile private var sourceTitles: List<String> = emptyList()
     @Volatile private var patternListTitles: Set<String> = emptySet()
     @Volatile private var whitelistListTitles: Set<String> = emptySet()
+    @Volatile private var loadedConfiguration: String? = null
 
     /**
      * Domains from "wildcard domain" lists (e.g. the HaGeZi wildcard "onlydomains" lists):
@@ -150,6 +151,32 @@ class RuleDatabase {
     private val regexRules = mutableListOf<BlocklistRule.RegexPattern>()
     private val whitelistedHosts = mutableSetOf<String>()
     private val blockedTlds = mutableSetOf<String>()
+
+    /**
+     * True when the enabled lists or the user exceptions differ from the rules
+     * currently loaded. The periodic update uses it to avoid reparsing every
+     * list when the servers answered "304 Not Modified".
+     */
+    fun configurationChanged(): Boolean = try {
+        loadedConfiguration != configurationSignature()
+    } catch (_: Exception) {
+        // A concurrent change must never skip a needed reload.
+        true
+    }
+
+    private fun configurationSignature(): String {
+        val builder = StringBuilder()
+        config.hosts.items.forEach { item ->
+            if (item.state != HostState.IGNORE) {
+                builder.append(item.data).append(':').append(item.state.ordinal).append(';')
+            }
+        }
+        builder.append('|')
+        config.hosts.exceptions.forEach { exception ->
+            builder.append(exception.data).append(':').append(exception.state.ordinal).append(';')
+        }
+        return builder.toString()
+    }
 
     fun isBlocked(host: String): Boolean {
         val lowerHost = host.lowercase()
@@ -291,6 +318,7 @@ class RuleDatabase {
     private suspend fun initializeLocked(progressCallback: (suspend (Int) -> Unit)?) {
         val stats = ArrayList<ListStat>()
         loadingStats = stats
+        val signature = configurationSignature()
 
         val sortedHostItems = config.hosts.items
             .mapNotNull {
@@ -354,7 +382,7 @@ class RuleDatabase {
         _listStats.value = stats
         val totalRules = newHosts.size + wildcardRules.size + regexRules.size
         Logger.info("Domain rules loaded: ${totalRules + newSuffixes.size} total (${newHosts.size} domains, ${newSuffixes.size} wildcard domains, ${wildcardRules.size} wildcards, ${regexRules.size} regex, ${whitelistedHosts.size} whitelisted)")
-        Runtime.getRuntime().gc()
+        loadedConfiguration = signature
     }
 
     @Throws(InterruptedException::class)

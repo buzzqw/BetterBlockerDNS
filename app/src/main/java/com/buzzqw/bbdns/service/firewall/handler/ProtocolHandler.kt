@@ -29,7 +29,7 @@ interface ProtocolHandler {
     fun handle(protocol: Any?, ipHeader: IPv4?): FireWallModel?
 }
 
-class ICMPHandler : ProtocolHandler {
+object ICMPHandler : ProtocolHandler {
     override fun handle(protocol: Any?, ipHeader: IPv4?): FireWallModel? {
         return  if (protocol != null && ipHeader != null) {
            if (protocol is ICMPModel) {
@@ -43,7 +43,7 @@ class ICMPHandler : ProtocolHandler {
     }
 }
 
-class TCPHandler : ProtocolHandler {
+object TCPHandler : ProtocolHandler {
     override fun handle(protocol: Any?, ipHeader: IPv4?): FireWallModel? {
         return if (protocol != null && ipHeader != null) {
              if (protocol is TCPHeader) {
@@ -59,7 +59,7 @@ class TCPHandler : ProtocolHandler {
     }
 }
 
-class UDPHandler : ProtocolHandler {
+object UDPHandler : ProtocolHandler {
     override fun handle(protocol: Any?, ipHeader: IPv4?): FireWallModel? {
         return if (protocol != null && ipHeader != null) {
             if (protocol is UDPModel) {
@@ -78,9 +78,9 @@ class UDPHandler : ProtocolHandler {
 object ProtocolHandlerFactory {
     fun getHandler(protocol: Any?): ProtocolHandler? {
         return when (protocol) {
-            is ICMPModel -> ICMPHandler()
-            is TCPHeader -> TCPHandler()
-            is UDPModel -> UDPHandler()
+            is ICMPModel -> ICMPHandler
+            is TCPHeader -> TCPHandler
+            is UDPModel -> UDPHandler
             else -> null
         }
     }

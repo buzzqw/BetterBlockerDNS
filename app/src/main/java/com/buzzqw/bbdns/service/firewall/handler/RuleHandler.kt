@@ -61,6 +61,13 @@ class RuleHandler @Inject constructor(
 ) {
     var allowLocal = false
 
+    /**
+     * The rules are split once: building a sublist for every packet created
+     * garbage on the traffic path.
+     */
+    private val ruleChain = rules.dropLast(1)
+    private val logRule = rules.last()
+
     init {
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         val screenStateReceiver = ScreenStateReceiver()
@@ -156,7 +163,7 @@ class RuleHandler @Inject constructor(
 
         var result = FirewallResult.ACCEPT
         packet.apply {
-            for (rule in rules.dropLast(1)) {
+            for (rule in ruleChain) {
                 val ruleResult = rule.check(packet, dnsModel, logUseCases, result)
                 if (result == FirewallResult.ACCEPT && ruleResult != FirewallResult.ACCEPT) {
                     result = ruleResult
@@ -164,7 +171,7 @@ class RuleHandler @Inject constructor(
             }
         }
 
-        rules.last().check(packet, dnsModel, logUseCases, result)
+        logRule.check(packet, dnsModel, logUseCases, result)
         // Count DNS queries, plus connections blocked by the per-app rules:
         // counting every allowed packet would make the block rate meaningless.
         if (dnsModel != null || result != FirewallResult.ACCEPT) {

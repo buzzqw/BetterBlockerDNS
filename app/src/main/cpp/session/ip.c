@@ -163,6 +163,7 @@ void handle_ip(const struct arguments *args, const uint8_t *pkt, const size_t le
     inet_ntop(version == 4 ? AF_INET : AF_INET6, daddr, dest, sizeof(dest));
 
     int syn = 0;
+    int tcp_new_connection = 0;
     uint16_t sport = 0;
     uint16_t dport = 0;
     *data = 0;
@@ -198,6 +199,10 @@ void handle_ip(const struct arguments *args, const uint8_t *pkt, const size_t le
         if (tcp->syn) {
             syn = 1;
             flags[flen++] = 'S';
+            // A new connection is a SYN without ACK: the Java rule engine
+            // ignores every other TCP packet anyway (see TunnelManager), so
+            // avoid the JNI call for the bulk of the traffic.
+            tcp_new_connection = !tcp->ack;
         }
         if (tcp->ack)
             flags[flen++] = 'A';
@@ -262,7 +267,11 @@ void handle_ip(const struct arguments *args, const uint8_t *pkt, const size_t le
             handle_udp(args, pkt, length, payload, uid, redirect, epoll_fd);
         }
     } else if (protocol == IPPROTO_TCP) {
-        allow_packet = filter_tcp_packet(args, pkt, length, "TUN_IN");
+        // Only a new connection needs the Kotlin rules: for every other packet
+        // the JNI upcall would return "allow" without doing anything.
+        allow_packet = tcp_new_connection
+            ? filter_tcp_packet(args, pkt, length, "TUN_IN")
+            : JNI_TRUE;
         if (allow_packet) {
             handle_tcp(args, pkt, length, payload, uid, allowed, redirect, epoll_fd);
         }
