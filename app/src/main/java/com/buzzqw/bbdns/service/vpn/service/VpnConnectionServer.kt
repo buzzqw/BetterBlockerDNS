@@ -47,7 +47,6 @@ import com.buzzqw.bbdns.service.widget.BbdsWidgetProvider
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
-import java.io.IOException
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
@@ -230,10 +229,16 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
                 return START_STICKY
             }
             NetworkConstants.ACTION_CLEAR_SESSIONS -> {
+                if (!ProtectionState.isRunning) {
+                    // A stale request must not keep an idle service alive.
+                    stopSelf()
+                    return START_NOT_STICKY
+                }
+                // A network change only clears the sessions: the VPN keeps
+                // running and must stay sticky, otherwise Android would not
+                // restart it after a process kill.
                 clearSessions()
-                // For session clearing, we don't need to keep the service running
-                stopSelf()
-                return START_NOT_STICKY
+                return START_STICKY
             }
         }
         return START_STICKY
@@ -497,23 +502,23 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
             persistProtectionEnabled(false)
         }
         if (::firewallManager.isInitialized) {
-            if (firewallManager.rulesLoaded.value.name() == FirewallStatus.ONLINE.name()) {
-                firewallManager.update(FirewallStatus.OFFLINE)
-                coroutineContext.cancel()
-                try {
-                    closeResources()
-                } catch (e: IOException) {
-                    Logger.error("Error closing resources: ${e.localizedMessage}", e)
-                }
-
-                // stopForeground is now called in onDestroy() to prevent timeout
-                Logger.info("Vpn server is stopped")
-                isStoppedBySelf = true
-                stopSelf()
-            }
+            firewallManager.update(FirewallStatus.OFFLINE)
         } else {
             Logger.warn("Vpn server is not running")
         }
+        // Close the TUN descriptor and the tunnel even when the status was not
+        // ONLINE: otherwise a failed or interrupted start would leak them.
+        try {
+            closeResources()
+        } catch (e: Exception) {
+            Logger.error("Error closing resources: ${e.localizedMessage}", e)
+        }
+        coroutineContext.cancel()
+
+        // stopForeground is now called in onDestroy() to prevent timeout
+        Logger.info("Vpn server is stopped")
+        isStoppedBySelf = true
+        stopSelf()
     }
 }
 

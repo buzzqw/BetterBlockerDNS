@@ -10,6 +10,13 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-09
 
+### VPN stability
+- Protection keeps the VPN running when the network changes, and the firewall
+  now talks to the running service: rule changes and session resets apply
+  immediately.
+- Turning protection off now always closes the tunnel and releases the TUN
+  interface, even if the start had not completed.
+
 ### Release 1.0.32
 - BBDNS now resolves and records each connection only once, so background
   traffic no longer keeps the processor, the radio and the database busy.

@@ -18,15 +18,11 @@
 package com.buzzqw.bbdns.di.firewall
 
 import android.content.Context
-import com.buzzqw.bbdns.data.service.ConnectionStateManager
-import com.buzzqw.bbdns.data.service.NetworkManager
-import com.buzzqw.bbdns.domain.usecase.application.ApplicationUseCases
-import com.buzzqw.bbdns.domain.usecase.preferences.PreferencesUseCases
 import com.buzzqw.bbdns.service.firewall.handler.RuleHandler
 import com.buzzqw.bbdns.service.utils.manager.FirewallManager
+import com.buzzqw.bbdns.service.utils.manager.FirewallService
 import com.buzzqw.bbdns.service.utils.manager.FirewallStateManager
-import com.buzzqw.bbdns.service.vpn.service.VpnConnectionClient
-import com.buzzqw.bbdns.service.vpn.service.VpnConnectionServer
+import com.buzzqw.bbdns.service.utils.manager.VpnServiceFacade
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -46,18 +42,11 @@ object FirewallModule {
 
     @Provides
     @Singleton
-    fun provideVpnConnection(
+    fun provideVpnServiceFacade(
         ruleHandler: RuleHandler,
-        applicationUseCases: ApplicationUseCases,
-        preferencesUseCases: PreferencesUseCases,
         @ApplicationContext context: Context,
-        ): VpnConnectionServer {
-        return VpnConnectionServer().apply {
-            this.ruleManager = ruleHandler
-            this.applicationUseCases = applicationUseCases
-            this.preferencesUseCases = preferencesUseCases
-            appContext = context
-        }
+    ): FirewallService {
+        return VpnServiceFacade(ruleHandler, context)
     }
 
     @Provides
@@ -65,7 +54,7 @@ object FirewallModule {
     fun provideFirewallManager(
         firewallStateManager: FirewallStateManager,
         @ApplicationContext context: Context,
-        vpnService: VpnConnectionServer
+        vpnService: FirewallService
     ): FirewallManager {
         return FirewallManager(firewallStateManager, context, vpnService)
     }

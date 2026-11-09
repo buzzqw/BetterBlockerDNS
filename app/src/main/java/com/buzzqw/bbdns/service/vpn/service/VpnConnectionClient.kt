@@ -186,8 +186,11 @@ class VpnConnectionClient : VpnService() {
 
     private fun stopVpnService(fd: Int) {
         try {
+            // stopService() would only remove the "started" state: it never
+            // delivers the action, so the bound server would keep the TUN
+            // open. Send the stop command instead.
             val intent = createServiceIntent(fd, NetworkConstants.ACTION_STOP_VPN)
-            stopService(intent)
+            startService(intent)
         } catch (e: Exception) {
             Logger.error("Failed to stop VPN service: ${e.message}", e)
         }

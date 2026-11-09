@@ -87,11 +87,15 @@ class FirewallManager @Inject constructor(
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            currentService.value = vpnService
+            // Use the real service, not the fallback instance created for the
+            // first calls: only the real one owns the tunnel and its sessions.
+            currentService.value =
+                (service as? VpnConnectionServer.VpnConnection)?.service ?: vpnService
             isServiceBound = true
         }
 
         override fun onServiceDisconnected(componentName: ComponentName) {
+            currentService.value = vpnService
             isServiceBound = false
         }
     }
