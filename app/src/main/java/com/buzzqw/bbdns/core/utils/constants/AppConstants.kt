@@ -31,12 +31,8 @@ object AppConstants {
 
     object DatabaseConstants {
         const val DATABASE_NAME: String = "packages"
-        const val DATABASE_VERSION: Int = 9
+        const val DATABASE_VERSION: Int = 10
         const val SETTINGS_DATABASE_NAME: String = "settings"
-    }
-
-    object NetworkConstants {
-        const val NFLOG_GROUP_ID: Int = 58
     }
 
     object DnsBlockLists {

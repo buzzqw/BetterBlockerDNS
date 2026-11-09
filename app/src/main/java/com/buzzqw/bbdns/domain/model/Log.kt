@@ -27,7 +27,7 @@ import com.buzzqw.bbdns.service.firewall.utils.FirewallStatus
 
 @Entity(
     tableName = "logs",
-    indices = [Index(value = ["uid"])]
+    indices = [Index(value = ["uid"]), Index(value = ["packet_time"])]
 )
 data class Log(
     @PrimaryKey(autoGenerate = true)

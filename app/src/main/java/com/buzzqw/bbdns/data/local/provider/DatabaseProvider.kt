@@ -89,6 +89,14 @@ class DatabaseProvider(private val application: Application) {
         }
     }
 
+    private val MIGRATION_9_10 = object : Migration(9, 10) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // The logs screen reads the newest entries first; this index keeps
+            // both the ordered read and the periodic trim fast.
+            database.execSQL("CREATE INDEX IF NOT EXISTS index_logs_packet_time ON logs(packet_time)")
+        }
+    }
+
     @Synchronized
     fun instance(): AppDatabase {
         return database ?: synchronized(this) {
@@ -100,7 +108,7 @@ class DatabaseProvider(private val application: Application) {
         return Room.databaseBuilder(application.applicationContext,
             AppDatabase::class.java,
             AppConstants.DatabaseConstants.DATABASE_NAME)
-            .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_8, MIGRATION_8_9)
+            .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_8, MIGRATION_8_9, MIGRATION_9_10)
             .build()
     }
 

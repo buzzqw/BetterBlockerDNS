@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-09
 
+### Logs
+- The logs screen now shows the newest entries first and stays fast when the
+  stored history is full.
+
 ### Faster blocklist handling
 - Large blocklists load faster because the parser reuses its regular
   expressions instead of creating one for every line.

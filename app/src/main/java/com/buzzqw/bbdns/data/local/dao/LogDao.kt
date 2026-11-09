@@ -45,6 +45,6 @@ interface LogDao {
     @Query("SELECT * FROM logs WHERE id = :id")
     suspend fun getLogById(id: Int): Log?
 
-    @Query("SELECT * FROM logs")
+    @Query("SELECT * FROM logs ORDER BY packet_time DESC")
     fun getAllLogs(): Flow<List<Log>>
 }
