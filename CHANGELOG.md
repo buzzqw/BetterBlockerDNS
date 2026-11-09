@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-09
 
+### Builder compatibility
+- Kept the previous build command working for external app stores while the
+  single-build transition completes.
+
 ### Single build
 - BBDNS now ships one APK instead of two identical builds, so releases and
   downloads are simpler.

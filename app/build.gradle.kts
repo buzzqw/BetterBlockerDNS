@@ -293,6 +293,23 @@ tasks.matching { it.name == "assembleRelease" }.configureEach {
     finalizedBy("emailReleaseBuild")
 }
 
+// Compatibility for external builders that still invoke the old flavor task
+// (for example a pending IzzyOnDroid request). They reuse the single APK
+// instead of building a second variant, keeping the historical output path.
+tasks.register<Copy>("assembleFdroidRelease") {
+    dependsOn("assembleRelease")
+    from(layout.buildDirectory.file("outputs/apk/release/app-release.apk"))
+    into(layout.buildDirectory.dir("outputs/apk/fdroid/release"))
+    rename { "app-fdroid-release.apk" }
+}
+
+tasks.register<Copy>("assembleFdroidDebug") {
+    dependsOn("assembleDebug")
+    from(layout.buildDirectory.file("outputs/apk/debug/app-debug.apk"))
+    into(layout.buildDirectory.dir("outputs/apk/fdroid/debug"))
+    rename { "app-fdroid-debug.apk" }
+}
+
 // Advance version.properties to the next 1.0.<n> release. Run it before the
 // release commit, then tag that commit (for example v1.0.23).
 tasks.register<Exec>("bumpVersion") {
