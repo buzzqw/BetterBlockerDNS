@@ -1,0 +1,1 @@
+Lower battery usage thanks to lighter packet processing and less background work; automatic blocklist updates now follow the saved interval after a restart and skip the full reload when nothing changed.

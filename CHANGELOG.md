@@ -10,7 +10,7 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-09
 
-### Battery usage
+### Release 1.0.32
 - BBDNS now resolves and records each connection only once, so background
   traffic no longer keeps the processor, the radio and the database busy.
 - Automatic blocklist updates follow the saved interval after a restart and
