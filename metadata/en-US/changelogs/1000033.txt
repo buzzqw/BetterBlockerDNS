@@ -1,0 +1,1 @@
+Stability and performance release: the VPN survives network changes, protection always closes the tunnel, blocklists load faster, logs are ordered and the download is smaller.

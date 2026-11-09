@@ -10,36 +10,22 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-09
 
-### Legacy name cleanup
-- Removed the last traces of the old project name from the app theme and
-  splash screen, so no old branding remains in the interface or resources.
-
-### Shared app entry point
-- Both store builds now share the same app startup code, so fixes and changes
-  apply to both at once.
-
-### Smaller build and download
-- The unused native nflog helper and the unused Retrofit/Gson libraries are
-  gone, so the APK is smaller and the HTTP client is declared directly.
-- Building from source no longer needs the Go toolchain: only the Android NDK
-  is required.
-
-### Logs
-- The logs screen now shows the newest entries first and stays fast when the
-  stored history is full.
-
-### Faster blocklist handling
-- Large blocklists load faster because the parser reuses its regular
-  expressions instead of creating one for every line.
-- Domains are matched with a 64-bit hash, so an unrelated domain can no longer
-  be blocked because of a hash collision.
-
-### VPN stability
+### Release 1.0.33
 - Protection keeps the VPN running when the network changes, and the firewall
   now talks to the running service: rule changes and session resets apply
   immediately.
 - Turning protection off now always closes the tunnel and releases the TUN
   interface, even if the start had not completed.
+- Large blocklists load faster, and domains are matched with a 64-bit hash so
+  an unrelated domain can no longer be blocked by a hash collision.
+- The logs screen now shows the newest entries first and stays fast when the
+  stored history is full.
+- The unused native nflog helper and the unused Retrofit/Gson libraries are
+  gone, so the APK is smaller and the HTTP client is declared directly.
+- Building from source no longer needs the Go toolchain: only the Android NDK
+  is required.
+- Both store builds now share the same app startup code, and the last traces of
+  the old project name are gone from the theme and splash screen.
 
 ### Release 1.0.32
 - BBDNS now resolves and records each connection only once, so background
