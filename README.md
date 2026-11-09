@@ -100,19 +100,6 @@ UI, so always-on protection does not drain the battery.
 - **Small footprint** — no root services, privileged helpers, daemons or
   analytics; the app only runs its VPN service while protection is enabled.
 
-Measured against the previous version on the same Android 16 test device
-(debug build, 78,000 blocklist rules):
-
-| Test | Result |
-|---|---|
-| CPU while moving 10 MB of traffic through the VPN | **about 40% lower** |
-| CPU while idle with the screen off | **about 35% lower**, no wake-lock held |
-| DNS queries blocked and recorded during the test | **200 out of 200** |
-
-The measurements come from an emulator with a debug build, so the absolute
-times are higher than on a phone; the percentages compare the same workload
-before and after the optimization.
-
 The Home screen shows live CPU and battery usage, so the real cost of protection
 can be checked at any time.
 
