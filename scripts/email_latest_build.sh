@@ -2,13 +2,13 @@
 # Send the release APK only if it comes from the build that just finished.
 # The email carries a ZIP attachment plus a link served by the local HTTP
 # server, because some mail clients do not download .apk attachments intact.
-# Used by the Gradle hook after :app:assembleFdroidRelease.
+# Used by the Gradle hook after :app:assembleRelease.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-APK="app/build/outputs/apk/fdroid/release/app-fdroid-release.apk"
-ZIP="app/build/outputs/apk/fdroid/release/BetterBlockerDNS-release.zip"
+APK="app/build/outputs/apk/release/app-release.apk"
+ZIP="app/build/outputs/apk/release/BetterBlockerDNS-release.zip"
 
 if [[ ! -f "$APK" ]]; then
   echo "BBDNS: release APK missing, email skipped" >&2

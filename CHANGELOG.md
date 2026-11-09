@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-09
 
+### Single build
+- BBDNS now ships one APK instead of two identical builds, so releases and
+  downloads are simpler.
+
 ### Release 1.0.33
 - Protection keeps the VPN running when the network changes, and the firewall
   now talks to the running service: rule changes and session resets apply

@@ -6,7 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-RELEASE_APK="$REPO_ROOT/app/build/outputs/apk/fdroid/release/app-fdroid-release.apk"
+RELEASE_APK="$REPO_ROOT/app/build/outputs/apk/release/app-release.apk"
 
 # --check and other options go straight to the Python sender.
 if [[ $# -gt 0 && "$1" == -* ]]; then
@@ -18,8 +18,8 @@ if [[ $# -gt 0 ]]; then
 else
   TARGET="$RELEASE_APK"
   if [[ ! -f "$TARGET" ]]; then
-    echo "Release APK not found, building :app:assembleFdroidRelease" >&2
-    (cd "$REPO_ROOT" && ./gradlew :app:assembleFdroidRelease --console=plain)
+    echo "Release APK not found, building :app:assembleRelease" >&2
+    (cd "$REPO_ROOT" && ./gradlew :app:assembleRelease --console=plain)
   fi
 fi
 

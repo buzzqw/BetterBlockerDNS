@@ -41,8 +41,8 @@ jobs:
       - name: Grant execution permission to Gradle Wrapper
         run: chmod +x gradlew
 
-      - name: Build F-Droid release APK
-        run: ./gradlew :app:assembleFdroidRelease --no-daemon --console=plain
+      - name: Build release APK
+        run: ./gradlew :app:assembleRelease --no-daemon --console=plain
         env:
           BBDNS_SKIP_EMAIL: "1"
 
@@ -50,5 +50,5 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: BBDNS-verification-${{ github.sha }}
-          path: app/build/outputs/apk/fdroid/release/app-fdroid-release.apk
+          path: app/build/outputs/apk/release/app-release.apk
           retention-days: 7

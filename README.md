@@ -42,8 +42,6 @@ BBDNS is designed to be easy enough for everyday users, while still offering det
 - **GitHub Releases**: download the signed APK from the
   [latest release](https://github.com/buzzqw/BetterBlockerDNS/releases/latest).
 
-BBDNS will be proposed to F-Droid after three months of maintenance.
-
 ---
 
 ## Features
@@ -133,9 +131,9 @@ Requirements:
 From the command line:
 
 ```bash
-./gradlew :app:assembleFdroidDebug
+./gradlew :app:assembleDebug
 # or
-./gradlew :app:assemblePlaystoreDebug
+./gradlew :app:assembleRelease
 ```
 
 The APK is written to `app/build/outputs/apk/`.

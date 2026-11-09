@@ -80,15 +80,6 @@ android {
         }
     }
 
-    flavorDimensions += "store"
-    productFlavors {
-        create("playstore") {
-            dimension = "store"
-        }
-        create("fdroid") {
-            dimension = "store"
-        }
-    }
     signingConfigs {
         if (bbdnsHasReleaseSigning) {
             create("release") {
@@ -283,9 +274,9 @@ configurations.matching { it.name.startsWith("hiltAnnotationProcessor") }.config
 }
 
 // Email the package after a release build, using scripts/email_latest_build.sh.
-// This is opt-in so external builders such as F-Droid never try to send mail:
-// set BBDNS_EMAIL_BUILD=1 (scripts/build_release.sh does it). Delivery is
-// best-effort: a failure does not fail the build.
+// This is opt-in so CI builds never try to send mail: set BBDNS_EMAIL_BUILD=1
+// (scripts/build_release.sh does it). Delivery is best-effort: a failure does
+// not fail the build.
 tasks.register<Exec>("emailReleaseBuild") {
     group = "distribution"
     description = "Email the release APK produced by this build"
@@ -298,7 +289,7 @@ tasks.register<Exec>("emailReleaseBuild") {
     }
 }
 
-tasks.matching { it.name == "assembleFdroidRelease" }.configureEach {
+tasks.matching { it.name == "assembleRelease" }.configureEach {
     finalizedBy("emailReleaseBuild")
 }
 

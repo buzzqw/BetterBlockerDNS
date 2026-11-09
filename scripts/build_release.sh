@@ -21,4 +21,4 @@ if [[ ! -f "$BBDNS_KEYSTORE" ]]; then
   exit 1
 fi
 
-BBDNS_EMAIL_BUILD=1 exec ./gradlew :app:assembleFdroidRelease "$@"
+BBDNS_EMAIL_BUILD=1 exec ./gradlew :app:assembleRelease "$@"

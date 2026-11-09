@@ -22,8 +22,8 @@ from pathlib import Path
 from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parent.parent
-APK = ROOT / "app/build/outputs/apk/fdroid/release/app-fdroid-release.apk"
-ZIP = ROOT / "app/build/outputs/apk/fdroid/release/BetterBlockerDNS-release.zip"
+APK = ROOT / "app/build/outputs/apk/release/app-release.apk"
+ZIP = ROOT / "app/build/outputs/apk/release/BetterBlockerDNS-release.zip"
 PORT = int(os.environ.get("BBDNS_HTTP_PORT", "8099"))
 # The helper has no authentication: expose it on the loopback interface by
 # default. Set BBDNS_HTTP_HOST=0.0.0.0 only when a tunnel or reverse proxy is

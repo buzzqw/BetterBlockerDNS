@@ -11,8 +11,8 @@ taken seriously.
 | Latest stable release (1.0.x) | :white_check_mark: |
 | Older releases | :x: (please reproduce on the latest version first) |
 
-F-Droid builds are built and signed by F-Droid from the same source. A report
-that only applies to a build from an unofficial source may not be reproducible.
+Builds signed with the project release key are the official ones. A report that
+only applies to a build from an unofficial source may not be reproducible.
 
 ## Reporting a vulnerability
 
@@ -29,8 +29,7 @@ in the subject. If you want to encrypt the report, ask for a PGP key first.
 
 ### What to include
 
-- Affected version (from *Settings → About*, or the APK file name) and flavor
-  (`playstore` or `fdroid`).
+- Affected version (from *Settings → About*, or the APK file name).
 - Android version and device/ABI, if relevant.
 - Steps to reproduce, expected vs. actual behavior.
 - Impact assessment (for example: firewall bypass, DNS leak, data exposure,
@@ -53,11 +52,11 @@ always credited unless you prefer to stay anonymous.
 
 In scope:
 
-- The Android app (Kotlin/Compose, JNI/C in `app/src/main/cpp`, Go helpers).
+- The Android app (Kotlin/Compose, JNI/C in `app/src/main/cpp`).
 - Packet filtering, DNS blocking, DNS-over-HTTPS and the VPN service.
 - Local data handling: settings, passcode/pattern lock, logs, backup/restore.
 - Build and release tooling (`scripts/`, Gradle configuration, signing).
-- GitHub Actions workflows and the F-Droid recipe in `fdroid/`.
+- GitHub Actions workflows and the build/release tooling.
 
 Out of scope (or lower priority):
 

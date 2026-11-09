@@ -74,7 +74,7 @@ jobs:
         if: matrix.language == 'java-kotlin'
         env:
           BBDNS_SKIP_EMAIL: "1"
-        run: ./gradlew :app:assembleFdroidDebug --no-daemon --console=plain
+        run: ./gradlew :app:assembleDebug --no-daemon --console=plain
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4
