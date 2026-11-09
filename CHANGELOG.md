@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-09
 
+### Shared app entry point
+- Both store builds now share the same app startup code, so fixes and changes
+  apply to both at once.
+
 ### Smaller build and download
 - The unused native nflog helper and the unused Retrofit/Gson libraries are
   gone, so the APK is smaller and the HTTP client is declared directly.
