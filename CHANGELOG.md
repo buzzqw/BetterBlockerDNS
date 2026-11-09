@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-09
 
+### Legacy name cleanup
+- Removed the last traces of the old project name from the app theme and
+  splash screen, so no old branding remains in the interface or resources.
+
 ### Shared app entry point
 - Both store builds now share the same app startup code, so fixes and changes
   apply to both at once.

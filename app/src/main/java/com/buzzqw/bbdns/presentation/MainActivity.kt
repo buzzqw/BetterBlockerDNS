@@ -36,7 +36,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.core.utils.extensions.popUpToTop
-import com.buzzqw.bbdns.presentation.theme.EasyWallTheme
+import com.buzzqw.bbdns.presentation.theme.BbdnsTheme
 import com.buzzqw.bbdns.presentation.navigation.AppNavHost
 import com.buzzqw.bbdns.presentation.navigation.routes.HomeRoutes
 import com.buzzqw.bbdns.presentation.screens.home.viewModel.HomeViewModel
@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity() {
             settings = hiltViewModel<SettingsViewModel>().apply {
                 val homeViewModel = hiltViewModel<HomeViewModel>()
 
-                EasyWallTheme(this) {
+                BbdnsTheme(this) {
                     val iconsColor = MaterialTheme.colorScheme.background
 
                     LaunchedEffect(homeViewModel) {

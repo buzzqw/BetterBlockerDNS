@@ -81,7 +81,7 @@ private fun getColorScheme(context: Context, isDarkTheme: Boolean, isDynamicThem
 }
 
 @Composable
-fun EasyWallTheme(
+fun BbdnsTheme(
     settingsModel: SettingsViewModel,
     content: @Composable () -> Unit
 ) {
