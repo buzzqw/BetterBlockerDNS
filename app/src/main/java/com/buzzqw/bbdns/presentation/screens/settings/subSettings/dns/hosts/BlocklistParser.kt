@@ -41,6 +41,13 @@ object BlocklistParser {
     private const val IPV6_LOOPBACK = "::1"
     private const val NO_ROUTE = "0.0.0.0"
 
+    // Compiled once: the parser runs on every line of lists with millions of
+    // entries, so creating these Regex objects per line is pure overhead.
+    private val PIHOLE_SPECIAL_CHARS = Regex("[\\^\\$\\[\\]()\\\\+?|]")
+    private val WHITESPACE_SPLIT = Regex("\\s+")
+    private val WHITESPACE = Regex("\\s")
+    private val DOMAIN_LABEL = Regex("^[a-zA-Z0-9_-]+$")
+
     /**
      * Parse a single line from a blocklist file
      * Returns a BlocklistRule if the line is valid, null otherwise
@@ -70,7 +77,7 @@ object BlocklistParser {
             '0', '1', '2', ':', '*' -> parseHostsFormat(trimmedLine)
             else -> {
                 // Check for regex chars for pi-hole format
-                if (trimmedLine.contains(Regex("[\\^\\$\\[\\]()\\\\+?|]"))) {
+                if (trimmedLine.contains(PIHOLE_SPECIAL_CHARS)) {
                     parsePiholeRegexFormat(trimmedLine)
                 } else if (trimmedLine.contains('*')) {
                     parseWildcardFormat(trimmedLine)
@@ -277,9 +284,9 @@ object BlocklistParser {
 
         // Extract the domain (take first token after IP or entire line)
         val domain = if (startOfHost > 0) {
-            cleanLine.substring(startOfHost).trim().split(Regex("\\s+"), 2)[0]
+            cleanLine.substring(startOfHost).trim().split(WHITESPACE_SPLIT, 2)[0]
         } else {
-            cleanLine.split(Regex("\\s+"), 2)[0]
+            cleanLine.split(WHITESPACE_SPLIT, 2)[0]
         }
 
         if (domain.isEmpty()) {
@@ -326,7 +333,7 @@ object BlocklistParser {
         }
 
         // Check for invalid characters
-        if (domain.contains(Regex("\\s"))) {
+        if (domain.contains(WHITESPACE)) {
             return false
         }
 
@@ -343,7 +350,7 @@ object BlocklistParser {
             }
 
             // Labels can only contain alphanumeric, hyphens, and underscores
-            if (!label.matches(Regex("^[a-zA-Z0-9_-]+$"))) {
+            if (!DOMAIN_LABEL.matches(label)) {
                 return false
             }
 

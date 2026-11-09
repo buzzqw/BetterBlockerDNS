@@ -10,6 +10,12 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-09
 
+### Faster blocklist handling
+- Large blocklists load faster because the parser reuses its regular
+  expressions instead of creating one for every line.
+- Domains are matched with a 64-bit hash, so an unrelated domain can no longer
+  be blocked because of a hash collision.
+
 ### VPN stability
 - Protection keeps the VPN running when the network changes, and the firewall
   now talks to the running service: rule changes and session resets apply

@@ -12,8 +12,8 @@
 package com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts
 
 import androidx.collection.MutableLongList
-import androidx.collection.MutableIntSet
-import androidx.collection.intSetOf
+import androidx.collection.MutableLongSet
+import androidx.collection.longSetOf
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.presentation.config
 import kotlinx.atomicfu.atomic
@@ -121,7 +121,7 @@ class RuleDatabase {
                 item.title.contains("tld", ignoreCase = true)
     }
 
-    var blockedHosts = MutableStateFlow(atomic(intSetOf()))
+    var blockedHosts = MutableStateFlow(atomic(longSetOf()))
 
     /**
      * Source index of the last [initialize] run: hash of an exact/suffix domain
@@ -143,7 +143,7 @@ class RuleDatabase {
      * almost every real query (ads.example.com vs example.com).
      */
     @Volatile
-    private var blockedSuffixes: MutableIntSet = MutableIntSet(0)
+    private var blockedSuffixes: MutableLongSet = MutableLongSet(0)
 
     /** Number of entries loaded from wildcard-domain lists. */
     val wildcardDomainCount: Int get() = blockedSuffixes.size
@@ -189,20 +189,20 @@ class RuleDatabase {
         }
 
         // Check exact match in blocked hosts
-        if (blockedHosts.value.value.contains(lowerHost.hashCode())) {
+        if (blockedHosts.value.value.contains(hash64(lowerHost))) {
             return true
         }
 
         // Check wildcard-domain lists: the host itself and each parent domain.
         val suffixes = blockedSuffixes
         if (suffixes.isNotEmpty()) {
-            if (suffixes.contains(lowerHost.hashCode())) return true
+            if (suffixes.contains(hash64(lowerHost))) return true
             var dot = lowerHost.indexOf('.')
             while (dot != -1 && dot < lowerHost.length - 1) {
                 val parent = lowerHost.substring(dot + 1)
                 // Stop before the bare TLD: TLD rules are handled below.
                 if (parent.indexOf('.') == -1) break
-                if (suffixes.contains(parent.hashCode())) return true
+                if (suffixes.contains(hash64(parent))) return true
                 dot = lowerHost.indexOf('.', dot + 1)
             }
         }
@@ -326,8 +326,8 @@ class RuleDatabase {
             }
             .sortedBy { it.state.ordinal }
 
-        val newHosts = MutableIntSet(sortedHostItems.size + config.hosts.exceptions.size)
-        val newSuffixes = MutableIntSet(0)
+        val newHosts = MutableLongSet(sortedHostItems.size + config.hosts.exceptions.size)
+        val newSuffixes = MutableLongSet(0)
         loadingSuffixes = newSuffixes
 
         val newExactSources = MutableLongList()
@@ -387,7 +387,7 @@ class RuleDatabase {
 
     @Throws(InterruptedException::class)
     private fun loadItem(
-        set: MutableIntSet,
+        set: MutableLongSet,
         item: HostFile,
         listIndex: Int,
         exactSources: MutableLongList,
@@ -422,7 +422,7 @@ class RuleDatabase {
     private var loadingWhitelistLists: MutableSet<String> = HashSet()
 
     /** Suffix set being filled by the current [initialize] run. */
-    private var loadingSuffixes: MutableIntSet = MutableIntSet(0)
+    private var loadingSuffixes: MutableLongSet = MutableLongSet(0)
 
     /** Lists in the "wildcard domains" format: an entry also covers its subdomains. */
     private fun Host.isWildcardDomainList(): Boolean = RuleDatabase.isWildcardDomainList(this)
@@ -430,7 +430,7 @@ class RuleDatabase {
     private fun Host.isTldList(): Boolean = RuleDatabase.isTldList(this)
 
     private fun addHost(
-        set: MutableIntSet,
+        set: MutableLongSet,
         item: Host,
         host: String,
         listIndex: Int,
@@ -442,7 +442,7 @@ class RuleDatabase {
         when (item.state) {
             HostState.ALLOW -> {
                 if (value.contains('.')) {
-                    val hash = value.hashCode()
+                    val hash = hash64(value)
                     set.remove(hash)
                     loadingSuffixes.remove(hash)
                 } else {
@@ -454,14 +454,12 @@ class RuleDatabase {
             HostState.DENY -> {
                 if (value.contains('.')) {
                     if (item.isWildcardDomainList()) {
-                        val hash = value.hashCode()
-                        if (loadingSuffixes.add(hash)) {
-                            suffixSources.add(packSource(hash, listIndex))
+                        if (loadingSuffixes.add(hash64(value))) {
+                            suffixSources.add(packSource(value.hashCode(), listIndex))
                         }
                     } else {
-                        val hash = value.hashCode()
-                        if (set.add(hash)) {
-                            exactSources.add(packSource(hash, listIndex))
+                        if (set.add(hash64(value))) {
+                            exactSources.add(packSource(value.hashCode(), listIndex))
                         }
                     }
                 } else {
@@ -473,13 +471,14 @@ class RuleDatabase {
         }
     }
 
-    private fun addHostException(set: MutableIntSet, exception: HostException) {
+    private fun addHostException(set: MutableLongSet, exception: HostException) {
         val domain = exception.data.lowercase()
         when (exception.state) {
             HostState.ALLOW -> {
                 if (domain.contains('.')) {
-                    set.remove(domain.hashCode())
-                    loadingSuffixes.remove(domain.hashCode())
+                    val hash = hash64(domain)
+                    set.remove(hash)
+                    loadingSuffixes.remove(hash)
                 } else {
                     blockedTlds.remove(domain)
                 }
@@ -487,7 +486,7 @@ class RuleDatabase {
             }
             HostState.DENY -> {
                 if (domain.contains('.')) {
-                    set.add(domain.hashCode())
+                    set.add(hash64(domain))
                 } else {
                     blockedTlds.add(domain)
                 }
@@ -498,7 +497,7 @@ class RuleDatabase {
 
     @Throws(InterruptedException::class)
     private fun loadReader(
-        set: MutableIntSet,
+        set: MutableLongSet,
         item: Host,
         reader: Reader,
         listIndex: Int,
@@ -570,6 +569,22 @@ class RuleDatabase {
             Logger.error("${item.title}: Failed to read after $count items", e)
         }
     }
+}
+
+/**
+ * FNV-1a 64-bit hash of a lowercased domain.
+ *
+ * The blocking sets used to store [String.hashCode] (32 bit), so a collision
+ * between a blocked domain and an unrelated one made the latter look blocked.
+ * 64 bits make that practically impossible even with millions of rules.
+ */
+private fun hash64(value: String): Long {
+    var hash = -0x340d631b7bdddcdbL
+    for (char in value) {
+        hash = hash xor char.code.toLong()
+        hash *= 0x100000001b3L
+    }
+    return hash
 }
 
 /** Sorted copy used by the compact source index. */
