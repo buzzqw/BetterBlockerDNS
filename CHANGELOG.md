@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-10
 
+### Release 1.0.34
+- Version 1.0.34 bundles the battery, performance and usability changes
+  below.
+
 ### Lower CPU, memory and battery use
 - The tunnel now checks only the first packet of each connection against the
   firewall rules (DNS queries are still checked one by one), so streaming,

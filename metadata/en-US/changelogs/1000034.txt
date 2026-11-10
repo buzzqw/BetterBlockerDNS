@@ -1,0 +1,1 @@
+Battery and UX release: the tunnel uses far less CPU and battery with streaming, calls and games, rules still apply at once, the home is easier to use and six languages are fully translated.
