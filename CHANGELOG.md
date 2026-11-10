@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-10
 
+### Documentation
+- The README now explains how to get started, how BBDNS works, which
+  permissions it uses and why, and how to fix the most common problems.
+
 ### Automatic releases
 - Pushing a version tag now makes GitHub build the signed APK and publish the
   release, so every official download comes from the same verified build.
