@@ -143,10 +143,13 @@ verification only, are not signed with the release key and are never published
 as a release.
 
 Release builds are deterministic: the version lives in `version.properties`.
-Before a release, run `./gradlew bumpVersion`, commit the new version, tag the
-commit (for example `v1.0.29`) and build with `scripts/build_release.sh`. The
-script sets `BBDNS_EMAIL_BUILD=1`, so the package is emailed to the owner;
-external builders that call Gradle directly never send mail.
+Before a release, run `./gradlew bumpVersion`, commit the new version and push
+a tag for it (for example `v1.0.34`). The `Release` workflow then builds the
+APK signed with the project key, checks the signing certificate and publishes
+the GitHub release with the notes of that version from `CHANGELOG.md`.
+`scripts/build_release.sh` builds the same signed package locally and sets
+`BBDNS_EMAIL_BUILD=1`, so it is emailed to the owner; external builders that
+call Gradle directly never send mail.
 
 Release signing reads `BBDNS_KEYSTORE`, `BBDNS_KEYSTORE_PASSWORD`,
 `BBDNS_KEY_ALIAS` and `BBDNS_KEY_PASSWORD` from the environment.

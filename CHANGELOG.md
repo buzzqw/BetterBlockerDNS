@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-10
 
+### Automatic releases
+- Pushing a version tag now makes GitHub build the signed APK and publish the
+  release, so every official download comes from the same verified build.
+
 ### Release 1.0.34
 - Version 1.0.34 bundles the battery, performance and usability changes
   below.
