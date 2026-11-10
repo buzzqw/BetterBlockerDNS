@@ -36,6 +36,7 @@
     <string name="about_translator">Traductor</string>
     <string name="about_build_type">Tipo de compilación</string>
     <string name="about_latest_release">Último lanzamiento</string>
+    <string name="about_changelog">Novedades</string>
     <string name="about_source_code">Código fuente</string>
     <string name="about_email">Correo electrónico</string>
     <string name="about_your_name">buzzqw</string>

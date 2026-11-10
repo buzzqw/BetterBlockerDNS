@@ -36,6 +36,7 @@
     <string name="about_translator">Traducteur</string>
     <string name="about_build_type">Type de build</string>
     <string name="about_latest_release">Dernière version</string>
+    <string name="about_changelog">Nouveautés</string>
     <string name="about_source_code">Code Source</string>
     <string name="about_email">Courriel</string>
     <string name="about_your_name">buzzqw</string>

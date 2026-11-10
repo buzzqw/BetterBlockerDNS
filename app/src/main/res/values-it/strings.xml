@@ -38,6 +38,7 @@
     <string name="about_translator">Sviluppatore</string>
     <string name="about_build_type">Tipo di build</string>
     <string name="about_latest_release">Ultima versione</string>
+    <string name="about_changelog">Novità</string>
     <string name="about_source_code">Codice sorgente</string>
     <string name="about_email">Email</string>
     <string name="about_your_name">buzzqw</string>

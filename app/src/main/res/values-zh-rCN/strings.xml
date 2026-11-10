@@ -233,6 +233,7 @@
     <string name="about_translator">开发者</string>
     <string name="about_build_type">构建类型</string>
     <string name="about_latest_release">最新版本</string>
+    <string name="about_changelog">更新日志</string>
     <string name="about_source_code">源代码</string>
     <string name="about_your_name">buzzqw</string>
     <string name="about_hagezi_title">HaGeZi DNS 屏蔽列表</string>

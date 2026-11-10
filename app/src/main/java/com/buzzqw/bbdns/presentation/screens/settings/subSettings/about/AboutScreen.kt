@@ -34,6 +34,7 @@ import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.NewReleases
 import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Error
@@ -116,6 +117,12 @@ fun AboutScreen(
                 description = settings.version,
                 icon = IconType.VectorIcon(Icons.Rounded.Info),
                 actionType = SettingType.TEXT,
+            )
+            SettingsBox(
+                title = stringResource(id = R.string.about_changelog),
+                icon = IconType.VectorIcon(Icons.Rounded.NewReleases),
+                actionType = SettingType.LINK,
+                onLinkClicked = { uriHandler.openUri(ProjectConstants.PROJECT_CHANGELOG) },
             )
             SettingsBox(
                 title = stringResource(id = R.string.about_build_type),

@@ -233,6 +233,7 @@
     <string name="about_translator">Desenvolvedor</string>
     <string name="about_build_type">Tipo de build</string>
     <string name="about_latest_release">Versão mais recente</string>
+    <string name="about_changelog">Novidades</string>
     <string name="about_source_code">Código-fonte</string>
     <string name="about_your_name">buzzqw</string>
     <string name="about_hagezi_title">Listas de bloqueio HaGeZi</string>

@@ -10,6 +10,12 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-10
 
+### About screen
+- The About screen now has a "Changelog" entry right under the version, so the
+  list of what changed in each release opens with one tap.
+
+## 2026-11-10
+
 ### Release 1.0.35
 - Version 1.0.35 ships the build and documentation fixes below; the app itself
   is unchanged from 1.0.34.
