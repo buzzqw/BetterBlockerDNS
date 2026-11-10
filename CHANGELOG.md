@@ -11,6 +11,8 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 ## 2026-11-10
 
 ### Build checks
+- The build, release and security jobs now run on a fixed Ubuntu image, so an
+  automatic runner upgrade cannot break them.
 - The automatic security analysis of the source code no longer fails when the
   build cache skips compilation, so the weekly check completes reliably.
 
