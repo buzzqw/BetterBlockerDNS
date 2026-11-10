@@ -1,0 +1,1 @@
+Maintenance release: the automatic build and security checks are reliable again, the README explains getting started, privacy and troubleshooting, and the app itself is unchanged from 1.0.34.

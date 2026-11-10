@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-10
 
+### Release 1.0.35
+- Version 1.0.35 ships the build and documentation fixes below; the app itself
+  is unchanged from 1.0.34.
+
 ### Build checks
 - The build, release and security jobs now run on a fixed Ubuntu image, so an
   automatic runner upgrade cannot break them.
@@ -19,6 +23,8 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 ### Documentation
 - The README now explains how to get started, how BBDNS works, which
   permissions it uses and why, and how to fix the most common problems.
+
+## 2026-11-10
 
 ### Automatic releases
 - Pushing a version tag now makes GitHub build the signed APK and publish the
