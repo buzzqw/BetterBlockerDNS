@@ -1,0 +1,1 @@
+The About screen now links to the changelog, so the list of what changed in each release opens with one tap.
