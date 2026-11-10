@@ -36,8 +36,32 @@ class CustomDomainRule @Inject constructor(
     private val customDomainRepository: CustomDomainRepository
 ) : FirewallRule {
     
-    private var allowlistDomains: List<CustomDomain> = emptyList()
-    private var blocklistDomains: List<CustomDomain> = emptyList()
+    /**
+     * Rules prepared once when the list changes. The regex of a custom domain
+     * used to be compiled again for every DNS query.
+     */
+    private class DomainMatcher(val domain: CustomDomain) {
+        private val suffix = ".${domain.domain}"
+        private val regex: Regex? = if (domain.isRegex) {
+            try {
+                Regex(domain.domain, RegexOption.IGNORE_CASE)
+            } catch (e: Exception) {
+                Logger.error("Invalid regex pattern in custom domain: ${domain.domain}", e)
+                null
+            }
+        } else null
+
+        fun matches(domainName: String): Boolean = if (domain.isRegex) {
+            regex?.matches(domainName) == true
+        } else {
+            // Exact match or subdomain match
+            domainName.equals(domain.domain, ignoreCase = true) ||
+                domainName.endsWith(suffix, ignoreCase = true)
+        }
+    }
+
+    @Volatile private var allowlistDomains: List<DomainMatcher> = emptyList()
+    @Volatile private var blocklistDomains: List<DomainMatcher> = emptyList()
     private var isCustomDomainRulesEnabled = true
     private var ruleHandler: RuleHandler? = null
 
@@ -49,7 +73,7 @@ class CustomDomainRule @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             // Observe allowlist domains
             customDomainRepository.getEnabledAllowlistDomains().collect { domains ->
-                allowlistDomains = domains
+                allowlistDomains = domains.map(::DomainMatcher)
                 Logger.info("Updated allowlist domains: ${domains.size} domains")
             }
         }
@@ -57,7 +81,7 @@ class CustomDomainRule @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             // Observe blocklist domains
             customDomainRepository.getEnabledBlocklistDomains().collect { domains ->
-                blocklistDomains = domains
+                blocklistDomains = domains.map(::DomainMatcher)
                 Logger.info("Updated blocklist domains: ${domains.size} domains")
             }
         }
@@ -102,16 +126,16 @@ class CustomDomainRule @Inject constructor(
             
             // Check blocklist first - if domain matches blocklist, block it
             for (blockDomain in blocklistDomains) {
-                if (isDomainMatch(domainName, blockDomain)) {
-                    Logger.info("Blocked custom domain: $domainName (matched: ${blockDomain.domain})")
+                if (blockDomain.matches(domainName)) {
+                    Logger.debug("Blocked custom domain: $domainName (matched: ${blockDomain.domain.domain})")
                     return FirewallResult.DNS_BLOCKED
                 }
             }
             
             // Check allowlist - if domain matches allowlist, allow it (override other blocks)
             for (allowDomain in allowlistDomains) {
-                if (isDomainMatch(domainName, allowDomain)) {
-                    Logger.info("Allowed custom domain: $domainName (matched: ${allowDomain.domain})")
+                if (allowDomain.matches(domainName)) {
+                    Logger.debug("Allowed custom domain: $domainName (matched: ${allowDomain.domain.domain})")
                     return FirewallResult.ACCEPT
                 }
             }
@@ -119,21 +143,5 @@ class CustomDomainRule @Inject constructor(
         
         // No custom domain rules matched, return the current result unchanged
         return result
-    }
-    
-    private fun isDomainMatch(domainName: String, customDomain: CustomDomain): Boolean {
-        return if (customDomain.isRegex) {
-            try {
-                val regex = Regex(customDomain.domain, RegexOption.IGNORE_CASE)
-                regex.matches(domainName)
-            } catch (e: Exception) {
-                Logger.error("Invalid regex pattern in custom domain: ${customDomain.domain}", e)
-                false
-            }
-        } else {
-            // Exact match or subdomain match
-            domainName.equals(customDomain.domain, ignoreCase = true) ||
-            domainName.endsWith(".${customDomain.domain}", ignoreCase = true)
-        }
     }
 }

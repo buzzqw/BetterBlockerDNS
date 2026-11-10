@@ -17,14 +17,15 @@
 
 package com.buzzqw.bbdns.service.firewall.rule
 
-import com.buzzqw.bbdns.domain.model.Ip
 import com.buzzqw.bbdns.domain.usecase.log.LogUseCases
 import com.buzzqw.bbdns.domain.usecase.networkFilter.NetworkFilterUseCases
 import com.buzzqw.bbdns.service.firewall.model.FireWallModel
 import com.buzzqw.bbdns.service.firewall.model.FirewallResult
+import com.buzzqw.bbdns.service.firewall.utils.SessionInvalidator
 import com.buzzqw.bbdns.service.vpn.network.transport.dns.DNSModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,15 +36,30 @@ class FilterRule @Inject constructor(
         observeIps()
     }
 
-    private var ips: List<Ip>? = null
+    /** Blocked destination IPs, as a set: a list scan per packet was O(n). */
+    @Volatile
+    private var blockedIps: Set<String> = emptySet()
 
+    /**
+     * The IP flow never completes: every call used to start one more
+     * collector that stayed alive for the whole process.
+     */
+    private var observeJob: Job? = null
+
+    @Synchronized
     fun observeIps() {
-        CoroutineScope(Dispatchers.IO).launch {
+        observeJob?.cancel()
+        observeJob = CoroutineScope(Dispatchers.IO).launch {
             val packagesList = networkFilterUseCases.getIps.execute()
             packagesList.fold(
                 ifSuccess = {
                     it.collect { ip ->
-                        ips = ip
+                        val updated = ip.mapTo(HashSet(ip.size * 2)) { entry -> entry.ip }
+                        if (updated != blockedIps) {
+                            blockedIps = updated
+                            // Open flows were accepted under the old list.
+                            SessionInvalidator.invalidate()
+                        }
                     }
                 }
             )
@@ -56,9 +72,6 @@ class FilterRule @Inject constructor(
         logUseCases: LogUseCases,
         result: FirewallResult
     ): FirewallResult {
-        val isBlocked = ips?.firstOrNull { it.ip == packet.destinationIP } == null
-
-        return if (!isBlocked) FirewallResult.DROP else FirewallResult.ACCEPT
-
+        return if (packet.destinationIP in blockedIps) FirewallResult.DROP else FirewallResult.ACCEPT
     }
 }

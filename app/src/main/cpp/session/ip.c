@@ -93,13 +93,6 @@ int has_udp_session(const struct arguments *args, const uint8_t *pkt, const uint
 
 void handle_ip(const struct arguments *args, const uint8_t *pkt, const size_t length, const int epoll_fd, int sessions, int maxsessions) {
     uint8_t protocol;
-    void *saddr;
-    void *daddr;
-    char source[INET6_ADDRSTRLEN + 1];
-    char dest[INET6_ADDRSTRLEN + 1];
-    char flags[10];
-    char data[16];
-    int flen = 0;
     uint8_t *payload;
 
     uint8_t version = (*pkt) >> 4;
@@ -110,8 +103,6 @@ void handle_ip(const struct arguments *args, const uint8_t *pkt, const size_t le
 
         struct iphdr *ip4hdr = (struct iphdr *) pkt;
         protocol = ip4hdr->protocol;
-        saddr = &ip4hdr->saddr;
-        daddr = &ip4hdr->daddr;
 
         if (ip4hdr->frag_off & IP_MF) {
             return;
@@ -152,31 +143,22 @@ void handle_ip(const struct arguments *args, const uint8_t *pkt, const size_t le
             }
         }
 
-        saddr = &ip6hdr->ip6_src;
-        daddr = &ip6hdr->ip6_dst;
         payload = (uint8_t *) (pkt + sizeof(struct ip6_hdr) + off);
     } else {
         return;
     }
 
-    inet_ntop(version == 4 ? AF_INET : AF_INET6, saddr, source, sizeof(source));
-    inet_ntop(version == 4 ? AF_INET : AF_INET6, daddr, dest, sizeof(dest));
-
+    // The textual addresses, TCP flags and ICMP type used to be formatted
+    // here for every packet, but nothing read them any more.
     int syn = 0;
     int tcp_new_connection = 0;
-    uint16_t sport = 0;
+    int udp_known = 0;
     uint16_t dport = 0;
-    *data = 0;
 
     if (protocol == IPPROTO_ICMP || protocol == IPPROTO_ICMPV6) {
         if (length - (payload - pkt) < ICMP_MINLEN) {
             return;
         }
-
-        struct icmp *icmp = (struct icmp *) payload;
-        sprintf(data, "type %d/%d", icmp->icmp_type, icmp->icmp_code);
-        sport = ntohs(icmp->icmp_id);
-        dport = ntohs(icmp->icmp_id);
 
     } else if (protocol == IPPROTO_UDP) {
         if (length - (payload - pkt) < sizeof(struct udphdr)) {
@@ -184,8 +166,9 @@ void handle_ip(const struct arguments *args, const uint8_t *pkt, const size_t le
         }
 
         struct udphdr *udp = (struct udphdr *) payload;
-        sport = ntohs(udp->source);
         dport = ntohs(udp->dest);
+        // Scan the session list once per packet (it was scanned up to three times).
+        udp_known = has_udp_session(args, pkt, payload);
 
     } else if (protocol == IPPROTO_TCP) {
         if (length - (payload - pkt) < sizeof(struct tcphdr)) {
@@ -193,65 +176,30 @@ void handle_ip(const struct arguments *args, const uint8_t *pkt, const size_t le
         }
 
         struct tcphdr *tcp = (struct tcphdr *) payload;
-        sport = ntohs(tcp->source);
         dport = ntohs(tcp->dest);
 
         if (tcp->syn) {
             syn = 1;
-            flags[flen++] = 'S';
             // A new connection is a SYN without ACK: the Java rule engine
             // ignores every other TCP packet anyway (see TunnelManager), so
             // avoid the JNI call for the bulk of the traffic.
             tcp_new_connection = !tcp->ack;
         }
-        if (tcp->ack)
-            flags[flen++] = 'A';
-        if (tcp->psh)
-            flags[flen++] = 'P';
-        if (tcp->fin)
-            flags[flen++] = 'F';
-        if (tcp->rst)
-            flags[flen++] = 'R';
     } else if (protocol != IPPROTO_HOPOPTS && protocol != IPPROTO_IGMP && protocol != IPPROTO_ESP) {
         return;
     }
 
-    flags[flen] = 0;
-
     if (sessions >= maxsessions) {
         if ((protocol == IPPROTO_ICMP || protocol == IPPROTO_ICMPV6) ||
-            (protocol == IPPROTO_UDP && !has_udp_session(args, pkt, payload)) ||
+            (protocol == IPPROTO_UDP && !udp_known) ||
             (protocol == IPPROTO_TCP && syn)) {
             return;
         }
     }
 
     jint uid = -1;
-    char server_name[TLS_SNI_LENGTH + 1];
-    *server_name = 0;
-
-    if (protocol == IPPROTO_TCP) {
-        const struct tcphdr *tcphdr = (struct tcphdr *) payload;
-        const uint8_t tcpoptlen = (uint8_t) ((tcphdr->doff - 5) * 4);
-        const uint8_t *data = payload + sizeof(struct tcphdr) + tcpoptlen;
-        const uint16_t datalen = (const uint16_t) (length - (data - pkt));
-    }
-
-    if (*server_name != 0)
-        strcpy(data, "sni");
-
-    if (protocol == IPPROTO_ICMP || protocol == IPPROTO_ICMPV6 ||
-        (protocol == IPPROTO_UDP && !has_udp_session(args, pkt, payload)) ||
-        (protocol == IPPROTO_TCP && syn)) {
-    }
-
     int allowed = 1;
     struct allowed *redirect = NULL;
-
-    if (protocol == IPPROTO_UDP && has_udp_session(args, pkt, payload))
-        allowed = 1;
-    else if (protocol == IPPROTO_TCP && (!syn || (uid == 0 && dport == 53)) && *server_name == 0)
-        allowed = 1;
 
     // Apply packet filtering
     jboolean allow_packet = JNI_TRUE;
@@ -262,7 +210,14 @@ void handle_ip(const struct arguments *args, const uint8_t *pkt, const size_t le
             handle_icmp(args, pkt, length, payload, uid, epoll_fd);
         }
     } else if (protocol == IPPROTO_UDP) {
-        allow_packet = filter_udp_packet(args, pkt, length, "TUN_IN");
+        // A known flow was accepted when it started, and a rule change clears
+        // the sessions (SessionInvalidator), so only DNS queries (each one
+        // carries its own domain) and the first packet of a new flow need the
+        // Kotlin rules. Sending every QUIC/streaming/VoIP datagram through JNI
+        // was the main CPU and battery cost of the tunnel.
+        allow_packet = (dport == 53 || !udp_known)
+            ? filter_udp_packet(args, pkt, length, "TUN_IN")
+            : JNI_TRUE;
         if (allow_packet) {
             handle_udp(args, pkt, length, payload, uid, redirect, epoll_fd);
         }

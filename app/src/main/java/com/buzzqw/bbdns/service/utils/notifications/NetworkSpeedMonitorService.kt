@@ -20,8 +20,10 @@ package com.buzzqw.bbdns.service.utils.notifications
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -38,6 +40,7 @@ import android.os.Looper
 import android.widget.RemoteViews
 import java.util.Locale
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.buzzqw.bbdns.R
 import com.buzzqw.bbdns.core.utils.NotificationUtils
 import com.buzzqw.bbdns.core.utils.NumberFormatter
@@ -63,6 +66,29 @@ class NetworkSpeedMonitorService : Service() {
         getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
     }
     private var updateTicks = 0L
+    /** Consecutive ticks without traffic, to skip redrawing a flat graph. */
+    private var idleTicks = 0
+
+    /**
+     * The notification cannot be seen with the screen off: stop the ticker
+     * instead of waking up every 2 s to draw bitmaps nobody looks at.
+     */
+    private val screenReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            when (intent.action) {
+                Intent.ACTION_SCREEN_OFF -> stopMonitoring()
+                Intent.ACTION_SCREEN_ON -> {
+                    // Restart from fresh counters: the bytes moved while the
+                    // screen was off would show up as one huge spike.
+                    lastRxBytes = TrafficStats.getTotalRxBytes()
+                    lastTxBytes = TrafficStats.getTotalTxBytes()
+                    lastUpdateTime = System.currentTimeMillis()
+                    idleTicks = 0
+                    if (updateRunnable == null) startMonitoring()
+                }
+            }
+        }
+    }
     
     private var lastRxBytes = 0L
     private var lastTxBytes = 0L
@@ -96,7 +122,16 @@ class NetworkSpeedMonitorService : Service() {
             startForeground(NOTIFICATION_ID, createNotification(0f, 0f))
         }
 
-        startMonitoring()
+        if (powerManager?.isInteractive != false) startMonitoring()
+        ContextCompat.registerReceiver(
+            this,
+            screenReceiver,
+            IntentFilter().apply {
+                addAction(Intent.ACTION_SCREEN_OFF)
+                addAction(Intent.ACTION_SCREEN_ON)
+            },
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -115,6 +150,10 @@ class NetworkSpeedMonitorService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        try {
+            unregisterReceiver(screenReceiver)
+        } catch (_: IllegalArgumentException) {
+        }
         stopMonitoring()
     }
 
@@ -160,11 +199,13 @@ class NetworkSpeedMonitorService : Service() {
                 val uploadSpeed = (txDiff * 1000f) / timeDiff
 
                 updateSpeedQueues(downloadSpeed, uploadSpeed)
-                // With the screen off the notification is not visible: refresh it
-                // only every ~10 s instead of every tick, saving battery.
+                // Once the whole graph is flat at zero, every new frame would be
+                // identical: skip building two bitmaps and re-posting it.
+                idleTicks = if (rxDiff == 0L && txDiff == 0L) idleTicks + 1 else 0
                 updateTicks++
                 val interactive = powerManager?.isInteractive ?: true
-                if (interactive || updateTicks % 5L == 0L) {
+                val unchanged = idleTicks > GRAPH_POINTS + 1
+                if (!unchanged && (interactive || updateTicks % 5L == 0L)) {
                     updateNotification(downloadSpeed, uploadSpeed)
                 }
             }

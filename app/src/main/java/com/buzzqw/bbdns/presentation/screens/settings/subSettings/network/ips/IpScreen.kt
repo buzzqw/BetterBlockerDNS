@@ -79,7 +79,7 @@ fun IpScreen(
                onBackClicked = { navController.navigateUp() },
                button = {
                    IconButton(onClick = { showAddIpDialog = true }) {
-                       Icon(Icons.Rounded.Add, contentDescription = null)
+                       Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.dialog_add_ip))
                    }
                }
            )

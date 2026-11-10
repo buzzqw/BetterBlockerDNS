@@ -46,8 +46,12 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +61,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.buzzqw.bbdns.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -140,12 +147,49 @@ private const val RESOURCE_REFRESH_MS = 2_000L
  */
 @Composable
 fun ResourceUsageCard() {
+    // Collapsed by default: the CPU/battery sampling runs only while the
+    // values are actually shown.
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    val toggle = { expanded = !expanded }
+    InsightCard(
+        icon = Icons.Rounded.Memory,
+        title = stringResource(R.string.home_resources_title),
+        trailing = {
+            TextButton(onClick = toggle) {
+                Text(
+                    stringResource(
+                        if (expanded) R.string.home_more_hide else R.string.home_more_show
+                    )
+                )
+            }
+        },
+        onClick = toggle,
+    ) {
+        if (expanded) {
+            ResourceUsageValues()
+        } else {
+            Text(
+                text = stringResource(R.string.home_resources_hint),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ResourceUsageValues() {
     val context = LocalContext.current
-    val usage by produceState(initialValue = ResourceUsage(), context) {
-        while (true) {
-            val battery = withContext(Dispatchers.IO) { readBattery(context) }
-            value = battery.copy(cpuPercent = sampleCpuPercent())
-            delay(RESOURCE_REFRESH_MS)
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val usage by produceState(initialValue = ResourceUsage(), context, lifecycle) {
+        // The composition survives while the app is in the background, so
+        // sample only while the screen is actually visible.
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) {
+                val battery = withContext(Dispatchers.IO) { readBattery(context) }
+                value = battery.copy(cpuPercent = sampleCpuPercent())
+                delay(RESOURCE_REFRESH_MS)
+            }
         }
     }
 
@@ -167,10 +211,7 @@ fun ResourceUsageCard() {
     }
     val batteryDetail = stringResource(R.string.home_resources_battery_hint)
 
-    InsightCard(
-        icon = Icons.Rounded.Memory,
-        title = stringResource(R.string.home_resources_title),
-    ) {
+    Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),

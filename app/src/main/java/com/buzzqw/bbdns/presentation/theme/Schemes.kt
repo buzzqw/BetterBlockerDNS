@@ -17,6 +17,8 @@
 
 package com.buzzqw.bbdns.presentation.theme
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -102,6 +104,7 @@ val darkScheme = darkColorScheme(
 )
 
 
+@RequiresApi(Build.VERSION_CODES.S)
 fun getDarkDynamicColorScheme(context: android.content.Context): ColorScheme {
     val scheme = dynamicDarkColorScheme(context)
 
@@ -116,6 +119,7 @@ fun getDarkDynamicColorScheme(context: android.content.Context): ColorScheme {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.S)
 fun getLightDynamicColorScheme(context: android.content.Context): ColorScheme {
     val scheme = dynamicLightColorScheme(context)
 

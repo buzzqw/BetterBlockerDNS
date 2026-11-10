@@ -2,4 +2,13 @@
 <resources>
     <string name="details_skip_dns_filtering">Skip DNS filtering</string>
     <string name="details_skip_dns_filtering_desc">The app stays protected by the VPN rules, but its DNS queries are not checked against the blocklists. Works on Android 10 and newer; recently blocked domains may stay blocked until the system DNS cache expires.</string>
+    <string name="apps_cd_wifi_allowed">Wi-Fi allowed. Tap to block</string>
+    <string name="apps_cd_wifi_blocked">Wi-Fi blocked. Tap to allow</string>
+    <string name="apps_cd_mobile_allowed">Mobile data allowed. Tap to block</string>
+    <string name="apps_cd_mobile_blocked">Mobile data blocked. Tap to allow</string>
+    <string name="apps_rule_connections_reset">Rule applied: the app\'s open connections were closed so it takes effect right away.</string>
+    <string name="home_allow_domain_done">%1$s allowed</string>
+    <string name="common_undo">Undo</string>
+    <string name="home_more_show">Show</string>
+    <string name="home_more_hide">Hide</string>
 </resources>

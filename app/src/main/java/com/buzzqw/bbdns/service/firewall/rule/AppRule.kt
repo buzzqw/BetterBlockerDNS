@@ -27,6 +27,7 @@ import com.buzzqw.bbdns.service.firewall.model.FireWallModel
 import com.buzzqw.bbdns.service.firewall.model.FirewallResult
 import com.buzzqw.bbdns.service.firewall.utils.ConnectivityUtils
 import com.buzzqw.bbdns.service.firewall.utils.FlowUidCache
+import com.buzzqw.bbdns.service.firewall.utils.SessionInvalidator
 import com.buzzqw.bbdns.service.vpn.network.transport.dns.DNSModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,8 +39,8 @@ class AppRule @Inject constructor(
     private val networkConnectionStateManager: ConnectionStateManager,
     private val connectionUtils: ConnectivityUtils,
 ) : FirewallRule {
-    private var wifiBlockedUids: IntArray = IntArray(0)
-    private var cellularBlockedUids: IntArray = IntArray(0)
+    @Volatile private var wifiBlockedUids: IntArray = IntArray(0)
+    @Volatile private var cellularBlockedUids: IntArray = IntArray(0)
 
     init {
         observePackages(updatedApplication = null)
@@ -53,8 +54,12 @@ class AppRule @Inject constructor(
                     val wifiBlocked = applications.filter { !it.internetAccess }.map { it.uid }.toIntArray()
                     val cellularBlocked = applications.filter { !it.cellularAccess }.map { it.uid }.toIntArray()
 
+                    val changed = !wifiBlocked.contentEquals(wifiBlockedUids) ||
+                        !cellularBlocked.contentEquals(cellularBlockedUids)
                     wifiBlockedUids = wifiBlocked
                     cellularBlockedUids = cellularBlocked
+                    // A newly blocked app must lose the flows it already has.
+                    if (changed) SessionInvalidator.invalidate()
                 }
             )
         }

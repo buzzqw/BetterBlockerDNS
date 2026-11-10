@@ -8,6 +8,40 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-10
+
+### Lower CPU, memory and battery use
+- The tunnel now checks only the first packet of each connection against the
+  firewall rules (DNS queries are still checked one by one), so streaming,
+  calls, games and QUIC traffic use far less CPU and battery.
+- Changing an app's Wi-Fi/mobile access, the blocked IP list, or turning the
+  screen off with "block when screen off" enabled now ends the open
+  connections, so the new rules apply to them right away.
+- Custom regex domains are prepared once instead of on every DNS query, and
+  the blocked IP list is looked up instantly instead of scanned.
+- The network speed notification pauses while the screen is off and stops
+  redrawing when there is no traffic; the protection notification is no
+  longer refreshed with the screen off.
+- The home screen stops sampling CPU, battery and history while the app is in
+  the background.
+- Release builds no longer write a system log line for every blocked domain.
+- Fixed a rare crash in the tunnel when the open connections were reset while
+  traffic was being processed.
+
+### Easier to use
+- The home shows the recently blocked domains right below the key numbers,
+  and the resource usage card is collapsed until you open it.
+- Allowing a domain from the home can be undone from the confirmation that
+  appears at the bottom of the screen.
+- The first time you block an app while protection is on, BBDNS explains that
+  its open connections were closed so the rule applies immediately.
+- The Wi-Fi and mobile data buttons of each app, and the "add IP" button, are
+  now announced correctly by screen readers.
+- Tapping the Quick Settings tile opens the app again on Android 14 and newer.
+- The protection notification shows compact numbers (for example 12K).
+- Italian, German, Spanish, French, Brazilian Portuguese and Simplified
+  Chinese are now fully translated.
+
 ## 2026-11-09
 
 ### Builder compatibility

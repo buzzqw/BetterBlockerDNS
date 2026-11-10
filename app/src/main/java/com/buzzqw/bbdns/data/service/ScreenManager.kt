@@ -20,6 +20,7 @@ package com.buzzqw.bbdns.data.service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.buzzqw.bbdns.service.firewall.utils.SessionInvalidator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -45,10 +46,21 @@ class ScreenStateReceiver : BroadcastReceiver() {
 @Singleton
 class ScreenStateManager
  {
+    @Volatile
     var currentScreenStatus: ScreenManager = ScreenManager.SCREEN_ON
 
+    /** Set by ScreenRule: true when some traffic is blocked with the screen off. */
+    @Volatile
+    var blockWhenScreenOff: Boolean = false
+
     fun updateScreenStatus(screenStatus: ScreenManager) {
+        val turnedOff = screenStatus == ScreenManager.SCREEN_OFF &&
+            currentScreenStatus != ScreenManager.SCREEN_OFF
         currentScreenStatus = screenStatus
+        // Only new flows reach the rules: end the open ones so the screen-off
+        // block also applies to them. Without the setting nothing is dropped,
+        // so connections (push, music) survive and do not reconnect.
+        if (turnedOff && blockWhenScreenOff) SessionInvalidator.invalidate()
     }
 }
 

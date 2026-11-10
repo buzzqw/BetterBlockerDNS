@@ -22,6 +22,7 @@ import kotlinx.coroutines.sync.withPermit
 import android.os.Build
 import android.util.Base64
 import android.util.Log
+import com.buzzqw.bbdns.BuildConfig
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.service.firewall.handler.RuleHandler
 import com.buzzqw.bbdns.service.firewall.handler.filterPacket
@@ -167,7 +168,6 @@ class TunnelManager(
             
             if (ipVersion == 6) {
                 // IPv6 packets - currently not supported for TCP filtering
-                Log.d("PacketFilter", "[$direction] IPv6 TCP packet detected, allowing (not implemented)")
                 return true
             } else if (ipVersion != 4) {
                 Log.w("PacketFilter", "[$direction] Unknown IP version $ipVersion, blocking")
@@ -193,10 +193,11 @@ class TunnelManager(
         } catch (e: Exception) {
             // For malformed packets (like Data Offset 0), block them for security
             if (e.message?.contains("Malformed TCP packet") == true) {
-                // Log full packet data for debugging
-                val packetHex = data.take(minOf(length, 100)).joinToString(" ") { "%02x".format(it) }
-                Log.d("PacketFilter", "[$direction] TCP: Blocking malformed packet: ${e.message}")
-                Log.d("PacketFilter", "[$direction] TCP: Full packet hex (first 100 bytes): $packetHex")
+                if (BuildConfig.DEBUG) {
+                    val packetHex = data.take(minOf(length, 100)).joinToString(" ") { "%02x".format(it) }
+                    Log.d("PacketFilter", "[$direction] TCP: Blocking malformed packet: ${e.message}")
+                    Log.d("PacketFilter", "[$direction] TCP: Full packet hex (first 100 bytes): $packetHex")
+                }
                 false // Block malformed packets
             } else {
                 Log.e("PacketFilter", "Error filtering TCP packet: ${e.message}")
@@ -246,20 +247,15 @@ class TunnelManager(
                         val udpPacketData = ByteBuffer.wrap(data, udpStartPosition, length - udpStartPosition)
                         udpPacketData.order(ByteOrder.BIG_ENDIAN)
                         
-                        Log.d("PacketFilter", "[$direction] DNS: Creating SOAR response for blocked domain, UDP data size: ${udpPacketData.remaining()}")
                         val soarResponsePayload = soarResponse(udpPacketData, ipHeader)
-                        Log.d("PacketFilter", "[$direction] DNS: SOAR response payload created, size: ${soarResponsePayload.size}")
-                        
+
                         // Create complete response packet using Kotlin packet creation system
                         val completeResponsePacket = handleDnsResponse(udpHeader, ipHeader, soarResponsePayload)
-                        Log.d("PacketFilter", "[$direction] DNS: Complete response packet created, size: ${completeResponsePacket.size}")
-                        
+
                         // Send complete packet through VPN interface
                         if (contextPtr != 0L) {
                             jni_send_complete_packet(contextPtr, completeResponsePacket)
                         }
-                        
-                        Log.d("PacketFilter", "[$direction] DNS: Sent SOAR response for blocked domain")
                         false // Block original packet
                     } catch (e: Exception) {
                         Log.e("PacketFilter", "Error creating/sending SOAR response: ${e.message}", e)

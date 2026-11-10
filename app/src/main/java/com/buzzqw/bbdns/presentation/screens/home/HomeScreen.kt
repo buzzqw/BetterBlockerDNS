@@ -82,6 +82,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import com.buzzqw.bbdns.presentation.screens.home.components.LocalHomeSnackbar
+import com.buzzqw.bbdns.service.utils.manager.ProtectionState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.LaunchedEffect
@@ -186,6 +191,7 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val isFirewallManager = homeViewModel.firewallManager.rulesLoaded.collectAsState()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
     
     // Power button bounds (window coordinates), highlighted by the onboarding.
     var powerButtonBounds by remember { mutableStateOf(Rect.Zero) }
@@ -237,7 +243,9 @@ fun HomeScreen(
         }
     }
 
+    CompositionLocalProvider(LocalHomeSnackbar provides snackbarHostState) {
     MaterialScaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             HomeTopBar(
                 onLogsClicked = onLogsClicked,
@@ -288,6 +296,7 @@ fun HomeScreen(
             )
         }
     )
+    }
 
     // Progress dialog overlay - appears on top of everything
     if (isFirewallManager.value.name() == FirewallStatus.LOADING().name()) {
@@ -764,6 +773,9 @@ private fun ProfessionalApplicationItem(
     }
 }
 
+/** The "open connections were closed" hint is shown once per app process. */
+private var connectionsResetHintShown = false
+
 @Composable
 private fun AccessControlButtons(
     packageEntity: Application,
@@ -792,14 +804,28 @@ private fun AccessControlButtons(
         )
     } else {
         // Show normal wifi/cellular controls
+        val snackbar = LocalHomeSnackbar.current
+        val hintScope = rememberCoroutineScope()
+        val resetHint = stringResource(R.string.apps_rule_connections_reset)
+        // Blocking an app ends its open connections (see SessionInvalidator):
+        // explain it once, so a dropped download or call is not a surprise.
+        val onBlocked = {
+            if (ProtectionState.isRunning && !connectionsResetHintShown && snackbar != null) {
+                connectionsResetHintShown = true
+                hintScope.launch { snackbar.showSnackbar(resetHint, duration = SnackbarDuration.Long) }
+            }
+        }
         Row {
             IconButton(onClick = {
                 wifiAccess = !wifiAccess
                 viewModel.updatePackage(packageEntity.copy(internetAccess = wifiAccess), updateUI = true)
+                if (!wifiAccess) onBlocked()
             }) {
                 Icon(
                     imageVector = if (wifiAccess) Icons.Rounded.Wifi else Icons.Rounded.WifiOff,
-                    contentDescription = null,
+                    contentDescription = stringResource(
+                        if (wifiAccess) R.string.apps_cd_wifi_allowed else R.string.apps_cd_wifi_blocked
+                    ),
                     tint = getAccessControlTint(wifiAccess),
                     modifier = Modifier.padding(horizontal = 6.dp)
                 )
@@ -808,10 +834,13 @@ private fun AccessControlButtons(
             IconButton(onClick = {
                 cellularAccess = !cellularAccess
                 viewModel.updatePackage(packageEntity.copy(cellularAccess = cellularAccess), updateUI = true)
+                if (!cellularAccess) onBlocked()
             }) {
                 Icon(
                     imageVector = if (cellularAccess) Icons.Rounded.SignalCellularAlt else Icons.Rounded.SignalCellularOff,
-                    contentDescription = null,
+                    contentDescription = stringResource(
+                        if (cellularAccess) R.string.apps_cd_mobile_allowed else R.string.apps_cd_mobile_blocked
+                    ),
                     tint = getAccessControlTint(cellularAccess)
                 )
             }

@@ -730,4 +730,26 @@
     <string name="dns_domain_management_deny_hint">Blocklist: domini aggiuntivi da bloccare oltre alle liste scaricate.</string>
     <string name="dns_domain_enabled">Regola attiva</string>
     <string name="dns_domain_disabled">Regola sospesa</string>
+
+    <!-- Added 2026-11-10: strings missing from this translation -->
+    <string name="widget_description">Stato della protezione e richieste bloccate</string>
+    <string name="widget_status_on">Protezione attiva</string>
+    <string name="widget_status_off">Protezione disattivata</string>
+    <string name="widget_status_paused">In pausa</string>
+    <string name="widget_paused_until">Riprende alle %1$s</string>
+    <string name="widget_blocked_today">%1$s bloccate oggi</string>
+    <string name="widget_off_hint">Tocca per avviare il blocco</string>
+    <string name="widget_turn_on">Attiva</string>
+    <string name="widget_turn_off">Disattiva</string>
+    <string name="widget_resume">Riprendi</string>
+    <string name="active_lists_entries_updated">%1$s host · aggiornata %2$s</string>
+    <string name="apps_cd_wifi_allowed">Wi-Fi consentito. Tocca per bloccare</string>
+    <string name="apps_cd_wifi_blocked">Wi-Fi bloccato. Tocca per consentire</string>
+    <string name="apps_cd_mobile_allowed">Dati mobili consentiti. Tocca per bloccare</string>
+    <string name="apps_cd_mobile_blocked">Dati mobili bloccati. Tocca per consentire</string>
+    <string name="apps_rule_connections_reset">Regola applicata: le connessioni aperte dell\'app sono state chiuse perché valga subito.</string>
+    <string name="home_allow_domain_done">%1$s consentito</string>
+    <string name="common_undo">Annulla</string>
+    <string name="home_more_show">Mostra</string>
+    <string name="home_more_hide">Nascondi</string>
 </resources>

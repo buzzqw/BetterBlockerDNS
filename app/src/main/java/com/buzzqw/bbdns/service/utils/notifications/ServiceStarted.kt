@@ -17,6 +17,7 @@
 
 package com.buzzqw.bbdns.service.utils.notifications
 
+import com.buzzqw.bbdns.core.utils.NumberFormatter
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -100,8 +101,8 @@ suspend fun Service.showStartNotification(
                 } else {
                     contextNot.getString(
                         R.string.notification_allowed_blocked,
-                        allowed,
-                        blocked
+                        NumberFormatter.formatCount(allowed),
+                        NumberFormatter.formatCount(blocked)
                     )
                 }
             )

@@ -19,6 +19,8 @@ package com.buzzqw.bbdns.service.tiles
 
 import android.graphics.drawable.Icon
 import android.net.VpnService
+import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
@@ -206,11 +208,26 @@ class DnsQuickSettingsTile : TileService() {
         }
     }
 
+    // The Intent overload is only used below Android 14, where it is the right call.
+    @SuppressLint("StartActivityAndCollapseDeprecated")
     private fun openApp() {
         try {
             val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
             if (launchIntent != null) {
-                startActivityAndCollapse(launchIntent)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    // Android 14+ throws for the Intent overload when the app
+                    // targets API 34 or newer, so the tile silently did nothing.
+                    val pendingIntent = PendingIntent.getActivity(
+                        this,
+                        0,
+                        launchIntent,
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                    )
+                    startActivityAndCollapse(pendingIntent)
+                } else {
+                    @Suppress("DEPRECATION")
+                    startActivityAndCollapse(launchIntent)
+                }
             }
         } catch (e: Exception) {
             Logger.error("Error opening app: ${e.message}", e)

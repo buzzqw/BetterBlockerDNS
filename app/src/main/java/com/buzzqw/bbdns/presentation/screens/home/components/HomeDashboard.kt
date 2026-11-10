@@ -17,6 +17,10 @@
 
 package com.buzzqw.bbdns.presentation.screens.home.components
 
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import android.text.format.DateFormat
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -68,6 +72,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -152,8 +157,11 @@ fun HomeDashboard(
     onOpenLists: () -> Unit = {},
 ) {
     val insightsViewModel: HomeInsightsViewModel = hiltViewModel()
+    val snackbar = LocalHomeSnackbar.current
+    val snackbarScope = rememberCoroutineScope()
+    val resources = LocalContext.current.resources
     val allowedFromHome by insightsViewModel.allowedDomains.collectAsState()
-    val history by insightsViewModel.history.collectAsState()
+    val history by insightsViewModel.history.collectAsStateWithLifecycle()
     val listStats by insightsViewModel.listStats.collectAsState()
 
     val profileViewModel: HageziViewModel = hiltViewModel()
@@ -279,21 +287,8 @@ fun HomeDashboard(
             onBlockedClick = onOpenLists,
         )
 
-        // 4. Live speed and blocks.
-        LiveTrafficCard(
-            traffic = traffic,
-            blockedPerMinute = details?.blockedPerMinute ?: emptyList(),
-            onClick = onOpenStats,
-        )
-
-        // 5. Active blocklists at a glance (tap to manage them).
-        ActiveListsCard(listStats = listStats, onClick = onOpenLists)
-
-        // 6. Activity of the last 30 minutes and daily history.
-        details?.let { ActivityChartCard(details = it, onClick = onOpenStats) }
-        HistoryCard(history = history)
-
-        // 7. Recently blocked domains (tap one to allow it).
+        // 4. Recently blocked domains, the card used most often (tap one to
+        // allow it): it used to sit at the bottom of a long page.
         details?.let {
             RecentBlockedCard(
                 recent = it.recentBlocked.filter { event -> event.domain !in allowedFromHome },
@@ -302,7 +297,21 @@ fun HomeDashboard(
             )
         }
 
-        // 8. Resource usage and ways to support the project.
+        // 5. Live speed and blocks.
+        LiveTrafficCard(
+            traffic = traffic,
+            blockedPerMinute = details?.blockedPerMinute ?: emptyList(),
+            onClick = onOpenStats,
+        )
+
+        // 6. Active blocklists at a glance (tap to manage them).
+        ActiveListsCard(listStats = listStats, onClick = onOpenLists)
+
+        // 7. Activity of the last 30 minutes and daily history.
+        details?.let { ActivityChartCard(details = it, onClick = onOpenStats) }
+        HistoryCard(history = history)
+
+        // 8. Resource usage (collapsed) and ways to support the project.
         ResourceUsageCard()
         SupportCard()
     }
@@ -375,6 +384,19 @@ fun HomeDashboard(
             onConfirm = {
                 insightsViewModel.allowDomain(domain)
                 domainToAllow = null
+                // Confirm with an undo, in case the wrong domain was tapped.
+                snackbar?.let { host ->
+                    snackbarScope.launch {
+                        val result = host.showSnackbar(
+                            message = resources.getString(R.string.home_allow_domain_done, domain),
+                            actionLabel = resources.getString(R.string.common_undo),
+                            duration = SnackbarDuration.Short,
+                        )
+                        if (result == SnackbarResult.ActionPerformed) {
+                            insightsViewModel.undoAllowDomain(domain)
+                        }
+                    }
+                }
             },
             onDismiss = { domainToAllow = null },
         )

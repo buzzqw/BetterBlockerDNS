@@ -44,6 +44,7 @@ void clear(struct context *ctx) {
 
     // Clear the session list pointer at the END to prevent handle_events race conditions
     ctx->ng_session = NULL;
+    __atomic_add_fetch(&ctx->clear_gen, 1, __ATOMIC_RELEASE);
 }
 
 void *handle_events(void *a) {
@@ -164,6 +165,9 @@ void *handle_events(void *a) {
         }
 
         struct epoll_event ev[EPOLL_EVENTS];
+        // epoll_wait runs unlocked: a jni_clear_sessions() meanwhile frees the
+        // sessions whose pointers it returns, so remember the generation.
+        unsigned int gen = __atomic_load_n(&args->ctx->clear_gen, __ATOMIC_ACQUIRE);
         int ready = epoll_wait(epoll_fd, ev, EPOLL_EVENTS, recheck ? EPOLL_MIN_CHECK : timeout * 1000);
 
         if (ready < 0) {
@@ -178,6 +182,7 @@ void *handle_events(void *a) {
                 break;
 
             int error = 0;
+            const int stale = (args->ctx->clear_gen != gen);
 
             for (int i = 0; i < ready; i++) {
                 if (ev[i].data.ptr == &ev_pipe) {
@@ -190,7 +195,7 @@ void *handle_events(void *a) {
                         if (check_tun(args, &ev[i], epoll_fd, sessions, maxsessions) < 0)
                             error = 1;
                     }
-                } else {
+                } else if (!stale) {
                     struct ng_session *session = (struct ng_session *) ev[i].data.ptr;
                     if (session->protocol == IPPROTO_ICMP || session->protocol == IPPROTO_ICMPV6)
                         check_icmp_socket(args, &ev[i]);

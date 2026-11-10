@@ -30,12 +30,14 @@ import androidx.compose.ui.Modifier
 fun MaterialScaffold(
     topBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = { topBar() },
         floatingActionButton = { floatingActionButton() },
+        snackbarHost = { snackbarHost() },
         content = { padding ->
             Box(
                 modifier = Modifier

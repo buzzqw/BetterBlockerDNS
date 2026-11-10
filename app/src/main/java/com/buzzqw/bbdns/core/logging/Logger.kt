@@ -18,11 +18,16 @@
 package com.buzzqw.bbdns.core.logging
 
 import android.util.Log
+import com.buzzqw.bbdns.BuildConfig
 
 object Logger {
     enum class LogLevel { DEBUG, INFO, WARN, ERROR }
 
-    private var currentLogLevel: LogLevel = LogLevel.DEBUG
+    /**
+     * Release builds keep warnings and errors only: the DNS path logged an
+     * info line for every blocked domain, i.e. a logcat write per query.
+     */
+    private val currentLogLevel: LogLevel = if (BuildConfig.DEBUG) LogLevel.DEBUG else LogLevel.WARN
     fun debug(message: String) = log(LogLevel.DEBUG, message)
     fun info(message: String) = log(LogLevel.INFO, message)
     fun warn(message: String) = log(LogLevel.WARN, message)

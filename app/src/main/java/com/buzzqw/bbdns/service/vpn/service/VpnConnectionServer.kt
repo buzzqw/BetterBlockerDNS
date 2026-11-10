@@ -25,6 +25,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
+import android.os.PowerManager
 import com.buzzqw.bbdns.service.vpn.network.util.NetworkConstants
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.domain.model.Application
@@ -36,6 +37,7 @@ import com.buzzqw.bbdns.domain.usecase.preferences.PreferencesUseCases
 import com.buzzqw.bbdns.service.firewall.handler.RuleHandler
 import com.buzzqw.bbdns.service.firewall.utils.FirewallCounters
 import com.buzzqw.bbdns.service.firewall.utils.FirewallStatus
+import com.buzzqw.bbdns.service.firewall.utils.SessionInvalidator
 import com.buzzqw.bbdns.service.utils.manager.FirewallManager
 import com.buzzqw.bbdns.service.utils.manager.ProtectionPause
 import com.buzzqw.bbdns.service.utils.manager.ProtectionState
@@ -314,6 +316,8 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
                 ProtectionState.sessionStartedAt = System.currentTimeMillis()
                 persistProtectionEnabled(true)
                 startVpnCoroutines()
+                // Rule changes end the open flows so they are filtered again.
+                SessionInvalidator.setListener { clearSessions() }
                 startNotificationUpdates()
                 appChangeReceiver.register(this)
                 // Honour a pause that was running when the service was killed.
@@ -374,11 +378,15 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
             var lastSnapshot: Any? = FirewallCounters.snapshot() to ProtectionState.pausedUntil.value
             var cachedSettings: Settings? = null
             var settingsLoadedAt = 0L
+            val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
             while (isActive) {
                 delay(NOTIFICATION_REFRESH_MS)
                 if (isShuttingDown || !ProtectionState.isRunning) break
                 // Catch a pause that expired while the device was asleep.
                 ProtectionPause.resumeIfExpired()
+                // Nobody sees the notification with the screen off; it is
+                // brought up to date on the first tick after the screen is on.
+                if (powerManager?.isInteractive == false) continue
                 // Only re-post when the counters or the pause changed: saves
                 // battery and avoids re-alerting the user.
                 val snapshot = FirewallCounters.snapshot() to ProtectionState.pausedUntil.value
@@ -430,6 +438,7 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
 
     private fun closeResources() {
         isShuttingDown = true
+        SessionInvalidator.setListener(null)
         ProtectionState.isRunning = false
         ProtectionState.sessionStartedAt = 0L
         FirewallCounters.flush()

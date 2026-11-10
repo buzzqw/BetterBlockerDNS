@@ -68,7 +68,7 @@ class DNSRule @Inject constructor(
                 return FirewallResult.ACCEPT
             }
             if (ruleDatabase.isBlocked(dnsModel.domainName)) {
-                Logger.info("Blocked ${dnsModel.domainName}")
+                Logger.debug("Blocked ${dnsModel.domainName}")
                 return FirewallResult.DNS_BLOCKED
             } else {
                 return FirewallResult.ACCEPT
