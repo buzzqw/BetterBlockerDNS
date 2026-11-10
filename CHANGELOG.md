@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-10
 
+### Build checks
+- The automatic security analysis of the source code no longer fails when the
+  build cache skips compilation, so the weekly check completes reliably.
+
 ### Documentation
 - The README now explains how to get started, how BBDNS works, which
   permissions it uses and why, and how to fix the most common problems.

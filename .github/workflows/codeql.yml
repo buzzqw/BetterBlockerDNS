@@ -70,11 +70,16 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
 
+      # The Gradle build cache restored by the setup-java step can satisfy every
+      # compile task, and CodeQL then reports "didn't build any of it" because
+      # no compiler ever ran under the tracer. Force a real compilation.
       - name: Build the Android app
         if: matrix.language == 'java-kotlin'
         env:
           BBDNS_SKIP_EMAIL: "1"
-        run: ./gradlew :app:assembleDebug --no-daemon --console=plain
+        run: >-
+          ./gradlew :app:assembleDebug --no-daemon --console=plain
+          --rerun-tasks --no-build-cache
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4
