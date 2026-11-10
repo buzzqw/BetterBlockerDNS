@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Send the release APK only if it comes from the build that just finished.
-# The email carries a ZIP attachment plus a link served by the local HTTP
-# server, because some mail clients do not download .apk attachments intact.
-# Used by the Gradle hook after :app:assembleRelease.
+# The email carries a ZIP attachment: mail clients handle it more reliably
+# than a raw .apk. Used by the Gradle hook after :app:assembleRelease.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -26,10 +25,4 @@ fi
 (cd "$(dirname "$APK")" && rm -f "$(basename "$ZIP")" &&
   zip -q -9 "$(basename "$ZIP")" "$(basename "$APK")")
 
-LINK_FILE=$(mktemp)
-bash scripts/serve_latest_build.sh > "$LINK_FILE"
-LINK=$(cat "$LINK_FILE")
-rm -f "$LINK_FILE"
-echo "BBDNS: download link $LINK"
-
-exec env BBDNS_DOWNLOAD_URL="$LINK" bash scripts/send_build_email.sh "$ZIP"
+exec bash scripts/send_build_email.sh "$ZIP"

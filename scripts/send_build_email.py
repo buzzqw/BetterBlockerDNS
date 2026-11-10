@@ -12,7 +12,8 @@ repository.
   BBDNS_SMTP_MODE   starttls | ssl | plain (default: starttls)
   BBDNS_MAIL_FROM   sender address (default: BBDNS_SMTP_USER)
   BBDNS_IMAP_HOST   IMAP host for delivery checks (default: derived from SMTP)
-  BBDNS_DOWNLOAD_URL  optional HTTP link added to the message body
+  BBDNS_RELEASE_URL  optional link to the published release (default: the
+                    project's latest GitHub release)
   BBDNS_DRIVE_DIR   local Google Drive (or other synced) folder that receives the ZIP
   BBDNS_DRIVE_REMOTE  optional rclone destination, e.g. "gdrive:BBDNS"
   BBDNS_GDRIVE_BIN  optional gdrive binary (default: gdrive on PATH)
@@ -42,6 +43,9 @@ from email.utils import make_msgid
 from pathlib import Path
 
 RECIPIENT = "azanzani@gmail.com"
+# Shown in the message body: the package in the email matches the published
+# release, and the link stays valid after the LAN address changes.
+LATEST_RELEASE_URL = "https://github.com/buzzqw/BetterBlockerDNS/releases/latest"
 DEFAULT_ENV_FILE = "~/.config/bbdns/mail.env"
 PASSWORD_PLACEHOLDER = "SOSTITUISCI_CON_APP_PASSWORD"
 # Gmail rejects messages larger than 25 MB, attachment encoding included.
@@ -328,9 +332,10 @@ def main() -> int:
                 )
                 if drive_url:
                     body += f"\nGoogle Drive: {drive_url}\n"
-                link = os.environ.get("BBDNS_DOWNLOAD_URL", "").strip()
-                if link:
-                    body += f"\nDirect download (LAN): {link}\n"
+                release_url = (
+                    os.environ.get("BBDNS_RELEASE_URL", "").strip() or LATEST_RELEASE_URL
+                )
+                body += f"\nLatest version on GitHub: {release_url}\n"
                 if attachment.suffix.lower() == ".zip":
                     body += (
                         "\nThe ZIP contains the APK: extract it on the phone and "

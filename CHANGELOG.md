@@ -10,6 +10,12 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-10
 
+### Build delivery
+- The email sent with each release now points to the latest published version
+  on GitHub instead of a link that only worked on the local network.
+
+## 2026-11-10
+
 ### Release 1.0.36
 - Version 1.0.36 adds the changelog link on the About screen and keeps the
   reliability fixes of 1.0.35.
