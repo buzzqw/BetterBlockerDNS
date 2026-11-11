@@ -249,10 +249,12 @@ to debug signing, which is what F-Droid and other external builders use.
 - The **Release** workflow then builds the APK signed with the project key,
   checks the signing certificate and the version, and publishes the GitHub
   release with the notes of that version.
-- `scripts/build_release.sh` builds the same signed package locally and emails
-  it to the maintainer. It reads the signing settings from
-  `~/.config/bbdns/release.env`. Keep the keystore outside the repository and
-  back it up.
+- Once the release is published, `scripts/email_release_link.sh` emails the
+  maintainer the link to it and its notes, without attachments.
+- `scripts/build_release.sh` builds the same signed package locally, only when
+  it is needed for tests, and emails it as a ZIP. It reads the signing
+  settings from `~/.config/bbdns/release.env`. Keep the keystore outside the
+  repository and back it up.
 
 ### Project structure
 

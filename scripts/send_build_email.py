@@ -22,7 +22,7 @@ Gmail often answers 552 for APK attachments while still delivering them to the
 owner's inbox: in that case the script verifies the message over IMAP and
 compares the received attachment SHA-256 with the local file.
 
-Usage:
+Usage (scripts/email_release_link.sh sends the link of a GitHub release):
   send_build_email.py <apk-or-other-file>
   send_build_email.py <https-url>
   send_build_email.py --check
@@ -309,15 +309,26 @@ def main() -> int:
             msg = EmailMessage()
             msg["Message-ID"] = make_msgid(domain="bbdns.local")
             if is_url:
-                msg["Subject"] = "BBDNS build download link"
+                version = os.environ.get("BBDNS_RELEASE_VERSION", "").strip()
+                notes = os.environ.get("BBDNS_RELEASE_NOTES", "").strip()
+                msg["Subject"] = (
+                    f"BBDNS {version} released" if version else "BBDNS build download link"
+                )
                 msg["From"] = sender
                 msg["To"] = RECIPIENT
-                msg.set_content(
-                    "New BetterBlockerDNS build available at:\n\n"
-                    f"{target}\n\n"
-                    "The APK is signed with the debug key and is a universal "
-                    "F-Droid release build.\n"
+                body = (
+                    f"BetterBlockerDNS {version} is published on GitHub:\n\n"
+                    if version
+                    else "New BetterBlockerDNS build available at:\n\n"
                 )
+                body += f"{target}\n\n"
+                if notes:
+                    body += f"What changed:\n\n{notes}\n\n"
+                body += (
+                    "The APK on the release page is built and signed by the "
+                    "GitHub release workflow with the official key.\n"
+                )
+                msg.set_content(body)
             else:
                 assert attachment is not None
                 digest = hashlib.sha256(attachment.read_bytes()).hexdigest()

@@ -10,6 +10,11 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-11
 
+### Release emails
+- The release email now carries the link to the GitHub release and its notes
+  instead of an attached build, so every installed APK is the one GitHub
+  built and signed.
+
 ### Release 1.0.37
 - Version 1.0.37 adds the optional battery diagnostic log below.
 
