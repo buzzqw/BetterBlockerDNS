@@ -80,4 +80,7 @@ app/libs/
 # Local project instructions (not part of the published project)
 AGENTS.md
 
+# Local Play Store upload instructions (not part of the published project)
+PLAY_STORE_UPLOAD.md
+
 __pycache__/
