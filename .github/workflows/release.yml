@@ -1,9 +1,10 @@
 name: Release
 
-# Pushing a version tag (v1.0.NN) builds the APK signed with the project key
-# and publishes the GitHub release. Ordinary commits are only verified by the
-# Build workflow. The release email is still sent from the owner's machine
-# (scripts/build_release.sh), because the SMTP credentials stay off GitHub.
+# Pushing a version tag (v1.0.NN) builds the APK and the app bundle signed
+# with the project key and publishes the GitHub release. Ordinary commits are
+# only verified by the Build workflow. The release email is still sent from the
+# owner's machine (scripts/build_release.sh), because the SMTP credentials stay
+# off GitHub.
 on:
   push:
     tags:
@@ -64,7 +65,7 @@ jobs:
         with:
           ndk-version: r27c
 
-      - name: Build signed release APK
+      - name: Build signed release APK and app bundle
         env:
           KEYSTORE_BASE64: ${{ secrets.KEY_BASE64 }}
           BBDNS_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
@@ -81,7 +82,7 @@ jobs:
           echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
           chmod +x gradlew
           BBDNS_KEYSTORE="$RUNNER_TEMP/release.jks" \
-            ./gradlew :app:assembleRelease --no-daemon --console=plain
+            ./gradlew :app:assembleRelease :app:bundleRelease --no-daemon --console=plain
 
       - name: Verify the signing certificate
         run: |
@@ -102,6 +103,26 @@ jobs:
             exit 1
           fi
           cp "$apk" "BetterBlockerDNS-$VERSION.apk"
+
+      - name: Verify the app bundle certificate
+        run: |
+          set -euo pipefail
+          aab=app/build/outputs/bundle/release/app-release.aab
+          if [[ ! -f "$aab" ]]; then
+            echo "::error::App bundle not found at $aab"
+            exit 1
+          fi
+          jarsigner -verify "$aab" >/dev/null
+          certs="$(keytool -printcert -jarfile "$aab")"
+          echo "$certs"
+          actual="$(echo "$certs" \
+            | sed -n 's/^[[:space:]]*SHA256: //p' | head -n 1 \
+            | tr -d ':' | tr 'A-Z' 'a-z')"
+          if [[ "$actual" != "$EXPECTED_CERT_SHA256" ]]; then
+            echo "::error::App bundle is signed with an unexpected certificate ($actual)"
+            exit 1
+          fi
+          cp "$aab" "BetterBlockerDNS-$VERSION.aab"
 
       - name: Write the release notes from CHANGELOG.md
         run: |
@@ -133,12 +154,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           apk="BetterBlockerDNS-$VERSION.apk"
+          aab="BetterBlockerDNS-$VERSION.aab"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            # Rebuilding an existing release replaces its APK and notes.
-            gh release upload "$TAG" "$apk" --clobber
+            # Rebuilding an existing release replaces its files and notes.
+            gh release upload "$TAG" "$apk" "$aab" --clobber
             gh release edit "$TAG" --notes-file notes.md
           else
-            gh release create "$TAG" "$apk" \
+            gh release create "$TAG" "$apk" "$aab" \
               --title "BetterBlockerDNS $VERSION" \
               --notes-file notes.md \
               --verify-tag

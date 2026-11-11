@@ -1,0 +1,1 @@
+First release prepared for Google Play, where BBDNS will be published soon. The battery settings now open the list of apps, and an unused permission was removed. No feature changed.

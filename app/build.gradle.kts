@@ -113,6 +113,14 @@ android {
         }
     }
     
+    bundle {
+        // Google Play publishes app bundles, not APKs: Play builds the
+        // per-device splits and signs the delivered APKs.
+        language { enableSplit = true }
+        density { enableSplit = true }
+        abi { enableSplit = true }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

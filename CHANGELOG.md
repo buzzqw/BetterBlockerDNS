@@ -10,6 +10,15 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-11
 
+### Release 1.0.38
+### Google Play
+- First release prepared for Google Play, where BBDNS will be published soon.
+- Opening the battery settings from BBDNS now shows the list of apps instead of
+  the direct exemption request; the resulting setting is the same.
+- An unused permission was removed. No feature changed.
+
+## 2026-11-11
+
 ### Release emails
 - The release email now carries the link to the GitHub release and its notes
   instead of an attached build, so every installed APK is the one GitHub

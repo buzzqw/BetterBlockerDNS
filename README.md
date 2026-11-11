@@ -65,6 +65,9 @@ Official APKs are built by GitHub Actions from the tagged source and signed
 with the project key. Updates install over the previous version and keep your
 settings.
 
+A Google Play version is coming soon: once it is published there, installing
+from the store also stops Android from asking to scan the APK at every update.
+
 ## Getting started
 
 1. **Open BBDNS and tap the power button.** Android asks to allow a VPN
@@ -169,8 +172,10 @@ with another VPN app.
 | Query all packages | show your apps for per-app rules |
 | Foreground service, notifications | keep protection running and show its status |
 | Start at boot | restart protection after a reboot |
-| Ignore battery optimisations | stop Android from killing the VPN in the background |
 | Biometric | optional app lock |
+
+The full privacy policy, including what leaves the phone and what never does,
+is in [PRIVACY.md](PRIVACY.md).
 
 ---
 
@@ -231,6 +236,7 @@ Requirements: JDK 17 or newer, Android SDK 36 (minSdk 24), Android NDK
 ```bash
 ./gradlew :app:assembleDebug     # debug APK
 ./gradlew :app:assembleRelease   # release APK (debug-signed without a keystore)
+./gradlew :app:bundleRelease     # app bundle for Google Play
 ./gradlew :app:lintDebug         # lint
 ```
 
@@ -255,6 +261,9 @@ to debug signing, which is what F-Droid and other external builders use.
   it is needed for tests, and emails it as a ZIP. It reads the signing
   settings from `~/.config/bbdns/release.env`. Keep the keystore outside the
   repository and back it up.
+- Google Play accepts app bundles only: `scripts/build_play_bundle.sh` builds
+  one signed with the same key, and [`docs/PLAY.md`](docs/PLAY.md) lists the
+  console steps, the declarations and the store listing.
 
 ### Project structure
 

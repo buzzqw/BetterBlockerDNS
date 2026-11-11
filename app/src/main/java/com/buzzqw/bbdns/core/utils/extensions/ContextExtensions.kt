@@ -19,16 +19,17 @@ package com.buzzqw.bbdns.core.utils.extensions
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.biometrics.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+import android.net.Uri
 import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import android.net.Uri
 import android.provider.Settings
 import com.buzzqw.bbdns.core.logging.Logger
 
@@ -109,8 +110,18 @@ fun Context.requestDisableBatteryOptimization() {
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
-            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).setData(Uri.parse("package:$packageName"))
-            startActivity(intent)
+            // Open the system list of apps instead of the direct exemption
+            // dialog: REQUEST_IGNORE_BATTERY_OPTIMIZATIONS is restricted by
+            // Google Play, and this screen reaches the same setting.
+            try {
+                startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+            } catch (e: ActivityNotFoundException) {
+                Logger.warn("No battery optimisation list, opening app settings")
+                startActivity(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        .setData(Uri.parse("package:$packageName"))
+                )
+            }
         } else {
             Logger.info("Battery optimization is already disabled for this app.")
         }
