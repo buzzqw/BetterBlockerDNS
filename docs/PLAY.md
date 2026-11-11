@@ -138,21 +138,30 @@ rejection", and ad-blocking VPNs have been removed from Play for this reason.
 
 A wording that still describes the product, without putting ad blocking first:
 
-**Short description**
+**Short description** (80 characters maximum)
 
-> Local DNS firewall for Android: filter trackers, malware and phishing domains
-> on your device, with no account and no server.
+> Local DNS firewall: filter malware, phishing and tracking domains. No root.
 
 **Full description (opening)**
 
 > BetterBlockerDNS (BBDNS) is a free, open-source DNS firewall for Android. It
-> filters domain lookups inside a tunnel that never leaves your phone, using
-> blocklists you choose — no root, no account, no BBDNS server.
+> filters domain lookups system-wide through a tunnel that never leaves your
+> phone — no root, no account, no BBDNS server.
 >
 > Filtering categories include malware, phishing, scams, cryptojacking,
 > telemetry, and advertising or tracking domains. Protection profiles let you
 > choose how strict the filter is, and per-app rules decide which apps are
 > filtered.
+
+The repository files `metadata/en-US/short_description.txt` and
+`metadata/en-US/full_description.txt` already contain this text, and the in-app
+English strings were reworded the same way: the app describes what it protects
+from, not "ad blocking". Keep that rule when adding features:
+
+- Do not use "ad blocker", "block ads" or "ad-free" as the promise of the app
+  (the only exception is "no ads", which is a declaration about the app itself).
+- Third-party list and resolver names stay as they are, because they are proper
+  names ("Ads Extreme", "Pop-Up Ads", "AdGuard").
 
 Close with the privacy section: filtering is on the device, no analytics, no
 crash reporting, logs stay on the phone.

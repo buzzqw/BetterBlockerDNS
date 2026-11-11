@@ -104,7 +104,7 @@ object HageziCatalog {
     val LIGHT = HageziList(
         id = "light",
         name = "HaGeZi Multi LIGHT",
-        description = "Basic protection. Blocks ads, trackers and telemetry with minimal breakage. Only domains from the Top 1M/10M lists.",
+        description = "Basic protection. Blocks tracking, telemetry and advertising domains with minimal breakage. Only domains from the Top 1M/10M lists.",
         descriptionRes = R.string.catalog_hagezi_light_desc,
         file = "light-onlydomains.txt",
         category = HageziCategory.CORE,
@@ -114,7 +114,7 @@ object HageziCatalog {
     val NORMAL = HageziList(
         id = "multi",
         name = "HaGeZi Multi NORMAL",
-        description = "All-round protection. Ads, trackers, metrics, phishing, malware, scams and cryptojacking.",
+        description = "All-round protection. Advertising and tracking domains, metrics, phishing, malware, scams and cryptojacking.",
         descriptionRes = R.string.catalog_hagezi_normal_desc,
         file = "multi-onlydomains.txt",
         category = HageziCategory.CORE,
@@ -233,7 +233,7 @@ object HageziCatalog {
     val POPUP_ADS = HageZi(
         id = "popupads",
         name = "HaGeZi Pop-Up Ads",
-        description = "Blocks annoying and malicious pop-up ad infrastructure.",
+        description = "Blocks pop-up advertising infrastructure used for scams and malicious redirects.",
         descriptionRes = R.string.catalog_hagezi_popup_ads_desc,
         file = "popupads-onlydomains.txt",
         category = HageziCategory.SECURITY
@@ -434,7 +434,7 @@ object HageziCatalog {
             id = "balanced",
             name = "Balanced",
             nameRes = R.string.catalog_profile_balanced_name,
-            description = "All-round ad, tracker and malware blocking with a compact TIF.",
+            description = "All-round filtering of advertising, tracking and malware domains with a compact TIF.",
             descriptionRes = R.string.catalog_profile_balanced_desc,
             listIds = listOf(NORMAL.id, TIF_MINI.id),
             recommended = true

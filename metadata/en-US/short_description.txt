@@ -1,1 +1,1 @@
-Block ads and trackers with DNS filtering and native HaGeZi lists. No root.
+Local DNS firewall: filter malware, phishing and tracking domains. No root.

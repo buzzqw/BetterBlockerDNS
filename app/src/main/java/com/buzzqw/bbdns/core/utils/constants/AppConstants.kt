@@ -76,7 +76,7 @@ object AppConstants {
             StevenBlackCatalog.UNIFIED.url,
         )
         val AD_PROTECTION = listOf(
-            // HaGeZi Multi NORMAL: all-round ads, trackers, phishing and malware.
+            // HaGeZi Multi NORMAL: all-round advertising, tracking, phishing and malware.
             HageziCatalog.NORMAL.url,
         )
         val ADS_EXTREME = listOf(

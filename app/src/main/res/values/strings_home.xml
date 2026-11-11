@@ -32,6 +32,6 @@
 
     <!-- First-run hint -->
     <string name="home_onboarding_title">Turn on protection</string>
-    <string name="home_onboarding_desc">Tap the power button to start blocking ads, trackers and malware.</string>
+    <string name="home_onboarding_desc">Tap the power button to start filtering trackers, malware and phishing domains.</string>
     <string name="home_onboarding_skip">Skip</string>
 </resources>

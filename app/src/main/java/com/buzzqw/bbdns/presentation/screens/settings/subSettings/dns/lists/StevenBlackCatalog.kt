@@ -52,7 +52,7 @@ object StevenBlackCatalog {
     val UNIFIED = StevenBlackList(
         id = "stevenblack",
         name = "StevenBlack Unified",
-        description = "Unified hosts file with ads, trackers and malware domains. The safest starting point of this catalogue.",
+        description = "Unified hosts file with advertising, tracking and malware domains. The safest starting point of this catalogue.",
         descriptionRes = R.string.catalog_stevenblack_unified_desc,
         path = "hosts",
         category = StevenBlackCategory.UNIFIED,

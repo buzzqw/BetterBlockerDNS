@@ -103,7 +103,7 @@
     <string name="home_tab_statistics">Statistiche</string>
     <string name="home_tab_apps">App</string>
     <string name="home_status_protected">Protetto</string>
-    <string name="home_status_protected_desc">BBDNS sta bloccando pubblicità, tracker e malware.</string>
+    <string name="home_status_protected_desc">BBDNS sta filtrando tracker, malware e domini di phishing.</string>
     <string name="home_status_unprotected">Non protetto</string>
     <string name="home_status_unprotected_desc">La protezione è disattivata. Tocca il pulsante per iniziare a bloccare.</string>
     <string name="home_status_loading">Avvio…</string>
@@ -211,9 +211,9 @@
     <string name="colors_show_disable_dialog_desc">Conferma prima di disattivare la protezione</string>
     <string name="dns_malware_protection_desc">Blocca i domini malevoli</string>
     <string name="dns_ad_protection">Protezione pubblicità</string>
-    <string name="dns_ad_blocker_desc">Blocca i domini pubblicitari</string>
+    <string name="dns_ad_blocker_desc">Filtra domini pubblicitari e di tracciamento</string>
     <string name="dns_ads_extreme">Pubblicità estrema</string>
-    <string name="dns_ads_extreme_desc">Blocco della pubblicità aggiuntivo e aggressivo</string>
+    <string name="dns_ads_extreme_desc">Filtro aggiuntivo e aggressivo dei domini pubblicitari</string>
     <string name="dns_block_trackers">Blocca i tracker</string>
     <string name="dns_block_trackers_desc">Blocca i domini di tracciamento</string>
     <string name="dns_social_media_desc">Blocca i siti dei social network</string>
@@ -336,7 +336,7 @@
     <string name="hagezi_profiles_desc">Un tocco configura una selezione completa. Questi profili bastano: includono già HaGeZi TIF, e StevenBlack Unified è una valida alternativa.</string>
     <string name="hagezi_recommended_suffix">%1$s (consigliato)</string>
     <string name="hagezi_stevenblack_alternative_title">StevenBlack Unified (lista extra)</string>
-    <string name="hagezi_stevenblack_alternative_desc">Il classico file hosts unificato con pubblicità, tracker e malware. Si può aggiungere sopra a qualsiasi profilo HaGeZi. La protezione malware lo include automaticamente.</string>
+    <string name="hagezi_stevenblack_alternative_desc">Il classico file hosts unificato con domini pubblicitari, di tracciamento e malware. Si può aggiungere sopra a qualsiasi profilo HaGeZi. La protezione malware lo include automaticamente.</string>
     <string name="hagezi_compatibility_title">Compatibilità</string>
     <string name="hagezi_compatibility_desc">Mantiene funzionanti banche, pagamenti, provider di identità, store di app e notifiche push.</string>
     <string name="hagezi_compatibility_allowlist_title">Lista di compatibilità</string>
@@ -380,19 +380,19 @@
     <string name="doh_desc_quad9">Blocco malware e DNSSEC</string>
     <string name="doh_desc_quad9_unsecured">Nessun blocco delle minacce, solo DNSSEC</string>
     <string name="doh_desc_quad9_ecs">Blocco delle minacce con ECS</string>
-    <string name="doh_desc_adguard">Pubblicità e tracker</string>
-    <string name="doh_desc_adguard_family">Pubblicità, tracker, contenuti per adulti e SafeSearch</string>
+    <string name="doh_desc_adguard">Resolver con filtro per pubblicità e tracker</string>
+    <string name="doh_desc_adguard_family">Resolver con filtro per pubblicità, tracker e contenuti per adulti, con SafeSearch</string>
     <string name="doh_desc_dns_sb">Nessun log, DNSSEC</string>
     <string name="doh_desc_control_d">Non filtrato, nessun log</string>
     <string name="doh_desc_control_d_malware">Protezione malware</string>
-    <string name="doh_desc_control_d_ads">Protezione da pubblicità e tracciamento</string>
+    <string name="doh_desc_control_d_ads">Resolver con protezione da pubblicità e tracciamento</string>
     <string name="doh_desc_control_d_family">Filtro adatto alle famiglie</string>
-    <string name="doh_desc_dnsbunker">Resolver europeo cifrato, pubblicità e minacce</string>
+    <string name="doh_desc_dnsbunker">Resolver europeo cifrato, filtra pubblicità e minacce</string>
     <string name="doh_desc_dns4eu_unfiltered">Nessun filtro, giurisdizione UE</string>
     <string name="doh_desc_dns4eu_protective">Blocco di malware, phishing e C2</string>
     <string name="doh_desc_dns4eu_child">Protective più protezione dei minori</string>
-    <string name="doh_desc_dns4eu_noads">Protective più blocco della pubblicità</string>
-    <string name="doh_desc_dns4eu_child_noads">Protezione dei minori e blocco della pubblicità</string>
+    <string name="doh_desc_dns4eu_noads">Protective più filtro della pubblicità</string>
+    <string name="doh_desc_dns4eu_child_noads">Protezione dei minori e filtro della pubblicità</string>
     <string name="doh_custom">Personalizzato</string>
     <string name="blocklist_error_invalid_url">Formato URL non valido</string>
     <string name="blocklist_error_validation_failed">Verifica non riuscita: %1$s</string>
@@ -446,8 +446,8 @@
     <string name="lock_pattern_set">Sequenza impostata!</string>
     <string name="lock_auth_failed">Autenticazione non riuscita. Riprova.</string>
     <string name="dialog_enter_ip">Inserisci un indirizzo IP</string>
-    <string name="catalog_hagezi_light_desc">Protezione di base. Blocca pubblicità, tracker e telemetria con pochissimi malfunzionamenti. Solo domini dalle liste Top 1M/10M.</string>
-    <string name="catalog_hagezi_normal_desc">Protezione completa. Pubblicità, tracker, metriche, phishing, malware, truffe e cryptojacking.</string>
+    <string name="catalog_hagezi_light_desc">Protezione di base. Blocca domini di tracciamento, telemetria e pubblicità con pochissimi malfunzionamenti. Solo domini dalle liste Top 1M/10M.</string>
+    <string name="catalog_hagezi_normal_desc">Protezione completa. Domini pubblicitari e di tracciamento, metriche, phishing, malware, truffe e cryptojacking.</string>
     <string name="catalog_hagezi_pro_desc">Protezione estesa (consigliata). Blocca anche i crash reporter e altra telemetria. Rischio di malfunzionamenti da basso a moderato.</string>
     <string name="catalog_hagezi_pro_mini_desc">PRO ottimizzata nelle dimensioni per dispositivi con poca RAM. Stessa idea, circa metà delle voci.</string>
     <string name="catalog_hagezi_pro_plus_desc">Protezione avanzata. Più aggressiva di PRO, con un rischio moderato di bloccare domini legittimi.</string>
@@ -458,7 +458,7 @@
     <string name="catalog_hagezi_tif_medium_desc">Threat Intelligence Feeds bilanciati: buona copertura di sicurezza con meno voci.</string>
     <string name="catalog_hagezi_tif_mini_desc">Threat Intelligence Feeds compatti per dispositivi con poca memoria o connessioni lente.</string>
     <string name="catalog_hagezi_fake_desc">Blocca negozi falsi, siti truffa, trappole e domini fraudolenti.</string>
-    <string name="catalog_hagezi_popup_ads_desc">Blocca l\'infrastruttura di pubblicità pop-up fastidiose e malevole.</string>
+    <string name="catalog_hagezi_popup_ads_desc">Blocca l\'infrastruttura di pubblicità pop-up usata per truffe e reindirizzamenti malevoli.</string>
     <string name="catalog_hagezi_dyndns_desc">Protegge dagli abusi dei DNS dinamici spesso usati dai server di comando e controllo dei malware.</string>
     <string name="catalog_hagezi_hoster_desc">Blocca i provider di hosting con un\'alta concentrazione di contenuti malevoli.</string>
     <string name="catalog_hagezi_spam_tlds_desc">Blocca i domini di primo livello usati in modo sproporzionato per spam e truffe.</string>
@@ -476,7 +476,7 @@
     <string name="catalog_hagezi_gambling_medium_desc">Filtro per il gioco d\'azzardo di media intensità.</string>
     <string name="catalog_hagezi_gambling_mini_desc">Filtro compatto per il gioco d\'azzardo.</string>
     <string name="catalog_hagezi_social_desc">Blocca l\'accesso ai social network.</string>
-    <string name="catalog_stevenblack_unified_desc">File hosts unificato con domini di pubblicità, tracker e malware. Il punto di partenza più sicuro di questo catalogo.</string>
+    <string name="catalog_stevenblack_unified_desc">File hosts unificato con domini pubblicitari, di tracciamento e malware. Il punto di partenza più sicuro di questo catalogo.</string>
     <string name="catalog_stevenblack_fakenews_desc">Solo domini di fake news. Da combinare con Unified o con qualsiasi altra lista.</string>
     <string name="catalog_stevenblack_gambling_desc">Solo domini di gioco d\'azzardo e scommesse. Da combinare con Unified o con qualsiasi altra lista.</string>
     <string name="catalog_stevenblack_porn_desc">Solo domini di contenuti per adulti. Da combinare con Unified o con qualsiasi altra lista.</string>
@@ -502,7 +502,7 @@
     <string name="catalog_profile_maximum_name">Massimo</string>
     <string name="catalog_profile_maximum_desc">Ultimate più il TIF completo. Solo per chi vuole il filtraggio più severo.</string>
     <string name="catalog_stevenblack_category_unified_title">StevenBlack unificata</string>
-    <string name="catalog_stevenblack_category_unified_desc">Il classico file hosts unificato: pubblicità, tracker e malware da fonti affidabili.</string>
+    <string name="catalog_stevenblack_category_unified_desc">Il classico file hosts unificato: domini pubblicitari, di tracciamento e malware da fonti affidabili.</string>
     <string name="catalog_stevenblack_category_content_title">Estensioni StevenBlack</string>
     <string name="catalog_stevenblack_category_content_desc">Liste di sole estensioni: combinane quante vuoi, sopra Unified o a un profilo HaGeZi.</string>
 

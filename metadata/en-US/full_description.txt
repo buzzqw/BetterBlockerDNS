@@ -1,19 +1,21 @@
-BetterBlockerDNS (BBDNS) is a free, open-source DNS ad blocker for Android. It blocks ads, trackers, malware, phishing and unwanted content system-wide through a local VPN — no root required and no account. Filtering runs on the device; DNS queries go only to the resolver you choose.
+BetterBlockerDNS (BBDNS) is a free, open-source DNS firewall for Android. It filters domain lookups system-wide through a tunnel that never leaves your phone — no root required and no account. Filtering runs on the device; DNS queries go only to the resolver you choose.
 
 ✓ Native HaGeZi and StevenBlack blocklist catalogues
 ✓ One-tap protection profiles (Essential, Balanced, Pro, Aggressive, Maximum)
 ✓ Compatibility allowlist for banking, payments, public administration and app stores
-✓ DNS ad & tracker blocking
+✓ Filtering of malware, phishing, scam, tracking, cryptojacking and advertising domains
 ✓ Custom and pre-made blocklists
 ✓ Automatic blocklist updates
 ✓ Per-app firewall rules
 ✓ DNS request logging
 ✓ Material 3 design
 
-🚫 DNS AD BLOCKING & FILTERING
+🛡️ DNS FIREWALL AND FILTERING
 
-Stop ads and trackers before they load with powerful DNS filtering, system-wide and inside apps.
+Stop known bad domains before your apps contact them, system-wide and inside apps.
 
+- Malware, phishing, scam, cryptojacking and tracking domains
+- Advertising and pop-up domains are part of the same filter set, together with the categories above
 - Native support for all HaGeZi lists: Multi LIGHT / NORMAL / PRO / PRO++ / ULTIMATE, Threat Intelligence Feeds, Fake, Pop-Up Ads, DynDNS, Badware Hoster, DoH/VPN bypass, Native Trackers, NSFW, Gambling, Social and more
 - Native StevenBlack unified hosts file and fakenews / gambling / porn / social extensions
 - One-tap protection profiles
@@ -28,7 +30,7 @@ Stop ads and trackers before they load with powerful DNS filtering, system-wide 
 🔒 PRIVACY FIRST
 
 - Everything runs locally on your device
-- No analytics, no telemetry, no external account
+- No analytics, no telemetry, no external account, no ads
 - No root and no system partition changes
 - VPN-based filtering only: no root and no privileged helper modes
 

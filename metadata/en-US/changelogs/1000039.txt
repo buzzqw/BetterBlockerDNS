@@ -1,0 +1,1 @@
+BBDNS now introduces itself as a DNS firewall and describes what it protects you from: malware, phishing and tracking. Filtering works exactly as before.

@@ -10,6 +10,15 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-11
 
+### Release 1.0.39
+### Clearer wording
+- The app screens and the store description now introduce BBDNS as a DNS
+  firewall, describing what it protects you from (malware, phishing, tracking)
+  rather than advertising alone.
+- Nothing changed in how filtering works.
+
+## 2026-11-11
+
 ### Release 1.0.38
 ### Google Play
 - First release prepared for Google Play, where BBDNS will be published soon.
