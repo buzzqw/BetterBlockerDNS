@@ -400,7 +400,7 @@
     <string name="blocklist_error_network">Errore di rete: %1$s</string>
     <string name="blocklist_error_validation">Errore di verifica: %1$s</string>
     <string name="blocklist_error_preview">Anteprima non riuscita: %1$s</string>
-    <string name="blocklist_preset_pollock_desc">Lista completa contro pubblicità e malware</string>
+    <string name="blocklist_preset_pollock_desc">Lista completa di domini pubblicitari e malware</string>
     <string name="blocklist_preset_stevenblack_desc">File hosts unificato con adware e malware di base</string>
     <string name="blocklist_preset_lowe_desc">Lista di blocco dei server pubblicitari</string>
     <string name="blocklist_preset_adguard_desc">Regole di filtraggio di base di AdGuard</string>
@@ -494,7 +494,7 @@
     <string name="catalog_profile_essential_name">Essenziale</string>
     <string name="catalog_profile_essential_desc">Protezione leggera per la navigazione con un feed sulle minacce compatto. Malfunzionamenti molto rari.</string>
     <string name="catalog_profile_balanced_name">Bilanciato</string>
-    <string name="catalog_profile_balanced_desc">Blocco completo di pubblicità, tracker e malware con un TIF compatto.</string>
+    <string name="catalog_profile_balanced_desc">Filtro completo di domini pubblicitari, di tracciamento e malware con un TIF compatto.</string>
     <string name="catalog_profile_pro_name">Pro</string>
     <string name="catalog_profile_pro_desc">La configurazione consigliata da HaGeZi: Multi PRO più il Threat Intelligence Feed (TIF) completo.</string>
     <string name="catalog_profile_aggressive_name">Aggressivo</string>

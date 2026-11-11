@@ -15,6 +15,8 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 - The app screens and the store description now introduce BBDNS as a DNS
   firewall, describing what it protects you from (malware, phishing, tracking)
   rather than advertising alone.
+- The store screenshots and the featured image are rebuilt with the same
+  wording.
 - Nothing changed in how filtering works.
 
 ## 2026-11-11

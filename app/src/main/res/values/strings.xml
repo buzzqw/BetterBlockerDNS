@@ -401,7 +401,7 @@
     <string name="blocklist_error_network">Network error: %1$s</string>
     <string name="blocklist_error_validation">Validation error: %1$s</string>
     <string name="blocklist_error_preview">Preview failed: %1$s</string>
-    <string name="blocklist_preset_pollock_desc">Comprehensive ad and malware blocking list</string>
+    <string name="blocklist_preset_pollock_desc">Comprehensive list for advertising and malware domains</string>
     <string name="blocklist_preset_stevenblack_desc">Unified hosts file with base adware + malware</string>
     <string name="blocklist_preset_lowe_desc">Ad server blocking list</string>
     <string name="blocklist_preset_adguard_desc">AdGuard base filtering rules</string>
@@ -497,7 +497,7 @@
     <string name="catalog_profile_essential_name">Essential</string>
     <string name="catalog_profile_essential_desc">Light browsing protection with a compact threat feed. Very low breakage.</string>
     <string name="catalog_profile_balanced_name">Balanced</string>
-    <string name="catalog_profile_balanced_desc">All-round ad, tracker and malware blocking with a compact TIF.</string>
+    <string name="catalog_profile_balanced_desc">All-round filtering of advertising, tracking and malware domains with a compact TIF.</string>
     <string name="catalog_profile_pro_name">Pro</string>
     <string name="catalog_profile_pro_desc">HaGeZi\'s recommended setup: Multi PRO plus the full Threat Intelligence Feed (TIF).</string>
     <string name="catalog_profile_aggressive_name">Aggressive</string>
