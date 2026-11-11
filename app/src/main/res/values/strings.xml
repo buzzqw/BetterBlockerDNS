@@ -508,4 +508,14 @@
     <string name="catalog_stevenblack_category_unified_desc">The classic unified hosts file: ads, trackers and malware from reputable sources.</string>
     <string name="catalog_stevenblack_category_content_title">StevenBlack extensions</string>
     <string name="catalog_stevenblack_category_content_desc">Extension-only lists: stack as many as you like, on top of Unified or of a HaGeZi profile.</string>
+    <string name="battery_log">Battery diagnostic log</string>
+    <string name="battery_log_desc">Records once a minute, while protection is on, the battery level and what BBDNS did (CPU time, network wake-ups, packets). No domains, addresses or app names are saved. Turn it on, use the phone normally for a day, then export the log.</string>
+    <string name="battery_log_export">Export battery log</string>
+    <string name="battery_log_export_desc">Save the log as a text file to share with the developer (%1$d KB).</string>
+    <string name="battery_log_clear">Clear battery log</string>
+    <string name="battery_log_clear_desc">Delete the recorded data and start again.</string>
+    <string name="battery_log_exported">Battery log saved</string>
+    <string name="battery_log_export_failed">Could not save the battery log</string>
+    <string name="battery_log_empty">The battery log is empty: turn it on and keep protection running for a while</string>
+    <string name="battery_log_cleared">Battery log cleared</string>
 </resources>

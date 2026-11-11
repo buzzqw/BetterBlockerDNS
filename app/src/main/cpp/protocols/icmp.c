@@ -246,6 +246,10 @@ ssize_t write_icmp(const struct arguments *args, const struct icmp_session *cur,
     }
 
     ssize_t res = write(args->tun, buffer, len);
+    if (res > 0) {
+        STAT_ADD(STAT_TUN_OUT, 1);
+        STAT_ADD(STAT_TUN_OUT_BYTES, res);
+    }
     ng_free(buffer, __FILE__, __LINE__);
 
     if (res != len)

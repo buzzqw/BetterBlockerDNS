@@ -723,4 +723,14 @@
     <string name="common_undo">Rückgängig</string>
     <string name="home_more_show">Anzeigen</string>
     <string name="home_more_hide">Ausblenden</string>
+    <string name="battery_log">Akku-Diagnoseprotokoll</string>
+    <string name="battery_log_desc">Zeichnet bei aktivem Schutz einmal pro Minute den Akkustand und die Aktivität von BBDNS auf (CPU-Zeit, Netzwerk-Aufwachvorgänge, Pakete). Es werden keine Domains, Adressen oder App-Namen gespeichert. Aktivieren, das Telefon einen Tag normal nutzen und dann das Protokoll exportieren.</string>
+    <string name="battery_log_export">Akku-Protokoll exportieren</string>
+    <string name="battery_log_export_desc">Das Protokoll als Textdatei speichern, um es mit dem Entwickler zu teilen (%1$d KB).</string>
+    <string name="battery_log_clear">Akku-Protokoll löschen</string>
+    <string name="battery_log_clear_desc">Die aufgezeichneten Daten löschen und neu beginnen.</string>
+    <string name="battery_log_exported">Akku-Protokoll gespeichert</string>
+    <string name="battery_log_export_failed">Akku-Protokoll konnte nicht gespeichert werden</string>
+    <string name="battery_log_empty">Das Akku-Protokoll ist leer: aktivieren und den Schutz eine Weile laufen lassen</string>
+    <string name="battery_log_cleared">Akku-Protokoll gelöscht</string>
 </resources>

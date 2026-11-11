@@ -19,7 +19,22 @@ package com.buzzqw.bbdns.presentation.screens.settings.subSettings.behavior
 
 import android.annotation.SuppressLint
 import androidx.compose.material.icons.Icons
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.rounded.BatteryAlert
 import androidx.compose.material.icons.rounded.Code
+import androidx.compose.material.icons.rounded.DeleteSweep
+import androidx.compose.material.icons.rounded.IosShare
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import com.buzzqw.bbdns.core.diagnostics.BatteryDiagnostics
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.InstallMobile
@@ -100,6 +115,10 @@ fun BehaviorScreen(
             )
         }
 
+        settingsContainer {
+            BatteryDiagnosticsSettings()
+        }
+
         // Other settings section
         settingsContainer {
             SettingsBox(
@@ -168,4 +187,72 @@ fun BehaviorScreen(
             )
         }
     }
+}
+
+/** Optional battery diagnostic log: switch, export and clear. */
+@Composable
+private fun BatteryDiagnosticsSettings() {
+    val context = LocalContext.current
+    var enabled by remember { mutableStateOf(BatteryDiagnostics.isEnabled(context)) }
+    var size by remember { mutableLongStateOf(BatteryDiagnostics.logSize(context)) }
+    val exportedMessage = stringResource(R.string.battery_log_exported)
+    val failedMessage = stringResource(R.string.battery_log_export_failed)
+    val emptyMessage = stringResource(R.string.battery_log_empty)
+    val clearedMessage = stringResource(R.string.battery_log_cleared)
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/plain")
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        CoroutineScope(Dispatchers.IO).launch {
+            val ok = try {
+                context.contentResolver.openOutputStream(uri)?.use {
+                    BatteryDiagnostics.export(context, it)
+                } != null
+            } catch (e: Exception) {
+                false
+            }
+            launch(Dispatchers.Main) {
+                Toast.makeText(context, if (ok) exportedMessage else failedMessage, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    SettingsBox(
+        title = stringResource(R.string.battery_log),
+        description = stringResource(R.string.battery_log_desc),
+        icon = IconType.VectorIcon(Icons.Rounded.BatteryAlert),
+        actionType = SettingType.SWITCH,
+        variable = enabled,
+        onSwitchEnabled = {
+            enabled = it
+            BatteryDiagnostics.setEnabled(context, it)
+        }
+    )
+    SettingsBox(
+        title = stringResource(R.string.battery_log_export),
+        description = stringResource(R.string.battery_log_export_desc, (size + 1023) / 1024),
+        icon = IconType.VectorIcon(Icons.Rounded.IosShare),
+        actionType = SettingType.CUSTOM,
+        onCustomClick = {
+            size = BatteryDiagnostics.logSize(context)
+            if (size == 0L) {
+                Toast.makeText(context, emptyMessage, Toast.LENGTH_SHORT).show()
+            } else {
+                val stamp = SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.US).format(Date())
+                exportLauncher.launch("bbdns_battery_$stamp.txt")
+            }
+        }
+    )
+    SettingsBox(
+        title = stringResource(R.string.battery_log_clear),
+        description = stringResource(R.string.battery_log_clear_desc),
+        icon = IconType.VectorIcon(Icons.Rounded.DeleteSweep),
+        actionType = SettingType.CUSTOM,
+        onCustomClick = {
+            BatteryDiagnostics.clear(context)
+            size = 0L
+            Toast.makeText(context, clearedMessage, Toast.LENGTH_SHORT).show()
+        }
+    )
 }

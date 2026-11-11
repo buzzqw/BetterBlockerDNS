@@ -27,6 +27,7 @@ import android.os.IBinder
 import android.os.ParcelFileDescriptor
 import android.os.PowerManager
 import com.buzzqw.bbdns.service.vpn.network.util.NetworkConstants
+import com.buzzqw.bbdns.core.diagnostics.BatteryDiagnostics
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.domain.model.Application
 import com.buzzqw.bbdns.domain.model.Settings
@@ -75,6 +76,8 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
     private var installedApplications: List<Application>? = null
     private val appChangeReceiver = AppChangeReceiver(this)
     private var isStoppedBySelf = false
+    /** Settings that matter for battery use, for the diagnostic log. */
+    private var diagnosticsConfig = ""
     private var isShuttingDown = false
 
     inner class VpnConnection : Binder() {
@@ -258,6 +261,7 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
             }
             
             if (::tunnelManager.isInitialized) {
+                BatteryDiagnostics.event("sessions_cleared")
                 Logger.info("Clearing all active sessions due to network change")
                 tunnelManager.clearSessions()
                 Logger.info("All sessions cleared successfully")
@@ -319,6 +323,7 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
                 // Rule changes end the open flows so they are filtered again.
                 SessionInvalidator.setListener { clearSessions() }
                 startNotificationUpdates()
+                BatteryDiagnostics.onProtectionStarted(appContext, diagnosticsConfig)
                 appChangeReceiver.register(this)
                 // Honour a pause that was running when the service was killed.
                 ProtectionPause.restore(appContext) { enabled ->
@@ -341,6 +346,12 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
         runBlocking {
             preferencesUseCases.loadSettings.execute().fold(
                 ifSuccess = {
+                    diagnosticsConfig = "doh=${if (it.dohEnabled) 1 else 0}" +
+                        " speed_notif=${if (it.networkSpeedMonitor) 1 else 0}" +
+                        " logs=${if (it.logs) 1 else 0}" +
+                        " detailed_logs=${if (it.detailedLogs) 1 else 0}" +
+                        " screen_off_block=${if (it.blockWifiWhenScreenOff || it.blockCellularWhenScreenOff) 1 else 0}" +
+                        " permanent_notif=${if (it.permanentNotification) 1 else 0}"
                     dnsServerV4 = it.dnsServer1
                     dnsServerV4Alt = it.dnsServer2
                     dnsServerV6 = it.dnsServer1v6
@@ -438,6 +449,7 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
 
     private fun closeResources() {
         isShuttingDown = true
+        BatteryDiagnostics.onProtectionStopped("closed")
         SessionInvalidator.setListener(null)
         ProtectionState.isRunning = false
         ProtectionState.sessionStartedAt = 0L
@@ -493,6 +505,7 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
     }
 
     private fun stopVpn(userInitiated: Boolean = false) {
+        BatteryDiagnostics.onProtectionStopped(if (userInitiated) "user" else "system")
         appChangeReceiver.unregister(this)
         ProtectionState.isRunning = false
         ProtectionState.sessionStartedAt = 0L

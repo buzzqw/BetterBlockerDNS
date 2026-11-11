@@ -49,6 +49,8 @@ int check_tun(const struct arguments *args, const struct epoll_event *ev, const 
             else
                 return -1;
         } else if (length > 0) {
+            STAT_ADD(STAT_TUN_IN, 1);
+            STAT_ADD(STAT_TUN_IN_BYTES, length);
             if (length > max_tun_msg) {
                 max_tun_msg = length;
             }

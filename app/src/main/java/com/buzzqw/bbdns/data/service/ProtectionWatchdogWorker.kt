@@ -17,6 +17,7 @@
 
 package com.buzzqw.bbdns.data.service
 
+import com.buzzqw.bbdns.core.diagnostics.BatteryDiagnostics
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -43,6 +44,7 @@ class ProtectionWatchdogWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
+        BatteryDiagnostics.event("watchdog_run")
         return try {
             preferencesUseCases.loadSettings.execute().fold(
                 ifSuccess = { settings ->

@@ -17,6 +17,7 @@
 
 package com.buzzqw.bbdns.data.service
 
+import com.buzzqw.bbdns.core.diagnostics.BatteryDiagnostics
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -63,6 +64,7 @@ class ConnectionStateManager @Inject constructor(
 
     fun updateConnectionType(connectionType: NetworkManager.ConnectionType) {
         currentConnectionType = connectionType
+        BatteryDiagnostics.event("network_change", "type=${connectionType.name.lowercase()}")
         try {
             val clearSessionsServiceIntent = Intent(context, VpnConnectionServer::class.java).apply {
                 action = NetworkConstants.ACTION_CLEAR_SESSIONS

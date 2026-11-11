@@ -47,6 +47,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.LinkedHashMap
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -105,7 +106,16 @@ class TunnelManager(
     
     fun run(tunFd: Int, forwardDns: Boolean = true, rcode: Int = 3) {
         if (contextPtr != 0L) {
-            jni_run(contextPtr, tunFd, forwardDns, rcode)
+            // Name the pooled thread while it runs the packet loop, so the
+            // battery diagnostics can tell its CPU time from the rest.
+            val thread = Thread.currentThread()
+            val previousName = thread.name
+            thread.name = TUNNEL_THREAD_NAME
+            try {
+                jni_run(contextPtr, tunFd, forwardDns, rcode)
+            } finally {
+                thread.name = previousName
+            }
         }
     }
     
@@ -332,15 +342,18 @@ class TunnelManager(
         synchronized(dohCacheLock) {
             dohCache[key]?.let { entry ->
                 if (entry.expiresAt > System.currentTimeMillis()) {
+                    dohCacheHits.incrementAndGet()
                     return withTransactionId(entry.response, query)
                 }
                 dohCache.remove(key)
             }
         }
 
+        dohRequests.incrementAndGet()
         val response = try {
             fetchDohWithRetry(endpoint, query)
         } catch (e: Exception) {
+            dohFailures.incrementAndGet()
             Logger.warn("DoH: ${e.message}; falling back to plain DNS")
             try {
                 fetchPlainDns(query)
@@ -505,6 +518,23 @@ class TunnelManager(
     private external fun jni_send_complete_packet(context: Long, packetData: ByteArray)
 
     companion object {
+        const val TUNNEL_THREAD_NAME = "bbdns-tunnel"
+
+        /** DoH lookups that went to the network, cache hits and failures. */
+        val dohRequests = AtomicLong(0)
+        val dohCacheHits = AtomicLong(0)
+        val dohFailures = AtomicLong(0)
+
+        @JvmStatic
+        external fun jni_get_stats(): LongArray?
+
+        /** Native event-loop counters (see STAT_* in bbdns.h), or null. */
+        fun nativeStats(): LongArray? = try {
+            jni_get_stats()
+        } catch (e: UnsatisfiedLinkError) {
+            null
+        }
+
         private const val DOH_CONNECT_TIMEOUT_MS = 1_500L
         private const val DOH_READ_TIMEOUT_MS = 2_500L
         private const val DOH_CALL_TIMEOUT_MS = 3_000L

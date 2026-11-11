@@ -12,6 +12,7 @@
 
 package com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts
 
+import com.buzzqw.bbdns.core.diagnostics.BatteryDiagnostics
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -87,6 +88,7 @@ class RuleDatabaseUpdateWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+        BatteryDiagnostics.event("blocklist_update")
         val start = System.currentTimeMillis()
         _isRefreshing.value = true
 

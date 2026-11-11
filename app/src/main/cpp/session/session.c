@@ -104,6 +104,9 @@ void *handle_events(void *a) {
             s = s->next;
         }
         int sessions = isessions + usessions + tsessions;
+        STAT_SET(STAT_SESSIONS_TCP, tsessions);
+        STAT_SET(STAT_SESSIONS_UDP, usessions);
+        STAT_SET(STAT_SESSIONS_ICMP, isessions);
 
         long long ms = get_ms();
         if (ms - last_check > EPOLL_MIN_CHECK) {
@@ -168,7 +171,12 @@ void *handle_events(void *a) {
         // epoll_wait runs unlocked: a jni_clear_sessions() meanwhile frees the
         // sessions whose pointers it returns, so remember the generation.
         unsigned int gen = __atomic_load_n(&args->ctx->clear_gen, __ATOMIC_ACQUIRE);
+        STAT_ADD(STAT_LOOPS, 1);
+        if (recheck)
+            STAT_ADD(STAT_RECHECK, 1);
         int ready = epoll_wait(epoll_fd, ev, EPOLL_EVENTS, recheck ? EPOLL_MIN_CHECK : timeout * 1000);
+        if (ready == 0)
+            STAT_ADD(STAT_IDLE, 1);
 
         if (ready < 0) {
             if (errno == EINTR)
@@ -196,6 +204,7 @@ void *handle_events(void *a) {
                             error = 1;
                     }
                 } else if (!stale) {
+                    STAT_ADD(STAT_SOCKET_EVENTS, 1);
                     struct ng_session *session = (struct ng_session *) ev[i].data.ptr;
                     if (session->protocol == IPPROTO_ICMP || session->protocol == IPPROTO_ICMPV6)
                         check_icmp_socket(args, &ev[i]);

@@ -723,4 +723,14 @@
     <string name="common_undo">Deshacer</string>
     <string name="home_more_show">Mostrar</string>
     <string name="home_more_hide">Ocultar</string>
+    <string name="battery_log">Registro de diagnóstico de batería</string>
+    <string name="battery_log_desc">Registra una vez por minuto, con la protección activa, el nivel de batería y lo que hace BBDNS (tiempo de CPU, activaciones de red, paquetes). No guarda dominios, direcciones ni nombres de apps. Actívalo, usa el teléfono con normalidad durante un día y luego exporta el registro.</string>
+    <string name="battery_log_export">Exportar registro de batería</string>
+    <string name="battery_log_export_desc">Guarda el registro como archivo de texto para compartirlo con el desarrollador (%1$d KB).</string>
+    <string name="battery_log_clear">Borrar registro de batería</string>
+    <string name="battery_log_clear_desc">Elimina los datos registrados y empieza de nuevo.</string>
+    <string name="battery_log_exported">Registro de batería guardado</string>
+    <string name="battery_log_export_failed">No se pudo guardar el registro de batería</string>
+    <string name="battery_log_empty">El registro de batería está vacío: actívalo y deja la protección activa un tiempo</string>
+    <string name="battery_log_cleared">Registro de batería borrado</string>
 </resources>

@@ -748,4 +748,14 @@
     <string name="common_undo">Desfazer</string>
     <string name="home_more_show">Mostrar</string>
     <string name="home_more_hide">Ocultar</string>
+    <string name="battery_log">Registro de diagnóstico da bateria</string>
+    <string name="battery_log_desc">Registra uma vez por minuto, com a proteção ativa, o nível da bateria e o que o BBDNS faz (tempo de CPU, despertares de rede, pacotes). Não salva domínios, endereços nem nomes de apps. Ative, use o telefone normalmente por um dia e depois exporte o registro.</string>
+    <string name="battery_log_export">Exportar registro da bateria</string>
+    <string name="battery_log_export_desc">Salva o registro como arquivo de texto para compartilhar com o desenvolvedor (%1$d KB).</string>
+    <string name="battery_log_clear">Limpar registro da bateria</string>
+    <string name="battery_log_clear_desc">Apaga os dados registrados e começa de novo.</string>
+    <string name="battery_log_exported">Registro da bateria salvo</string>
+    <string name="battery_log_export_failed">Não foi possível salvar o registro da bateria</string>
+    <string name="battery_log_empty">O registro da bateria está vazio: ative-o e deixe a proteção ativa por um tempo</string>
+    <string name="battery_log_cleared">Registro da bateria apagado</string>
 </resources>

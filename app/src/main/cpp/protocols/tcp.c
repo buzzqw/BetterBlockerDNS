@@ -111,6 +111,7 @@ int monitor_tcp_session(const struct arguments *args, struct ng_session *s, int 
             long long ms = get_ms();
             if (ms - s->tcp.last_keep_alive > EPOLL_MIN_CHECK) {
                 s->tcp.last_keep_alive = ms;
+                STAT_ADD(STAT_ZERO_WINDOW, 1);
                 s->tcp.remote_seq--;
                 write_ack(args, &s->tcp);
                 s->tcp.remote_seq++;
@@ -771,8 +772,6 @@ ssize_t write_tcp(const struct arguments *args, const struct tcp_session *cur, c
     u_int8_t *buffer;
     struct tcphdr *tcp;
     uint16_t csum;
-    char source[INET6_ADDRSTRLEN + 1];
-    char dest[INET6_ADDRSTRLEN + 1];
 
     int optlen = (syn ? 4 + 3 + 1 : 0);
     uint8_t *options;
@@ -863,10 +862,12 @@ ssize_t write_tcp(const struct arguments *args, const struct tcp_session *cur, c
     csum = calc_checksum(csum, data, datalen);
     tcp->check = ~csum;
 
-    inet_ntop(cur->version == 4 ? AF_INET : AF_INET6, cur->version == 4 ? (const void *) &cur->saddr.ip4 : (const void *) &cur->saddr.ip6, source, sizeof(source));
-    inet_ntop(cur->version == 4 ? AF_INET : AF_INET6, cur->version == 4 ? (const void *) &cur->daddr.ip4 : (const void *) &cur->daddr.ip6, dest, sizeof(dest));
 
     ssize_t res = write(args->tun, buffer, len);
+    if (res > 0) {
+        STAT_ADD(STAT_TUN_OUT, 1);
+        STAT_ADD(STAT_TUN_OUT_BYTES, res);
+    }
 
     ng_free(buffer, __FILE__, __LINE__);
 

@@ -8,6 +8,16 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-11
+
+### Battery diagnostic log
+- New optional "Battery diagnostic log" in Settings > Behavior. When turned
+  on, BBDNS records once a minute, while protection runs, the battery level
+  and what the app did (CPU time, network wake-ups, packets, sessions). It
+  saves no domains, addresses or app names, never wakes the phone on its own,
+  and can be exported as a text file to help find what drains the battery.
+- The tunnel skips some unused work for every packet it sends back to apps.
+
 ## 2026-11-10
 
 ### Build delivery

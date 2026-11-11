@@ -390,6 +390,10 @@ ssize_t write_udp(const struct arguments *args, const struct udp_session *cur, u
     udp->check = ~csum;
 
     ssize_t res = write(args->tun, buffer, len);
+    if (res > 0) {
+        STAT_ADD(STAT_TUN_OUT, 1);
+        STAT_ADD(STAT_TUN_OUT_BYTES, res);
+    }
     ng_free(buffer, __FILE__, __LINE__);
 
     if (res != len)

@@ -723,4 +723,14 @@
     <string name="common_undo">Annuler</string>
     <string name="home_more_show">Afficher</string>
     <string name="home_more_hide">Masquer</string>
+    <string name="battery_log">Journal de diagnostic de la batterie</string>
+    <string name="battery_log_desc">Enregistre une fois par minute, quand la protection est active, le niveau de batterie et l\'activité de BBDNS (temps CPU, réveils réseau, paquets). Aucun domaine, adresse ou nom d\'application n\'est enregistré. Activez-le, utilisez le téléphone normalement pendant une journée, puis exportez le journal.</string>
+    <string name="battery_log_export">Exporter le journal de batterie</string>
+    <string name="battery_log_export_desc">Enregistrer le journal dans un fichier texte à partager avec le développeur (%1$d Ko).</string>
+    <string name="battery_log_clear">Effacer le journal de batterie</string>
+    <string name="battery_log_clear_desc">Supprimer les données enregistrées et recommencer.</string>
+    <string name="battery_log_exported">Journal de batterie enregistré</string>
+    <string name="battery_log_export_failed">Impossible d\'enregistrer le journal de batterie</string>
+    <string name="battery_log_empty">Le journal de batterie est vide : activez-le et laissez la protection active un moment</string>
+    <string name="battery_log_cleared">Journal de batterie effacé</string>
 </resources>

@@ -20,6 +20,7 @@
 #include "bbdns.h"
 
 int loglevel = ANDROID_LOG_WARN;
+int64_t ng_stats[STAT_COUNT];
 static int current_tun_fd = -1;  // Global TUN file descriptor
 
 
@@ -208,6 +209,16 @@ JNIEXPORT void JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_j
     if (ctx->pipefds[0] >= 0) close(ctx->pipefds[0]);
     if (ctx->pipefds[1] >= 0) close(ctx->pipefds[1]);
     ng_free(ctx, __FILE__, __LINE__);
+}
+
+JNIEXPORT jlongArray JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_jni_1get_1stats(JNIEnv *env, jclass type) {
+    jlong values[STAT_COUNT];
+    for (int i = 0; i < STAT_COUNT; i++)
+        values[i] = (jlong) __atomic_load_n(&ng_stats[i], __ATOMIC_RELAXED);
+    jlongArray result = (*env)->NewLongArray(env, STAT_COUNT);
+    if (result != NULL)
+        (*env)->SetLongArrayRegion(env, result, 0, STAT_COUNT, values);
+    return result;
 }
 
 JNIEXPORT jstring JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_jni_1getprop(JNIEnv *env, jclass type, jstring name_) {
@@ -411,6 +422,7 @@ jboolean filter_tcp_packet(const struct arguments *args, const uint8_t *data, si
         return JNI_TRUE;
 
     (*env)->SetByteArrayRegion(env, dataArray, 0, (jsize) length, (const jbyte*)data);
+    STAT_ADD(STAT_JNI_CALLS, 1);
     jboolean result = (*env)->CallBooleanMethod(env, args->instance, cached_tcp_method, dataArray, (jint) length, directionStr);
 
     if ((*env)->ExceptionCheck(env)) {
@@ -442,6 +454,7 @@ jboolean filter_udp_packet(const struct arguments *args, const uint8_t *data, si
         return JNI_TRUE;
 
     (*env)->SetByteArrayRegion(env, dataArray, 0, (jsize) length, (const jbyte*)data);
+    STAT_ADD(STAT_JNI_CALLS, 1);
     jboolean result = (*env)->CallBooleanMethod(env, args->instance, cached_udp_method, dataArray, (jint) length, directionStr);
 
     if ((*env)->ExceptionCheck(env)) {
@@ -473,6 +486,7 @@ jboolean filter_icmp_packet(const struct arguments *args, const uint8_t *data, s
         return JNI_TRUE;
 
     (*env)->SetByteArrayRegion(env, dataArray, 0, (jsize) length, (const jbyte*)data);
+    STAT_ADD(STAT_JNI_CALLS, 1);
     jboolean result = (*env)->CallBooleanMethod(env, args->instance, cached_icmp_method, dataArray, (jint) length, directionStr);
 
     if ((*env)->ExceptionCheck(env)) {
