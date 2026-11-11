@@ -1,0 +1,1 @@
+New optional battery diagnostic log in Settings > Behavior: it records battery use and tunnel activity, without domains or addresses, and can be exported to find what drains the battery.

@@ -10,6 +10,9 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-11
 
+### Release 1.0.37
+- Version 1.0.37 adds the optional battery diagnostic log below.
+
 ### Battery diagnostic log
 - New optional "Battery diagnostic log" in Settings > Behavior. When turned
   on, BBDNS records once a minute, while protection runs, the battery level
