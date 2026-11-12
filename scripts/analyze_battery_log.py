@@ -137,12 +137,17 @@ def main():
     counts = Counter(e.get("event", "?") for e in events)
     print("Events: " + ", ".join(f"{k}={v}" for k, v in counts.most_common()))
 
-    # Intervals where the event loop spun on 100 ms rechecks (full TCP windows).
-    spins = [r for r in samples if num(r, "rck") > 300]
+    # Intervals where the event loop spun: many 100 ms waits that ended without
+    # any event, or keep-alive ACKs for TCP flows with a full window. A high
+    # "rck" alone is normal under traffic: the loop also uses the short wait
+    # whenever it ran less than 100 ms after the previous session cleanup.
+    spins = [r for r in samples if num(r, "idle") > 300 or num(r, "zwin") > 0]
     if spins:
-        print(f"\nWARNING: {len(spins)} intervals with >300 short rechecks (TCP flows with a full window):")
+        print(f"\nWARNING: {len(spins)} intervals where the event loop spun "
+              "(>300 empty wake-ups or TCP flows with a full window):")
         for r in spins[:10]:
-            print(f"  {r['ts']} scr={r.get('scr')} rck={r.get('rck')} zwin={r.get('zwin')} tcp={r.get('tcp')}")
+            print(f"  {r['ts']} scr={r.get('scr')} rck={r.get('rck')} idle={r.get('idle')} "
+                  f"zwin={r.get('zwin')} tcp={r.get('tcp')}")
 
 
 if __name__ == "__main__":

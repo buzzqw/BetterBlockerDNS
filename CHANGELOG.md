@@ -10,6 +10,13 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-12
 
+### Battery diagnostic log
+- The analysis of an exported battery log no longer reports normal network
+  activity as a problem; it warns only when the connection handling really
+  loops without work.
+
+## 2026-11-12
+
 ### Clearer battery reading on Home
 - The "Resource usage" card no longer suggests that BBDNS used the phone's
   battery: the battery value is now labelled as the whole phone's, shows the
