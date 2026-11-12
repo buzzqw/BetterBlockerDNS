@@ -413,11 +413,10 @@
     <string name="home_resources_cpu">CPU</string>
     <string name="home_resources_cpu_hint">BBDNS</string>
     <string name="home_resources_cpu_value">%1$.1f%%</string>
-    <string name="home_resources_battery">Bateria</string>
-    <string name="home_resources_battery_hint">aparelho · consumida</string>
-    <string name="home_resources_battery_value">-%1$.0f mA</string>
+    <string name="home_resources_battery">Bateria do aparelho</string>
+    <string name="home_resources_battery_hint">aparelho inteiro, não só o BBDNS</string>
+    <string name="home_resources_battery_hint_current">aparelho inteiro · %1$.0f mA</string>
     <string name="home_resources_battery_level_value">%1$d%%</string>
-    <string name="home_resources_battery_draw_level">%1$s / %2$d%%</string>
     <string name="home_resources_charging">Carregando</string>
     <string name="home_resources_charging_level">Carregando · %1$d%%</string>
     <string name="home_resources_unavailable">n/d</string>

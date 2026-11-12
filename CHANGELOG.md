@@ -8,6 +8,15 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-12
+
+### Clearer battery reading on Home
+- The "Resource usage" card no longer suggests that BBDNS used the phone's
+  battery: the battery value is now labelled as the whole phone's, shows the
+  charge left instead of the charge used since full, and the current draw is
+  marked as the phone's total.
+- The CPU value still measures BBDNS alone.
+
 ## 2026-11-11
 
 ### Release 1.0.39

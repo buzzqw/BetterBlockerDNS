@@ -136,11 +136,10 @@
     <string name="home_resources_cpu">CPU</string>
     <string name="home_resources_cpu_hint">BBDNS</string>
     <string name="home_resources_cpu_value">%1$.1f%%</string>
-    <string name="home_resources_battery">Batería</string>
-    <string name="home_resources_battery_hint">dispositivo · consumida</string>
-    <string name="home_resources_battery_value">-%1$.0f mA</string>
+    <string name="home_resources_battery">Batería del teléfono</string>
+    <string name="home_resources_battery_hint">todo el teléfono, no solo BBDNS</string>
+    <string name="home_resources_battery_hint_current">todo el teléfono · %1$.0f mA</string>
     <string name="home_resources_battery_level_value">%1$d%%</string>
-    <string name="home_resources_battery_draw_level">%1$s / %2$d%%</string>
     <string name="home_resources_charging">Cargando</string>
     <string name="home_resources_charging_level">Cargando · %1$d%%</string>
     <string name="home_resources_unavailable">n/d</string>

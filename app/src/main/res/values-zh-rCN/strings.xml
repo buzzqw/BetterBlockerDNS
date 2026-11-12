@@ -413,11 +413,10 @@
     <string name="home_resources_cpu">CPU</string>
     <string name="home_resources_cpu_hint">BBDNS</string>
     <string name="home_resources_cpu_value">%1$.1f%%</string>
-    <string name="home_resources_battery">电池</string>
-    <string name="home_resources_battery_hint">设备 · 已消耗</string>
-    <string name="home_resources_battery_value">-%1$.0f mA</string>
+    <string name="home_resources_battery">手机电池</string>
+    <string name="home_resources_battery_hint">整部手机，不只是 BBDNS</string>
+    <string name="home_resources_battery_hint_current">整部手机 · %1$.0f mA</string>
     <string name="home_resources_battery_level_value">%1$d%%</string>
-    <string name="home_resources_battery_draw_level">%1$s / %2$d%%</string>
     <string name="home_resources_charging">充电中</string>
     <string name="home_resources_charging_level">充电中 · %1$d%%</string>
     <string name="home_resources_unavailable">不可用</string>

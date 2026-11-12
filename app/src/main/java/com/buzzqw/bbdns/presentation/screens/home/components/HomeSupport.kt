@@ -76,7 +76,10 @@ private const val PAYPAL_URL =
     "https://www.paypal.com/donate/?business=azanzani%40gmail.com&item_name=BetterBlockerDNS"
 private const val KOFI_URL = "https://ko-fi.com/buzzqw"
 
-/** One-shot snapshot of the resources used by the BBDNS process. */
+/**
+ * One-shot snapshot for the resource card: CPU of the BBDNS process, battery
+ * level and draw of the whole phone.
+ */
 data class ResourceUsage(
     val cpuPercent: Float? = null,
     val batteryCurrentMa: Float? = null,
@@ -193,23 +196,19 @@ private fun ResourceUsageValues() {
         }
     }
 
-    val batteryConsumed = usage.batteryLevel?.let { (100 - it).coerceIn(0, 100) }
-    val batteryCurrent = usage.batteryCurrentMa
+    // The framework only exposes the whole phone's battery: show the level
+    // left and the phone's draw, labelled as such, never as BBDNS usage.
+    val batteryLevel = usage.batteryLevel
     val batteryValue = when {
-        usage.charging -> batteryConsumed?.let {
+        usage.charging -> batteryLevel?.let {
             stringResource(R.string.home_resources_charging_level, it)
         } ?: stringResource(R.string.home_resources_charging)
-        batteryCurrent != null -> batteryConsumed?.let { consumed ->
-            stringResource(
-                R.string.home_resources_battery_draw_level,
-                stringResource(R.string.home_resources_battery_value, batteryCurrent),
-                consumed,
-            )
-        } ?: stringResource(R.string.home_resources_battery_value, batteryCurrent)
-        batteryConsumed != null -> stringResource(R.string.home_resources_battery_level_value, batteryConsumed)
+        batteryLevel != null -> stringResource(R.string.home_resources_battery_level_value, batteryLevel)
         else -> stringResource(R.string.home_resources_unavailable)
     }
-    val batteryDetail = stringResource(R.string.home_resources_battery_hint)
+    val batteryDetail = usage.batteryCurrentMa?.takeIf { !usage.charging }?.let {
+        stringResource(R.string.home_resources_battery_hint_current, it)
+    } ?: stringResource(R.string.home_resources_battery_hint)
 
     Column {
         Row(
