@@ -1,0 +1,1 @@
+BBDNS is now built for Google Play as well, signed with the same key as the GitHub releases. No functional changes compared with 1.0.40.

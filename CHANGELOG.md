@@ -10,6 +10,12 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-12
 
+### Release 1.0.41
+### First Google Play build
+- BBDNS is now built for Google Play as well. The app is signed with the same
+  key as the GitHub releases, so updates install over each other from either
+  source. There are no functional changes compared with 1.0.40.
+
 ### Release 1.0.40
 ### Resource usage shows BBDNS only
 - The "Resource usage" card on Home now shows only the CPU used by BBDNS.
