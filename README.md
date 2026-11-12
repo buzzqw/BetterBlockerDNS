@@ -68,6 +68,22 @@ settings.
 A Google Play version is coming soon: once it is published there, installing
 from the store also stops Android from asking to scan the APK at every update.
 
+### Become a tester
+
+Before an app can be published, Google Play requires a closed test with at
+least 12 testers for 14 days. You can help:
+
+1. Join the [bbdns-testers group](https://groups.google.com/g/bbdns-testers)
+   with your Google account.
+2. On your phone, open
+   [play.google.com/apps/testing/com.buzzqw.bbdns](https://play.google.com/apps/testing/com.buzzqw.bbdns)
+   with the same account, accept the invitation and install BBDNS from Play.
+3. Keep the app installed for at least 14 days.
+
+The Play build is signed with the same key as the GitHub releases, so it
+installs over an existing APK without losing your settings. Bugs and
+suggestions go to the [issue tracker](https://github.com/buzzqw/BetterBlockerDNS/issues).
+
 ## Getting started
 
 1. **Open BBDNS and tap the power button.** Android asks to allow a VPN
