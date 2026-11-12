@@ -136,14 +136,8 @@
     <string name="home_support_no_browser">Nessuna app disponibile per aprire il link.</string>
     <string name="home_resources_title">Consumo di risorse</string>
     <string name="home_resources_cpu">CPU</string>
-    <string name="home_resources_cpu_hint">BBDNS</string>
+    <string name="home_resources_cpu_hint">solo BBDNS</string>
     <string name="home_resources_cpu_value">%1$.1f%%</string>
-    <string name="home_resources_battery">Batteria del telefono</string>
-    <string name="home_resources_battery_hint">tutto il telefono, non solo BBDNS</string>
-    <string name="home_resources_battery_hint_current">tutto il telefono · %1$.0f mA</string>
-    <string name="home_resources_battery_level_value">%1$d%%</string>
-    <string name="home_resources_charging">In carica</string>
-    <string name="home_resources_charging_level">In carica · %1$d%%</string>
     <string name="home_resources_unavailable">n/d</string>
     <string name="home_resources_hint">Valori aggiornati in tempo reale mentre la Home è aperta: nessun campionamento in background.</string>
     <string name="home_allow_domain_action">Consenti dominio</string>

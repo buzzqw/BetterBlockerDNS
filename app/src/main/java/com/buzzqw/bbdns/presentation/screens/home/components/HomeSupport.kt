@@ -19,9 +19,7 @@ package com.buzzqw.bbdns.presentation.screens.home.components
 
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
-import android.os.BatteryManager
 import android.os.SystemClock
 import android.system.Os
 import android.system.OsConstants
@@ -36,8 +34,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountBalanceWallet
-import androidx.compose.material.icons.rounded.BatteryChargingFull
-import androidx.compose.material.icons.rounded.BatteryFull
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.LocalCafe
 import androidx.compose.material.icons.rounded.Memory
@@ -69,23 +65,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.File
-import kotlin.math.abs
 
 /** Donation links: the single source of truth for the home support card. */
 private const val PAYPAL_URL =
     "https://www.paypal.com/donate/?business=azanzani%40gmail.com&item_name=BetterBlockerDNS"
 private const val KOFI_URL = "https://ko-fi.com/buzzqw"
-
-/**
- * One-shot snapshot for the resource card: CPU of the BBDNS process, battery
- * level and draw of the whole phone.
- */
-data class ResourceUsage(
-    val cpuPercent: Float? = null,
-    val batteryCurrentMa: Float? = null,
-    val batteryLevel: Int? = null,
-    val charging: Boolean = false,
-)
 
 /**
  * Donation card at the bottom of the dashboard. PayPal and Ko-fi open in the
@@ -137,20 +121,21 @@ fun SupportCard() {
     }
 }
 
-/** How often the live CPU and battery values are refreshed while Home is open. */
+/** How often the live CPU value is refreshed while Home is open. */
 private const val RESOURCE_REFRESH_MS = 2_000L
 
 /**
- * Live CPU and battery snapshot, refreshed only while the dashboard is composed.
+ * Live CPU share of BBDNS, refreshed only while the dashboard is composed.
  *
  * CPU is read from `/proc/self/stat` twice, about a second apart, so the value
- * reflects the app process (VPN service included) while the home is open. The
- * battery draw and level come from the framework and are refreshed together
- * with the CPU. Nothing keeps running after the card leaves the screen.
+ * reflects the app process (VPN service included) while the home is open.
+ * There is no battery value: Android does not let an app measure its own
+ * battery use, and the phone-wide figures read as if BBDNS had used them.
+ * Nothing keeps running after the card leaves the screen.
  */
 @Composable
 fun ResourceUsageCard() {
-    // Collapsed by default: the CPU/battery sampling runs only while the
+    // Collapsed by default: the CPU sampling runs only while the
     // values are actually shown.
     var expanded by rememberSaveable { mutableStateOf(false) }
     val toggle = { expanded = !expanded }
@@ -182,60 +167,27 @@ fun ResourceUsageCard() {
 
 @Composable
 private fun ResourceUsageValues() {
-    val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val usage by produceState(initialValue = ResourceUsage(), context, lifecycle) {
+    val cpuPercent by produceState<Float?>(initialValue = null, lifecycle) {
         // The composition survives while the app is in the background, so
         // sample only while the screen is actually visible.
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while (true) {
-                val battery = withContext(Dispatchers.IO) { readBattery(context) }
-                value = battery.copy(cpuPercent = sampleCpuPercent())
+                value = sampleCpuPercent()
                 delay(RESOURCE_REFRESH_MS)
             }
         }
     }
 
-    // The framework only exposes the whole phone's battery: show the level
-    // left and the phone's draw, labelled as such, never as BBDNS usage.
-    val batteryLevel = usage.batteryLevel
-    val batteryValue = when {
-        usage.charging -> batteryLevel?.let {
-            stringResource(R.string.home_resources_charging_level, it)
-        } ?: stringResource(R.string.home_resources_charging)
-        batteryLevel != null -> stringResource(R.string.home_resources_battery_level_value, batteryLevel)
-        else -> stringResource(R.string.home_resources_unavailable)
-    }
-    val batteryDetail = usage.batteryCurrentMa?.takeIf { !usage.charging }?.let {
-        stringResource(R.string.home_resources_battery_hint_current, it)
-    } ?: stringResource(R.string.home_resources_battery_hint)
-
     Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            UsageCell(
-                modifier = Modifier.weight(1f),
-                icon = Icons.Rounded.Memory,
-                label = stringResource(R.string.home_resources_cpu),
-                value = usage.cpuPercent?.let {
-                    stringResource(R.string.home_resources_cpu_value, it)
-                } ?: stringResource(R.string.home_resources_unavailable),
-                detail = stringResource(R.string.home_resources_cpu_hint),
-            )
-            UsageCell(
-                modifier = Modifier.weight(1f),
-                icon = if (usage.charging) {
-                    Icons.Rounded.BatteryChargingFull
-                } else {
-                    Icons.Rounded.BatteryFull
-                },
-                label = stringResource(R.string.home_resources_battery),
-                value = batteryValue,
-                detail = batteryDetail,
-            )
-        }
+        UsageCell(
+            icon = Icons.Rounded.Memory,
+            label = stringResource(R.string.home_resources_cpu),
+            value = cpuPercent?.let {
+                stringResource(R.string.home_resources_cpu_value, it)
+            } ?: stringResource(R.string.home_resources_unavailable),
+            detail = stringResource(R.string.home_resources_cpu_hint),
+        )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = stringResource(R.string.home_resources_hint),
@@ -322,34 +274,6 @@ private fun readProcessCpuTicks(): Long? = try {
     if (fields.size > 12) fields[11].toLong() + fields[12].toLong() else null
 } catch (_: Exception) {
     null
-}
-
-private fun readBattery(context: Context): ResourceUsage = try {
-    val batteryManager = context.getSystemService(BatteryManager::class.java)
-    val level = batteryManager
-        ?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-        ?.takeIf { it in 0..100 }
-    val rawCurrent = batteryManager
-        ?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-        ?: Int.MIN_VALUE
-    val currentMa = if (rawCurrent != Int.MIN_VALUE && rawCurrent != 0) {
-        abs(rawCurrent) / 1000f
-    } else {
-        null
-    }
-    val status = context
-        .registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-        ?.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
-        ?: -1
-    val charging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-        status == BatteryManager.BATTERY_STATUS_FULL
-    ResourceUsage(
-        batteryCurrentMa = currentMa,
-        batteryLevel = level,
-        charging = charging,
-    )
-} catch (_: Exception) {
-    ResourceUsage()
 }
 
 private fun openUrl(context: Context, url: String) {

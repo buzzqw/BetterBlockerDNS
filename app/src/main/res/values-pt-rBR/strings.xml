@@ -411,14 +411,8 @@
     <string name="home_support_no_browser">Nenhum app disponível para abrir o link.</string>
     <string name="home_resources_title">Uso de recursos</string>
     <string name="home_resources_cpu">CPU</string>
-    <string name="home_resources_cpu_hint">BBDNS</string>
+    <string name="home_resources_cpu_hint">só o BBDNS</string>
     <string name="home_resources_cpu_value">%1$.1f%%</string>
-    <string name="home_resources_battery">Bateria do aparelho</string>
-    <string name="home_resources_battery_hint">aparelho inteiro, não só o BBDNS</string>
-    <string name="home_resources_battery_hint_current">aparelho inteiro · %1$.0f mA</string>
-    <string name="home_resources_battery_level_value">%1$d%%</string>
-    <string name="home_resources_charging">Carregando</string>
-    <string name="home_resources_charging_level">Carregando · %1$d%%</string>
     <string name="home_resources_unavailable">n/d</string>
     <string name="home_resources_hint">Ao vivo enquanto a tela inicial está aberta: sem consultas em segundo plano.</string>
     <string name="home_allow_domain_action">Permitir domínio</string>

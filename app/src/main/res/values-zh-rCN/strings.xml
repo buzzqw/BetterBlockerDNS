@@ -411,14 +411,8 @@
     <string name="home_support_no_browser">没有可打开此链接的应用。</string>
     <string name="home_resources_title">资源占用</string>
     <string name="home_resources_cpu">CPU</string>
-    <string name="home_resources_cpu_hint">BBDNS</string>
+    <string name="home_resources_cpu_hint">仅 BBDNS</string>
     <string name="home_resources_cpu_value">%1$.1f%%</string>
-    <string name="home_resources_battery">手机电池</string>
-    <string name="home_resources_battery_hint">整部手机，不只是 BBDNS</string>
-    <string name="home_resources_battery_hint_current">整部手机 · %1$.0f mA</string>
-    <string name="home_resources_battery_level_value">%1$d%%</string>
-    <string name="home_resources_charging">充电中</string>
-    <string name="home_resources_charging_level">充电中 · %1$d%%</string>
     <string name="home_resources_unavailable">不可用</string>
     <string name="home_resources_hint">仅在主页打开时实时更新：不在后台轮询。</string>
     <string name="home_allow_domain_action">允许域名</string>

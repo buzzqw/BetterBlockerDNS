@@ -10,19 +10,17 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-12
 
+### Resource usage shows BBDNS only
+- The "Resource usage" card on Home now shows only the CPU used by BBDNS.
+- The battery value was removed: Android does not let an app measure its own
+  battery use, and the phone-wide figures looked as if BBDNS had used them.
+
+## 2026-11-12
+
 ### Battery diagnostic log
 - The analysis of an exported battery log no longer reports normal network
   activity as a problem; it warns only when the connection handling really
   loops without work.
-
-## 2026-11-12
-
-### Clearer battery reading on Home
-- The "Resource usage" card no longer suggests that BBDNS used the phone's
-  battery: the battery value is now labelled as the whole phone's, shows the
-  charge left instead of the charge used since full, and the current draw is
-  marked as the phone's total.
-- The CPU value still measures BBDNS alone.
 
 ## 2026-11-11
 
