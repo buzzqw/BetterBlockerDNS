@@ -33,6 +33,8 @@
     <string name="blocklists_included_in">Already included in %1$s</string>
     <string name="blocklists_compatibility_title">Compatibility allowlist</string>
     <string name="blocklists_compatibility_desc">Keeps banking, payments, app stores and push notifications working. Enabled by default.</string>
+    <string name="blocklists_extra_ads_title">Extra ads — mobile networks</string>
+    <string name="blocklists_extra_ads_desc">Adds mobile ad networks and trackers that the default lists do not cover. It cannot remove YouTube video ads: those come from the same servers as the videos.</string>
     <string name="blocklists_section_profile">Profile</string>
 
     <!-- Dedicated blocked-domains page (item 1) -->

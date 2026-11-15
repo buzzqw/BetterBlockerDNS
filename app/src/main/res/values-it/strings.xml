@@ -656,6 +656,8 @@
     <string name="blocklists_included_in">Già inclusa in %1$s</string>
     <string name="blocklists_compatibility_title">Lista di compatibilità</string>
     <string name="blocklists_compatibility_desc">Mantiene funzionanti banche, pagamenti, store di app e notifiche push. Attiva per impostazione predefinita.</string>
+    <string name="blocklists_extra_ads_title">Annunci extra — reti mobili</string>
+    <string name="blocklists_extra_ads_desc">Aggiunge reti pubblicitarie e tracker che le liste predefinite non coprono. Non può rimuovere gli annunci video di YouTube: arrivano dagli stessi server dei video.</string>
     <string name="blocklists_section_profile">Profilo</string>
 
     <!-- Pagina dedicata ai domini bloccati -->

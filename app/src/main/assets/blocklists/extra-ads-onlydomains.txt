@@ -1,0 +1,23 @@
+# BBDNS — Extra ads and trackers
+#
+# Mobile ad networks and trackers that the default lists
+# (HaGeZi Multi NORMAL + StevenBlack Unified) do not cover yet.
+#
+# This is a suffix list: an entry also blocks every subdomain.
+#
+# This list cannot remove YouTube video ads. They are served from the same
+# servers as the videos themselves and no DNS list can tell them apart.
+2mdn.net
+googleadservices.com
+ironsrc.com
+supertone.ironsrc.mobi
+pangleglobal.com
+start.io
+moloco.com
+liftoff.io
+pubmatic.com
+gdt.qq.com
+digitalturbine.com
+iasds01.com
+tanx.com
+appmetrica.yandex.com

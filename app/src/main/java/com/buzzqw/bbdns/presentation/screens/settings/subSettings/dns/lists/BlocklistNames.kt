@@ -26,10 +26,16 @@ object BlocklistNames {
         (HageziCatalog.all + StevenBlackCatalog.all).associateBy { it.url }
     }
 
+    /** Lists bundled inside the app: the URL is not a real location. */
+    private val builtInNames: Map<String, String> = mapOf(
+        ExtraAdsPreset.URL to ExtraAdsPreset.TITLE,
+    )
+
     /** Catalogue name when known, otherwise the title or a short form of the URL. */
     fun displayName(title: String, data: String = title): String {
         byUrl[data]?.let { return it.name }
         byUrl[title]?.let { return it.name }
+        builtInNames[data]?.let { return it }
         if (title.isNotBlank() && !title.contains("://")) return title
         return shortUrl(data.ifBlank { title })
     }

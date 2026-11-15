@@ -85,6 +85,7 @@ import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.Host
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.RuleDatabaseUpdateWorker
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.BlocklistCoverage
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.BlocklistSelection
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.ExtraAdsPreset
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.HageziCatalog
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.HageziProfile
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.HageziViewModel
@@ -688,6 +689,30 @@ fun BlocklistsScreen(
                             },
                             "PRIVACY_PROTECTION",
                         )
+                    }
+                }
+            )
+
+            val extraAdsEnabled = localSwitchStates["EXTRA_ADS"]
+                ?: ExtraAdsPreset.isEnabled(config)
+            SettingsBox(
+                title = stringResource(id = R.string.blocklists_extra_ads_title),
+                description = stringResource(id = R.string.blocklists_extra_ads_desc),
+                icon = IconType.VectorIcon(Icons.Rounded.AdsClick),
+                actionType = SettingType.SWITCH,
+                variable = extraAdsEnabled,
+                onSwitchEnabled = { enabled ->
+                    localSwitchStates["EXTRA_ADS"] = enabled
+                    CoroutineScope(Dispatchers.IO).launch {
+                        ExtraAdsPreset.setEnabled(
+                            configuration = config,
+                            enabled = enabled,
+                            title = context.getString(R.string.blocklists_extra_ads_title),
+                        )
+                        config.save()
+                        blockListViewModel.invalidateDomainsCache()
+                        blockListViewModel.refreshDomains()
+                        Logger.info("Extra ads preset enabled=$enabled")
                     }
                 }
             )

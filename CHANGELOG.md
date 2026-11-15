@@ -8,6 +8,16 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-15
+
+### Optional "Extra ads" list
+- Added an optional **Extra ads — mobile networks** switch in Blocklists. It
+  adds mobile ad networks and tracking endpoints that the default lists do not
+  cover, and it works offline because the list ships with the app.
+- It does not remove YouTube video ads: those are served from the same servers
+  as the videos, and no DNS list can separate them. The README now explains
+  this limitation.
+
 ## 2026-11-12
 
 ### Release 1.0.41

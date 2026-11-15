@@ -119,6 +119,10 @@ suggestions go to the [issue tracker](https://github.com/buzzqw/BetterBlockerDNS
 - **Compatibility allowlist** for banking, payments, public administration,
   app stores, push notifications and captive portals. Rules also cover
   subdomains: `paypal.com` includes `www.paypal.com`.
+- **Extra ads list**: an optional list bundled with the app that adds mobile
+  ad networks and measurement endpoints missing from the default tiers. It
+  does not remove YouTube video ads, which share their servers with the
+  videos.
 - **Custom lists and rules**: hosts, ABP, DNSMasq, wildcard, regex and plain
   domains, plus your own allow and block rules.
 - **Automatic list updates**, every 6 hours to once a week.
@@ -234,6 +238,14 @@ Android settings and remove its battery restrictions; see
 **Ads still appear.** Turn off *Private DNS* in Android settings, because it
 bypasses the VPN's DNS. Some ads come from the same domains as the content
 (YouTube, for example) and cannot be blocked by DNS.
+
+**YouTube ads are never blocked.** YouTube plays pre-roll and mid-roll ads
+from the same servers used for the videos, and the ads inside the app are
+delivered in the same responses as the video metadata. A DNS filter cannot
+separate them without breaking playback. BBDNS does not install a local
+certificate to read HTTPS traffic, which is the only way to remove them, so
+the *Extra ads* list only adds third-party ad networks and tracking
+endpoints; it does not change what YouTube shows.
 
 **"Another VPN took over."** Android allows only one VPN. Turn BBDNS back on
 when you are done with the other VPN.

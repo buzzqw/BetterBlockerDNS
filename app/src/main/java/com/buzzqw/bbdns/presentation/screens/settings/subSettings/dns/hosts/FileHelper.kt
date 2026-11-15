@@ -30,6 +30,12 @@ import java.net.URLEncoder
 
 object FileHelper{
 
+    /** Lists bundled inside the APK, for example the optional extra ads preset. */
+    private const val ASSET_PREFIX = "asset://"
+
+    /** True for a list shipped with the app instead of downloaded or picked. */
+    fun isAssetItem(item: HostFile): Boolean = item.data.startsWith(ASSET_PREFIX)
+
     @Throws(IOException::class)
     fun openRead(filename: String?): InputStream? =
         try {
@@ -69,6 +75,14 @@ object FileHelper{
             } catch (e: SecurityException) {
                 Logger.error("openItemFile: Cannot open", e)
                 throw FileNotFoundException("File noot found")
+            }
+        } else if (isAssetItem(host)) {
+            val path = host.data.removePrefix(ASSET_PREFIX).trimStart('/')
+            try {
+                InputStreamReader(applicationContext.assets.open(path))
+            } catch (e: IOException) {
+                Logger.error("openItemFile: Bundled list not found: $path", e)
+                throw FileNotFoundException("Bundled list not found: $path")
             }
         } else {
             val itemFile = getItemFile(host) ?: return null
