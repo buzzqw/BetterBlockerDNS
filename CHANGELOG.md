@@ -10,6 +10,7 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-15
 
+### Release 1.0.42
 ### Optional "Extra ads" list
 - Added an optional **Extra ads — mobile networks** switch in Blocklists. It
   adds mobile ad networks and tracking endpoints that the default lists do not

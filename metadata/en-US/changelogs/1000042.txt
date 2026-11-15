@@ -1,0 +1,1 @@
+Adds an optional "Extra ads" list that blocks mobile ad networks and trackers the default lists miss. It cannot remove YouTube video ads, and the app now explains why.
