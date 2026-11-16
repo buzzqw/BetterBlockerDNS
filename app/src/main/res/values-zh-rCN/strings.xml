@@ -303,6 +303,8 @@
     <string name="blocklists_included_in">已包含在 %1$s 中</string>
     <string name="blocklists_compatibility_title">兼容性允许列表</string>
     <string name="blocklists_compatibility_desc">确保银行、支付、应用商店和推送通知正常工作。默认开启。</string>
+    <string name="blocklists_extra_ads_title">额外广告 — 移动网络</string>
+    <string name="blocklists_extra_ads_desc">添加默认列表未覆盖的移动广告网络和跟踪器。无法移除 YouTube 视频广告：它们与视频来自同一批服务器。</string>
     <string name="blocklists_section_profile">方案</string>
     <string name="active_lists_title">已拦截的域名</string>
     <string name="active_lists_subtitle">当前启用的列表及各自拦截的主机数量。</string>

@@ -303,6 +303,8 @@
     <string name="blocklists_included_in">Já incluída em %1$s</string>
     <string name="blocklists_compatibility_title">Lista de permissões de compatibilidade</string>
     <string name="blocklists_compatibility_desc">Mantém bancos, pagamentos, lojas de apps e notificações push funcionando. Ativada por padrão.</string>
+    <string name="blocklists_extra_ads_title">Anúncios extras — redes móveis</string>
+    <string name="blocklists_extra_ads_desc">Adiciona redes de anúncios móveis e rastreadores que as listas padrão não cobrem. Não remove os anúncios em vídeo do YouTube: eles vêm dos mesmos servidores dos vídeos.</string>
     <string name="blocklists_section_profile">Perfil</string>
     <string name="active_lists_title">Domínios bloqueados</string>
     <string name="active_lists_subtitle">Listas ativadas e quantos hosts cada uma bloqueia.</string>
