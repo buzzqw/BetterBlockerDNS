@@ -59,7 +59,18 @@ object BlocklistParser {
 
         // Fast path: check first char to skip common cases
         val firstChar = line[0]
-        if (firstChar == '#' || firstChar == '!' || firstChar == ' ' || firstChar == '\t') {
+        if (firstChar == '#' || firstChar == '!' || firstChar == ' ' || firstChar == '\t' ||
+            firstChar == '['
+        ) {
+            return null
+        }
+
+        // Element hiding, scriptlets and other extended filters from ABP and
+        // uBlock Origin lists. They act on page elements or scripts, never on a
+        // hostname: reading "example.com##.ad" as a hosts entry blocked the
+        // whole site, and an exception such as "example.com#@#.ad" did the
+        // same. DNS filtering cannot express them, so they are skipped.
+        if (isPageRule(line)) {
             return null
         }
 
@@ -74,7 +85,8 @@ object BlocklistParser {
             '@' -> parseABPFormat(trimmedLine)
             'a' -> parseDNSmasqFormat(trimmedLine) ?: parseHostsFormat(trimmedLine)
             '/' -> parseRegexFormat(trimmedLine)
-            '0', '1', '2', ':', '*' -> parseHostsFormat(trimmedLine)
+            '0', '1', '2', ':' -> parseHostsFormat(trimmedLine)
+            '*' -> parseWildcardFormat(trimmedLine) ?: parseHostsFormat(trimmedLine)
             else -> {
                 // Check for regex chars for pi-hole format
                 if (trimmedLine.contains(PIHOLE_SPECIAL_CHARS)) {
@@ -85,6 +97,29 @@ object BlocklistParser {
                     parseHostsFormat(trimmedLine)
                 }
             }
+        }
+    }
+
+    /**
+     * True for ABP/uBlock rules that target page elements, scripts or the
+     * whole document instead of a domain:
+     * - `example.com##.ad` (element hiding)
+     * - `example.com#@#.ad` (element hiding exception)
+     * - `example.com#?#.ad`, `#$#`, `#%#` (extended syntaxes)
+     * - `example.com$$script[data-ad]` (AdGuard JS injection)
+     *
+     * A hosts line can never contain an unescaped `#` before its comment, so
+     * only the bytes right after `#` distinguish a filter from a comment.
+     */
+    private fun isPageRule(line: String): Boolean {
+        if (line.contains("$$")) return true
+
+        val hash = line.indexOf('#')
+        if (hash <= 0 || hash + 1 >= line.length) return false
+
+        return when (line[hash + 1]) {
+            '#', '@', '?', '$', '%' -> true
+            else -> false
         }
     }
 
@@ -113,7 +148,13 @@ object BlocklistParser {
                 .lowercase()
                 .trim()
 
-            if (domain.isNotEmpty() && isValidDomain(domain)) {
+            val isValid = if (domain.contains('*')) {
+                isValidDomainWithWildcard(domain)
+            } else {
+                isValidDomain(domain)
+            }
+
+            if (domain.isNotEmpty() && isValid) {
                 // Check if it contains wildcards
                 if (domain.contains("*")) {
                     val regex = wildcardToRegex(domain)

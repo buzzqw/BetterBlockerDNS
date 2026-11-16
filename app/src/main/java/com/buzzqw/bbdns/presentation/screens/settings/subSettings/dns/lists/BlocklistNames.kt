@@ -23,7 +23,7 @@ import android.net.Uri
 object BlocklistNames {
 
     private val byUrl: Map<String, BlocklistSource> by lazy {
-        (HageziCatalog.all + StevenBlackCatalog.all).associateBy { it.url }
+        (HageziCatalog.all + AdguardCatalog.all + StevenBlackCatalog.all).associateBy { it.url }
     }
 
     /** Lists bundled inside the app: the URL is not a real location. */

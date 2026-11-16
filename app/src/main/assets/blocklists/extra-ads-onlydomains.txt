@@ -8,6 +8,8 @@
 # This list cannot remove YouTube video ads. They are served from the same
 # servers as the videos themselves and no DNS list can tell them apart.
 2mdn.net
+doubleclick.net
+adservice.google.com
 googleadservices.com
 ironsrc.com
 supertone.ironsrc.mobi

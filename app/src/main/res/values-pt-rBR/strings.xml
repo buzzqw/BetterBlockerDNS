@@ -634,6 +634,8 @@
     <string name="blocklist_preset_stevenblack_desc">Arquivo hosts unificado com adware e malware básicos</string>
     <string name="blocklist_preset_lowe_desc">Lista de bloqueio de servidores de anúncios</string>
     <string name="blocklist_preset_adguard_desc">Regras de filtragem básicas do AdGuard</string>
+    <string name="blocklist_preset_adguard_dns_desc">Lista nativa para DNS com cerca de 190.000 domínios de anúncios e rastreadores: a que mais acrescenta além do HaGeZi e do StevenBlack</string>
+    <string name="catalog_adguard_dns_desc">Lista nativa para DNS com cerca de 190.000 domínios de anúncios e rastreadores. Acompanha todos os perfis de proteção a partir do «Equilibrado».</string>
     <string name="blocklist_preset_easylist_desc">A principal lista de filtros, que remove a maioria dos anúncios</string>
     <string name="blocklist_unknown_size">Tamanho desconhecido</string>
     <string name="blocklist_unknown_entries">Entradas desconhecidas</string>

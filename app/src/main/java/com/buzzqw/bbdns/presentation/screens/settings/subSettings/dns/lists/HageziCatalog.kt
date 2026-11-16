@@ -91,9 +91,19 @@ data class HageziProfile(
     @StringRes val nameRes: Int,
     val description: String,
     @StringRes val descriptionRes: Int,
+    /** HaGeZi lists the profile is built on: they identify the profile. */
     val listIds: List<String>,
+    /**
+     * Lists from other catalogues that the profile adds. They do not take part
+     * in identifying the profile, so an installation that enabled a profile
+     * before these lists existed still shows that profile as active.
+     */
+    val extraListIds: List<String> = emptyList(),
     val recommended: Boolean = false
-)
+) {
+    /** Every list id the profile enables. */
+    val allListIds: List<String> get() = listIds + extraListIds
+}
 
 object HageziCatalog {
 
@@ -417,9 +427,22 @@ object HageziCatalog {
 
     val byId: Map<String, HageziList> = all.associateBy { it.id }
 
-    /** IDs managed by a protection profile: every Multi tier and every TIF variant. */
-    val profileManagedIds: Set<String> =
-        all.filter { it.coreTier || it.threatFeed }.map { it.id }.toSet()
+    /**
+     * Every source a protection profile can use, HaGeZi or not, keyed by id.
+     * Profiles resolve their list ids here.
+     */
+    val profileSources: Map<String, BlocklistSource> by lazy {
+        (all + AdguardCatalog.all).associateBy { it.id }
+    }
+
+    /**
+     * IDs managed by a protection profile: every Multi tier, every TIF variant
+     * and the lists profiles add from other catalogues (AdGuard DNS filter).
+     */
+    val profileManagedIds: Set<String> = buildSet {
+        all.filter { it.coreTier || it.threatFeed }.forEach { add(it.id) }
+        AdguardCatalog.all.forEach { add(it.id) }
+    }
 
     val profiles: List<HageziProfile> = listOf(
         HageziProfile(
@@ -437,6 +460,7 @@ object HageziCatalog {
             description = "All-round filtering of advertising, tracking and malware domains with a compact TIF.",
             descriptionRes = R.string.catalog_profile_balanced_desc,
             listIds = listOf(NORMAL.id, TIF_MINI.id),
+            extraListIds = listOf(AdguardCatalog.DNS_FILTER.id),
             recommended = true
         ),
         HageziProfile(
@@ -445,7 +469,8 @@ object HageziCatalog {
             nameRes = R.string.catalog_profile_pro_name,
             description = "HaGeZi's recommended setup: Multi PRO plus the full Threat Intelligence Feed (TIF).",
             descriptionRes = R.string.catalog_profile_pro_desc,
-            listIds = listOf(PRO.id, TIF.id)
+            listIds = listOf(PRO.id, TIF.id),
+            extraListIds = listOf(AdguardCatalog.DNS_FILTER.id)
         ),
         HageziProfile(
             id = "aggressive",
@@ -453,7 +478,8 @@ object HageziCatalog {
             nameRes = R.string.catalog_profile_aggressive_name,
             description = "Multi PRO++ plus the full TIF. Strong protection, some sites may need a manual allow rule.",
             descriptionRes = R.string.catalog_profile_aggressive_desc,
-            listIds = listOf(PRO_PLUS.id, TIF.id)
+            listIds = listOf(PRO_PLUS.id, TIF.id),
+            extraListIds = listOf(AdguardCatalog.DNS_FILTER.id)
         ),
         HageziProfile(
             id = "maximum",
@@ -461,20 +487,33 @@ object HageziCatalog {
             nameRes = R.string.catalog_profile_maximum_name,
             description = "Ultimate plus the full TIF. Only for users who want the strictest filtering.",
             descriptionRes = R.string.catalog_profile_maximum_desc,
-            listIds = listOf(ULTIMATE.id, TIF.id)
+            listIds = listOf(ULTIMATE.id, TIF.id),
+            extraListIds = listOf(AdguardCatalog.DNS_FILTER.id)
         )
     )
 
     /**
-     * Returns the profile that exactly matches the currently enabled profile-managed
+     * Returns the profile that matches the currently enabled profile-managed
      * lists, or null when the selection is custom/mixed.
+     *
+     * A profile still matches when the only lists it is missing are the extras
+     * of other catalogues: installations that enabled Balanced, Pro,
+     * Aggressive or Maximum before those extras existed keep showing their
+     * profile as active instead of falling back to "custom".
      */
     fun matchingProfile(enabledUrlsOrIds: Set<String>): HageziProfile? {
         val enabledIds = enabledUrlsOrIds.mapNotNull { value ->
-            all.firstOrNull { it.url == value || it.id == value }?.id
+            profileSources.values.firstOrNull { it.url == value || it.id == value }?.id
         }.filter { it in profileManagedIds }.toSet()
         if (enabledIds.isEmpty()) return null
-        profiles.firstOrNull { it.listIds.toSet() == enabledIds }?.let { return it }
+
+        profiles.firstOrNull { it.allListIds.toSet() == enabledIds }?.let { return it }
+
+        // Exactly the HaGeZi part of a profile, with or without its extras.
+        profiles.firstOrNull { profile ->
+            profile.listIds.toSet() == enabledIds
+        }?.let { return it }
+
         // Also mark the profile as active when extra lists are enabled on top of it.
         return profiles
             .filter { profile -> profile.listIds.isNotEmpty() && profile.listIds.all { it in enabledIds } }

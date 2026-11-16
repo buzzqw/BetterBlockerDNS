@@ -634,6 +634,8 @@
     <string name="blocklist_preset_stevenblack_desc">包含基础广告软件和恶意软件的统一 hosts 文件</string>
     <string name="blocklist_preset_lowe_desc">广告服务器拦截列表</string>
     <string name="blocklist_preset_adguard_desc">AdGuard 基础过滤规则</string>
+    <string name="blocklist_preset_adguard_dns_desc">原生 DNS 列表，约 19 万个广告和跟踪域名：在 HaGeZi 和 StevenBlack 之外添加最多的列表</string>
+    <string name="catalog_adguard_dns_desc">原生 DNS 列表，约 19 万个广告和跟踪域名。均衡及以上的所有保护配置都会启用它。</string>
     <string name="blocklist_preset_easylist_desc">可移除大部分广告的主要过滤列表</string>
     <string name="blocklist_unknown_size">大小未知</string>
     <string name="blocklist_unknown_entries">条目数未知</string>

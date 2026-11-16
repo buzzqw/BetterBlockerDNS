@@ -395,6 +395,8 @@
     <string name="blocklist_preset_stevenblack_desc">Fichier d\'hôtes unifiés avec adware de base + malware</string>
     <string name="blocklist_preset_lowe_desc">Liste de blocage des serveurs publicitaires</string>
     <string name="blocklist_preset_adguard_desc">Règles de filtrage de base AdGuard</string>
+    <string name="blocklist_preset_adguard_dns_desc">Liste native pour DNS avec environ 190 000 domaines publicitaires et de suivi : celle qui apporte le plus par rapport à HaGeZi et StevenBlack</string>
+    <string name="catalog_adguard_dns_desc">Liste native pour DNS avec environ 190 000 domaines publicitaires et de suivi. Elle accompagne tous les profils de protection à partir d’« Équilibré ».</string>
     <string name="blocklist_preset_easylist_desc">La liste de filtres principale qui supprime la plupart des publicités</string>
     <string name="blocklist_unknown_size">Taille inconnue</string>
     <string name="blocklist_unknown_entries">Entrées inconnues</string>

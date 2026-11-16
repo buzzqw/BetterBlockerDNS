@@ -8,6 +8,40 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-16
+
+### Release 1.0.43
+- Version 1.0.43 stops rules written for browsers from blocking whole sites,
+  and brings the AdGuard DNS filter to the protection profiles.
+
+### Browser filter rules no longer block whole sites
+- A rule written for a browser, such as `example.com##.ad-banner`, used to be
+  read as a plain domain and blocked the entire site; the element hiding
+  exceptions (`example.com#@#.ad`) did the same. EasyList alone hit about 1,700
+  sites this way, banks included. Those page rules are now skipped, because DNS
+  only sees hostnames, and a browser list (EasyList, uBlock Origin, AdGuard)
+  contributes exactly the `||domain^` rules it contains. Wildcards such as
+  `||youtube.*^` are accepted too.
+
+### AdGuard DNS filter in the profiles and as a preset
+- The AdGuard DNS filter, built for DNS blockers with about 190,000 hosts, is
+  available as a one-tap preset in the custom lists and comes with every
+  protection profile from Balanced upwards. Nearly 110,000 of its domains are
+  not in HaGeZi PRO, the Threat Intelligence Feed or StevenBlack.
+- Profiles enabled before this version keep working and still show as active;
+  tap the profile again to download the filter, about 4 MB. Switching to a
+  weaker profile removes it with the rest of the profile.
+- The Extra ads list now also covers DoubleClick and Google's ad server
+  (`doubleclick.net`, `adservice.google.com`): the default lists leave them
+  out, so apps kept showing banners that came from there.
+
+### YouTube ads, honestly
+- The troubleshooting page now says what does work, beyond explaining the
+  limit: uBlock Origin in Firefox for Android with `youtube.com` allowed in the
+  extension, or a client that does not play ads. It also points out that the
+  Secure DNS option of Chrome, Brave and Firefox bypasses BBDNS, like Android's
+  Private DNS.
+
 ## 2026-11-15
 
 ### Release 1.0.42

@@ -33,6 +33,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 import java.net.MalformedURLException
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.FileHelper
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.HostFile
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.StevenBlackCatalog
 import java.net.URL
 import java.util.concurrent.TimeUnit
@@ -150,6 +152,11 @@ class CustomBlocklistViewModel @Inject constructor(
     }
 
     fun validateBlocklist(url: String) {
+        if (FileHelper.isAssetItem(HostFile(title = "", data = url))) {
+            _validationState.value = validateBundledList(url)
+            return
+        }
+
         if (!isValidUrl(url)) {
             _validationState.value = BlocklistValidationState(
                 isValid = false,
@@ -174,6 +181,29 @@ class CustomBlocklistViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    /**
+     * Lists bundled inside the app are read from the APK assets: there is no
+     * URL to fetch and nothing can change, so validation only counts entries.
+     */
+    private fun validateBundledList(url: String): BlocklistValidationState = try {
+        val entryCount = FileHelper.openItemFile(HostFile(title = "", data = url))
+            ?.useLines { lines ->
+                lines.count { line ->
+                    val trimmed = line.trim()
+                    trimmed.isNotEmpty() && !trimmed.startsWith("#")
+                }
+            }
+        BlocklistValidationState(isValid = entryCount != null, entryCount = entryCount)
+    } catch (e: Exception) {
+        BlocklistValidationState(
+            isValid = false,
+            errorMessage = context.getString(
+                R.string.blocklist_error_validation_failed,
+                e.message.orEmpty()
+            )
+        )
     }
 
     private suspend fun validateBlocklistUrl(url: String): BlocklistValidationState {
@@ -309,6 +339,13 @@ class CustomBlocklistViewModel @Inject constructor(
                 description = context.getString(R.string.blocklist_preset_adguard_desc),
                 category = "AdGuard",
                 entryCount = 25000
+            ),
+            BlocklistEntry(
+                url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt",
+                name = "AdGuard DNS filter",
+                description = context.getString(R.string.blocklist_preset_adguard_dns_desc),
+                category = "AdGuard",
+                entryCount = 190000
             ),
             BlocklistEntry(
                 url = "https://easylist.to/easylist/easylist.txt",

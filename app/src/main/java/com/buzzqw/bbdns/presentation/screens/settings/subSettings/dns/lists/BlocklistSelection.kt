@@ -33,7 +33,8 @@ import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.Host
  */
 object BlocklistSelection {
 
-    private val catalogue: List<BlocklistSource> = HageziCatalog.all + StevenBlackCatalog.all
+    private val catalogue: List<BlocklistSource> =
+        HageziCatalog.all + AdguardCatalog.all + StevenBlackCatalog.all
     private val byUrl: Map<String, BlocklistSource> = catalogue.associateBy { it.url }
 
     /**

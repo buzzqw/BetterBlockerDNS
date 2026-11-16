@@ -163,8 +163,9 @@ class HageziViewModel @Inject constructor(
                 if (!hasCatalogueList) {
                     val balanced = HageziCatalog.profiles.firstOrNull { it.id == "balanced" }
                     if (balanced != null) {
-                        val lists = balanced.listIds.mapNotNull { HageziCatalog.byId[it] } +
-                            StevenBlackCatalog.UNIFIED
+                        val lists = balanced.allListIds.mapNotNull {
+                            HageziCatalog.profileSources[it]
+                        } + StevenBlackCatalog.UNIFIED
                         withContext(Dispatchers.Main) {
                             applyExclusiveProfile(lists, balanced.name)
                         }
@@ -219,7 +220,7 @@ class HageziViewModel @Inject constructor(
     }
 
     fun applyProfile(profile: HageziProfile) {
-        val lists = profile.listIds.mapNotNull { HageziCatalog.byId[it] }
+        val lists = profile.allListIds.mapNotNull { HageziCatalog.profileSources[it] }
         applyExclusiveProfile(lists, profile.name)
     }
 
@@ -238,7 +239,7 @@ class HageziViewModel @Inject constructor(
 
             // A profile owns the whole Multi/TIF group: remove the previous tiers first.
             val managedUrls = HageziCatalog.profileManagedIds
-                .mapNotNull { HageziCatalog.byId[it]?.url }
+                .mapNotNull { HageziCatalog.profileSources[it]?.url }
                 .toSet()
             config.hosts.items.removeAll { it.data in managedUrls }
             lists.forEach { list ->
@@ -293,7 +294,11 @@ class HageziViewModel @Inject constructor(
     fun disableAll() {
         if (_busy.value) return
         viewModelScope.launch(Dispatchers.IO) {
-            val urls = (HageziCatalog.all.map { it.url } + StevenBlackCatalog.all.map { it.url }).toSet()
+            val urls = (
+                HageziCatalog.all.map { it.url } +
+                    AdguardCatalog.all.map { it.url } +
+                    StevenBlackCatalog.all.map { it.url }
+                ).toSet()
             val isCatalogue: (String) -> Boolean = { url ->
                 url in urls || StevenBlackCatalog.legacyReplacement(url) != null
             }

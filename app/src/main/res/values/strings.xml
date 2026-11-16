@@ -398,6 +398,8 @@
     <string name="blocklist_preset_stevenblack_desc">Unified hosts file with base adware + malware</string>
     <string name="blocklist_preset_lowe_desc">Ad server blocking list</string>
     <string name="blocklist_preset_adguard_desc">AdGuard base filtering rules</string>
+    <string name="catalog_adguard_dns_desc">Native DNS list with about 190,000 ad and tracker domains. It comes with every protection profile from Balanced upwards.</string>
+    <string name="blocklist_preset_adguard_dns_desc">Native DNS list with about 190,000 ad and tracker domains: the one that adds the most on top of HaGeZi and StevenBlack</string>
     <string name="blocklist_preset_easylist_desc">The primary filter list that removes most adverts</string>
     <string name="blocklist_unknown_size">Unknown size</string>
     <string name="blocklist_unknown_entries">Unknown entries</string>
