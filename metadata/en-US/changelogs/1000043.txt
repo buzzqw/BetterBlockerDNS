@@ -1,0 +1,1 @@
+Stops browser filter rules such as "example.com##.ad" from blocking whole sites, and brings the AdGuard DNS filter to the Balanced and stronger profiles.
