@@ -305,6 +305,8 @@
     <string name="blocklists_compatibility_desc">Mantém bancos, pagamentos, lojas de apps e notificações push funcionando. Ativada por padrão.</string>
     <string name="blocklists_extra_ads_title">Anúncios extras — redes móveis</string>
     <string name="blocklists_adguard_dns_title">Filtro DNS do AdGuard</string>
+    <string name="catalog_other_sources_title">Outros catálogos</string>
+    <string name="catalog_other_sources_desc">Listas que não vêm do HaGeZi nem do StevenBlack, usadas pelos perfis de proteção a partir do «Equilibrado».</string>
     <string name="blocklists_adguard_dns_desc">Cerca de 190.000 hosts de anúncios e rastreadores, feita para o bloqueio por DNS. Vem com os perfis de proteção a partir do «Equilibrado».</string>
     <string name="blocklists_extra_ads_desc">Adiciona redes de anúncios móveis e rastreadores que as listas padrão não cobrem. Não remove os anúncios em vídeo do YouTube: eles vêm dos mesmos servidores dos vídeos.</string>
     <string name="blocklists_section_profile">Perfil</string>

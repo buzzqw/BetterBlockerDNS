@@ -234,6 +234,15 @@ fun HageziScreen(
                                 onToggle = { list, enabled -> hageziViewModel.toggle(list, enabled) }
                             )
                         }
+                        CatalogueSection(
+                            title = stringResource(R.string.catalog_other_sources_title),
+                            subtitle = stringResource(R.string.catalog_other_sources_desc),
+                            lists = AdguardCatalog.all,
+                            icon = Icons.Rounded.Public,
+                            enabledUrls = enabledUrls,
+                            busy = busy,
+                            onToggle = { list, enabled -> hageziViewModel.toggle(list, enabled) }
+                        )
                     }
                 }
             }

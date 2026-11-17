@@ -10,6 +10,20 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-17
 
+### Release 1.0.45
+- Version 1.0.45 lists the AdGuard DNS filter among the individual lists, so
+  the list that a protection profile downloaded is visible and marked as
+  enabled.
+
+### AdGuard DNS filter among the lists
+- The filter was applied by Balanced and the stronger profiles but had no row
+  in the list of sources: the profiles lit no switch and "Show individual
+  lists" did not mention it. It now appears under *Other catalogues*, with its
+  own switch that reads the same state the profile sets, so an enabled filter
+  shows up as enabled and can be turned off from there.
+
+## 2026-11-17
+
 ### Release 1.0.44
 - Version 1.0.44 puts the AdGuard DNS filter switch in Blocklists, where the
   other protection switches are.

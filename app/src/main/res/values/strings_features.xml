@@ -35,6 +35,8 @@
     <string name="blocklists_compatibility_desc">Keeps banking, payments, app stores and push notifications working. Enabled by default.</string>
     <string name="blocklists_extra_ads_title">Extra ads — mobile networks</string>
     <string name="blocklists_adguard_dns_title">AdGuard DNS filter</string>
+    <string name="catalog_other_sources_title">Other catalogues</string>
+    <string name="catalog_other_sources_desc">Lists that do not come from HaGeZi or StevenBlack, used by the protection profiles from Balanced upwards.</string>
     <string name="blocklists_adguard_dns_desc">About 190,000 ad and tracker hosts, built for DNS blocking. It comes with the protection profiles from Balanced upwards.</string>
     <string name="blocklists_extra_ads_desc">Adds mobile ad networks and trackers that the default lists do not cover. It cannot remove YouTube video ads: those come from the same servers as the videos.</string>
     <string name="blocklists_section_profile">Profile</string>

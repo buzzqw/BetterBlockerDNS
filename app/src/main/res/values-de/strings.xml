@@ -654,6 +654,8 @@
     <string name="blocklists_compatibility_desc">Hält Banking, Zahlungen, App-Stores und Push-Benachrichtigungen funktionsfähig. Standardmäßig aktiviert.</string>
     <string name="blocklists_extra_ads_title">Zusätzliche Werbung — Mobilfunknetze</string>
     <string name="blocklists_adguard_dns_title">AdGuard DNS-Filter</string>
+    <string name="catalog_other_sources_title">Weitere Kataloge</string>
+    <string name="catalog_other_sources_desc">Listen, die nicht von HaGeZi oder StevenBlack stammen und von den Schutzprofilen ab „Ausgewogen“ genutzt werden.</string>
     <string name="blocklists_adguard_dns_desc">Etwa 190.000 Werbe- und Tracker-Hosts, gebaut für das Blockieren per DNS. Sie kommt mit den Schutzprofilen ab „Ausgewogen“.</string>
     <string name="blocklists_extra_ads_desc">Ergänzt mobile Werbenetzwerke und Tracker, die die Standardlisten nicht abdecken. YouTube-Videowerbung kann sie nicht entfernen: Sie kommt von denselben Servern wie die Videos.</string>
     <string name="blocklists_section_profile">Profil</string>
