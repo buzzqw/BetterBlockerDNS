@@ -264,12 +264,30 @@ void check_tcp_socket(const struct arguments *args, const struct epoll_event *ev
         inet_ntop(AF_INET6, &s->tcp.daddr.ip6, dest, sizeof(dest));
     }
 
-    if (ev->events & EPOLLERR) {
+    // An error or a hang-up is signalled by epoll on every wait until the
+    // socket is closed. Without closing it here the loop kept re-entering on a
+    // flow that could not progress. A hung-up flow that still has data to
+    // drain is handled below first, so the last segment is not lost.
+    int terminal = (ev->events & EPOLLERR);
+    if (!terminal && (ev->events & EPOLLHUP)) {
+        int drainable = (ev->events & EPOLLIN) &&
+                        s->tcp.state != TCP_LISTEN &&
+                        get_send_window(&s->tcp) > 0;
+        terminal = !drainable;
+    }
+    if (terminal) {
         s->tcp.time = time(NULL);
         int serr = 0;
         socklen_t optlen = sizeof(int);
         getsockopt(s->socket, SOL_SOCKET, SO_ERROR, &serr, &optlen);
-        write_rst(args, &s->tcp);
+        if (s->tcp.state != TCP_CLOSING && s->tcp.state != TCP_CLOSE)
+            write_rst(args, &s->tcp);
+        s->tcp.state = TCP_CLOSING;
+        if (s->socket >= 0) {
+            if (close(s->socket) != 0)
+                log_android(ANDROID_LOG_WARN, "Failed to close socket %d: %s", s->socket, strerror(errno));
+            s->socket = -1;
+        }
     } else {
         if (s->tcp.state == TCP_LISTEN) {
             if (s->tcp.socks5 == SOCKS5_NONE) {

@@ -70,11 +70,18 @@ int check_udp_session(const struct arguments *args, struct ng_session *s, int se
 void check_udp_socket(const struct arguments *args, const struct epoll_event *ev) {
     struct ng_session *s = (struct ng_session *) ev->data.ptr;
 
-    if (ev->events & EPOLLERR) {
+    if (ev->events & (EPOLLERR | EPOLLHUP)) {
         s->udp.time = time(NULL);
         int serr = 0;
         socklen_t optlen = sizeof(int);
         getsockopt(s->socket, SOL_SOCKET, SO_ERROR, &serr, &optlen);
+        // Close now: a hung-up or failed socket keeps reporting the event on
+        // every epoll_wait and would spin the loop until the cleanup pass.
+        if (s->socket >= 0) {
+            if (close(s->socket) != 0)
+                log_android(ANDROID_LOG_WARN, "Failed to close UDP socket %d: %s", s->socket, strerror(errno));
+            s->socket = -1;
+        }
         s->udp.state = UDP_FINISHING;
     } else if (ev->events & EPOLLIN) {
         s->udp.time = time(NULL);

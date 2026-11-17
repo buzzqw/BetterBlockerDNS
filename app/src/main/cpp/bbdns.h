@@ -57,6 +57,10 @@
 #define EPOLL_TIMEOUT 3600
 #define EPOLL_EVENTS 20
 #define EPOLL_MIN_CHECK 100
+// A socket that keeps signalling events without forwarding a packet must not
+// spin the event loop: after this many iterations the thread yields.
+#define STALL_LIMIT 20
+#define STALL_SLEEP_US 1000
 
 #define TUN_YIELD 10 // packets
 

@@ -57,7 +57,7 @@ int check_icmp_session(const struct arguments *args, struct ng_session *s, int s
 void check_icmp_socket(const struct arguments *args, const struct epoll_event *ev) {
     struct ng_session *s = (struct ng_session *) ev->data.ptr;
 
-    if (ev->events & EPOLLERR) {
+    if (ev->events & (EPOLLERR | EPOLLHUP)) {
         s->icmp.time = time(NULL);
         int serr = 0;
         socklen_t optlen = sizeof(int);

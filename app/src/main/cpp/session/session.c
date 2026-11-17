@@ -80,6 +80,8 @@ void *handle_events(void *a) {
     }
 
     long long last_check = 0;
+    long long last_packets = -1;
+    int stalled = 0;
     while (!args->ctx->stopping) {
         int recheck = 0;
         int timeout = EPOLL_TIMEOUT;
@@ -109,8 +111,10 @@ void *handle_events(void *a) {
         STAT_SET(STAT_SESSIONS_ICMP, isessions);
 
         long long ms = get_ms();
+        int checked = 0;
         if (ms - last_check > EPOLL_MIN_CHECK) {
             last_check = ms;
+            checked = 1;
 
             // Lock mutex before accessing/modifying session list to prevent race with clear()
             if (pthread_mutex_lock(&args->ctx->lock)) {
@@ -163,9 +167,17 @@ void *handle_events(void *a) {
 
                 pthread_mutex_unlock(&args->ctx->lock);
             }
-        } else {
-            recheck = 1;
         }
+
+        // Block no longer than the next cleanup pass. Restarting the whole
+        // EPOLL_MIN_CHECK interval on every iteration let a socket that stays
+        // readable spin this loop at thousands of wake-ups per second.
+        long long until_check = EPOLL_MIN_CHECK - (ms - last_check);
+        if (until_check < 1)
+            until_check = 1;
+        long long wait = (checked ? (long long) timeout * 1000 : until_check);
+        if (recheck && wait > EPOLL_MIN_CHECK)
+            wait = EPOLL_MIN_CHECK;
 
         struct epoll_event ev[EPOLL_EVENTS];
         // epoll_wait runs unlocked: a jni_clear_sessions() meanwhile frees the
@@ -174,7 +186,7 @@ void *handle_events(void *a) {
         STAT_ADD(STAT_LOOPS, 1);
         if (recheck)
             STAT_ADD(STAT_RECHECK, 1);
-        int ready = epoll_wait(epoll_fd, ev, EPOLL_EVENTS, recheck ? EPOLL_MIN_CHECK : timeout * 1000);
+        int ready = epoll_wait(epoll_fd, ev, EPOLL_EVENTS, (int) wait);
         if (ready == 0)
             STAT_ADD(STAT_IDLE, 1);
 
@@ -209,10 +221,18 @@ void *handle_events(void *a) {
                     if (session->protocol == IPPROTO_ICMP || session->protocol == IPPROTO_ICMPV6)
                         check_icmp_socket(args, &ev[i]);
                     else if (session->protocol == IPPROTO_UDP) {
-                        int count = 0;
-                        while (count < UDP_YIELD && !args->ctx->stopping && !(ev[i].events & EPOLLERR) && (ev[i].events & EPOLLIN) && is_readable(session->socket)) {
-                            count++;
+                        // An error or a hang-up is terminal: check_udp_socket
+                        // marks the session finishing so the cleanup pass
+                        // closes the socket. Skipping it here left the fd
+                        // reporting EPOLLERR forever and spun this loop.
+                        if (ev[i].events & (EPOLLERR | EPOLLHUP))
                             check_udp_socket(args, &ev[i]);
+                        else {
+                            int count = 0;
+                            while (count < UDP_YIELD && !args->ctx->stopping && (ev[i].events & EPOLLIN) && is_readable(session->socket)) {
+                                count++;
+                                check_udp_socket(args, &ev[i]);
+                            }
                         }
                     } else if (session->protocol == IPPROTO_TCP)
                         check_tcp_socket(args, &ev[i], epoll_fd);
@@ -227,6 +247,22 @@ void *handle_events(void *a) {
 
             if (error)
                 break;
+        }
+
+        // Safety net: a socket that keeps reporting events without moving a
+        // packet must not turn this thread into a busy loop. Healthy traffic
+        // always changes these counters, idle periods have no events at all.
+        long long packets = __atomic_load_n(&ng_stats[STAT_TUN_IN], __ATOMIC_RELAXED) +
+                            __atomic_load_n(&ng_stats[STAT_TUN_OUT], __ATOMIC_RELAXED);
+        if (packets != last_packets) {
+            stalled = 0;
+            last_packets = packets;
+        } else if (ready > 0) {
+            stalled++;
+            if (stalled > STALL_LIMIT) {
+                usleep(STALL_SLEEP_US);
+                stalled = STALL_LIMIT;
+            }
         }
     }
 

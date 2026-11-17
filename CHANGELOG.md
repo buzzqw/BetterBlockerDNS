@@ -10,6 +10,27 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-17
 
+### Release 1.0.46
+- Version 1.0.46 keeps protection steady and quiet in the situations that used
+  to heat the phone and drain the battery: long downloads, connections that
+  the other side closes, and frequent network switches.
+
+### A connection that closes no longer slows the phone down
+- When a connection was closed or failed at the other end, the tunnel could
+  keep the processor busy for many minutes, which made the phone warm and ate
+  battery until the connection timed out. The tunnel now closes such a
+  connection immediately, and pauses instead of working in vain if a
+  connection stops moving data.
+- Long downloads and streaming are not affected: traffic keeps flowing as
+  before.
+
+### One reset per network change
+- Android reports the same network switch more than once, so the tunnel reset
+  the open connections twice and the battery log filled with duplicate lines.
+  The repeated report is now ignored.
+
+## 2026-11-17
+
 ### Release 1.0.45
 - Version 1.0.45 lists the AdGuard DNS filter among the individual lists, so
   the list that a protection profile downloaded is visible and marked as

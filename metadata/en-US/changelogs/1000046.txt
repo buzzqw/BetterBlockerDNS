@@ -1,0 +1,1 @@
+Connections closed or failed at the other end no longer keep the processor busy, and a network switch resets the open connections only once. Protection and speed are unchanged.

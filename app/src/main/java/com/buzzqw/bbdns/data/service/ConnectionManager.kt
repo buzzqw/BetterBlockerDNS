@@ -24,6 +24,7 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.os.SystemClock
 import androidx.core.content.ContextCompat
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.service.vpn.network.util.NetworkConstants
@@ -58,18 +59,31 @@ class ConnectionStateManager @Inject constructor(
 ) {
     private var currentConnectionType: NetworkManager.ConnectionType = networkManager.getCurrentConnectionType()
 
+    /** Type and uptime of the last handled change, to drop duplicate reports. */
+    private var lastChangeType: NetworkManager.ConnectionType? = null
+    private var lastChangeAt = 0L
+
     fun getCurrentConnectionType(): NetworkManager.ConnectionType {
         return currentConnectionType
     }
 
     fun updateConnectionType(connectionType: NetworkManager.ConnectionType) {
+        val now = SystemClock.elapsedRealtime()
+        // Android reports a single switch more than once (for example the
+        // physical network and the VPN default network). The sessions are
+        // already cleared, so a repeated report of the same type within two
+        // seconds is the same change and is ignored.
+        if (connectionType == lastChangeType && now - lastChangeAt < 2000L) return
+        lastChangeType = connectionType
+        lastChangeAt = now
+
         currentConnectionType = connectionType
         BatteryDiagnostics.event("network_change", "type=${connectionType.name.lowercase()}")
         try {
             val clearSessionsServiceIntent = Intent(context, VpnConnectionServer::class.java).apply {
                 action = NetworkConstants.ACTION_CLEAR_SESSIONS
             }
-            
+
             // Use regular startService for session clearing since it's a quick operation
             // that doesn't require foreground service capabilities
             context.startService(clearSessionsServiceIntent)
