@@ -10,6 +10,12 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-17
 
+### One component update held back
+- The newest release of one core Android support component needs the app to be
+  built against a newer Android API level than it uses today. It stays on the
+  previous release for now, so the app keeps building and running exactly as
+  before; it will follow when the project moves to the newer API level.
+
 ### Release 1.0.47
 - Version 1.0.47 moves the app onto the current Android components it depends
   on. Protection, blocklists and settings keep working exactly as before, and
