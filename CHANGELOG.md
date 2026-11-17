@@ -10,6 +10,15 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-17
 
+### Current Android libraries on board
+- The app now uses the latest versions of the Android components it relies on
+  for saved settings, background work, the local database and core system
+  support. Protection, blocklists and settings keep working exactly as before,
+  with the fixes and efficiency gains those components bring.
+- No new permission or setting appears, and existing data is kept as it is.
+- The automated check that builds every change now runs on current build
+  tooling, so future versions keep being verified reliably.
+
 ### Release 1.0.46
 - Version 1.0.46 keeps protection steady and quiet in the situations that used
   to heat the phone and drain the battery: long downloads, connections that
