@@ -10,6 +10,11 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-17
 
+### Release 1.0.48
+- Version 1.0.48 brings the app onto current Android components without
+  changing how protection, blocklists and settings work on the Android
+  versions the app already supports.
+
 ### One component update held back
 - The newest release of one core Android support component needs the app to be
   built against a newer Android API level than it uses today. It stays on the
