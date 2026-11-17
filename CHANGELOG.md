@@ -21,11 +21,6 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
   previous release for now, so the app keeps building and running exactly as
   before; it will follow when the project moves to the newer API level.
 
-### Release 1.0.47
-- Version 1.0.47 moves the app onto the current Android components it depends
-  on. Protection, blocklists and settings keep working exactly as before, and
-  the update carries the fixes and efficiency gains those components bring.
-
 ### Current Android libraries on board
 - The app now uses the latest versions of the Android components it relies on
   for saved settings, background work, the local database and core system
