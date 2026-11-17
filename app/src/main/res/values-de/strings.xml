@@ -653,6 +653,8 @@
     <string name="blocklists_compatibility_title">Kompatibilitäts-Positivliste</string>
     <string name="blocklists_compatibility_desc">Hält Banking, Zahlungen, App-Stores und Push-Benachrichtigungen funktionsfähig. Standardmäßig aktiviert.</string>
     <string name="blocklists_extra_ads_title">Zusätzliche Werbung — Mobilfunknetze</string>
+    <string name="blocklists_adguard_dns_title">AdGuard DNS-Filter</string>
+    <string name="blocklists_adguard_dns_desc">Etwa 190.000 Werbe- und Tracker-Hosts, gebaut für das Blockieren per DNS. Sie kommt mit den Schutzprofilen ab „Ausgewogen“.</string>
     <string name="blocklists_extra_ads_desc">Ergänzt mobile Werbenetzwerke und Tracker, die die Standardlisten nicht abdecken. YouTube-Videowerbung kann sie nicht entfernen: Sie kommt von denselben Servern wie die Videos.</string>
     <string name="blocklists_section_profile">Profil</string>
     <string name="active_lists_title">Blockierte Domains</string>

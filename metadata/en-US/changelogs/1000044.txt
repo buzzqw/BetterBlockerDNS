@@ -1,0 +1,1 @@
+The AdGuard DNS filter now has its own switch in Blocklists, next to the other protection switches, instead of hiding in the presets of the add-a-list dialog.

@@ -85,6 +85,7 @@ import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.Host
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.RuleDatabaseUpdateWorker
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.BlocklistCoverage
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.BlocklistSelection
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.AdguardCatalog
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.ExtraAdsPreset
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.HageziCatalog
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.HageziProfile
@@ -300,6 +301,7 @@ fun BlocklistsScreen(
                     toAdd.any { it in AppConstants.DnsBlockLists.SOCIAL_PROTECTION } -> "Social Media"
                     toAdd.any { it in AppConstants.DnsBlockLists.ADULT_PROTECTION } -> "Adult Content"
                     toAdd.any { it in AppConstants.DnsBlockLists.GAMBLING_PROTECTION } -> "Gambling"
+                    toAdd.any { it == AdguardCatalog.DNS_FILTER.url } -> AdguardCatalog.DNS_FILTER.name
                     else -> "Custom Rules"
                 }
                 blockListViewModel.startDownload(ruleName)
@@ -693,6 +695,18 @@ fun BlocklistsScreen(
                 }
             )
 
+            val adguardDnsEnabled = localSwitchStates["ADGUARD_DNS"]
+                ?: (AdguardCatalog.DNS_FILTER.url in enabledCatalogueUrls)
+            SettingsBox(
+                title = stringResource(id = R.string.blocklists_adguard_dns_title),
+                description = stringResource(id = R.string.blocklists_adguard_dns_desc),
+                icon = IconType.VectorIcon(Icons.Rounded.Security),
+                actionType = SettingType.SWITCH,
+                variable = adguardDnsEnabled,
+                onSwitchEnabled = {
+                    updateList(it, listOf(AdguardCatalog.DNS_FILTER.url), "ADGUARD_DNS")
+                }
+            )
             val extraAdsEnabled = localSwitchStates["EXTRA_ADS"]
                 ?: ExtraAdsPreset.isEnabled(config)
             SettingsBox(

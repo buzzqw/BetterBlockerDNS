@@ -653,6 +653,8 @@
     <string name="blocklists_compatibility_title">Lista de permitidos de compatibilidad</string>
     <string name="blocklists_compatibility_desc">Mantiene funcionando la banca, los pagos, las tiendas de apps y las notificaciones push. Activada por defecto.</string>
     <string name="blocklists_extra_ads_title">Anuncios extra — redes móviles</string>
+    <string name="blocklists_adguard_dns_title">Filtro DNS de AdGuard</string>
+    <string name="blocklists_adguard_dns_desc">Unos 190.000 hosts de publicidad y rastreo, pensada para el bloqueo por DNS. Viene con los perfiles de protección desde «Equilibrado».</string>
     <string name="blocklists_extra_ads_desc">Añade redes publicitarias móviles y rastreadores que las listas predeterminadas no cubren. No puede quitar los anuncios de vídeo de YouTube: vienen de los mismos servidores que los vídeos.</string>
     <string name="blocklists_section_profile">Perfil</string>
     <string name="active_lists_title">Dominios bloqueados</string>

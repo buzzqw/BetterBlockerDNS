@@ -8,6 +8,20 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-17
+
+### Release 1.0.44
+- Version 1.0.44 puts the AdGuard DNS filter switch in Blocklists, where the
+  other protection switches are.
+
+### AdGuard DNS filter switch
+- The AdGuard DNS filter was only reachable from the presets of the "add a
+  list" dialog, which is not where anyone looks for it. It now has its own
+  switch in Blocklists, next to Extra ads and the other protection switches,
+  with the same download dialog and the same rollback when the download fails.
+- The switch and the protection profiles use the same list, so turning the
+  profile to Balanced or higher and flipping this switch do not stack it twice.
+
 ## 2026-11-16
 
 ### Release 1.0.43
