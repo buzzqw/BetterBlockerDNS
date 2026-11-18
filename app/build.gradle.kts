@@ -179,6 +179,17 @@ androidComponents {
     }
 }
 
+// AGP 9.5's lint crashes on JDK 21 while converting a changed Kotlin file to
+// UAST ("AsyncExecutionService.getService must not return null"). CI and the
+// release instructions run on JDK 17, where lint works; disabling only the
+// release-blocking lint tasks on newer JDKs keeps local release builds
+// possible without weakening the check that gates every push.
+if (JavaVersion.current() > JavaVersion.VERSION_17) {
+    tasks.matching { it.name.startsWith("lintVital") }.configureEach {
+        enabled = false
+    }
+}
+
 // Build the per-app language list from the translated resource folders:
 // adding values-<locale>/strings.xml is enough to expose a new language in the
 // picker and in Android's system settings.
@@ -271,6 +282,8 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.dnsjava)
 
+    // Unit tests: the DNS/firewall helpers are plain Kotlin and run on the JVM.
+    testImplementation(libs.junit)
 }
 
 // Hilt 2.57 validates Kotlin metadata with kotlin-metadata-jvm 2.2.x, which

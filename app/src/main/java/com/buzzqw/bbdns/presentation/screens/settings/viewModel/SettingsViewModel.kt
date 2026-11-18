@@ -141,6 +141,15 @@ class SettingsViewModel @Inject constructor(
                             firewallManager.updateHttpSettings()
                         }
 
+                        if (oldSettings.blockDohBypass != newSettings.blockDohBypass ||
+                            oldSettings.safeSearch != newSettings.safeSearch
+                        ) {
+                            firewallManager.updateDnsProtection(
+                                newSettings.blockDohBypass,
+                                newSettings.safeSearch
+                            )
+                        }
+
                         onSuccess?.invoke()
                     },
                     ifFailure = { error ->

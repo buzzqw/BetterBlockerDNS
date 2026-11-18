@@ -38,6 +38,7 @@ import com.buzzqw.bbdns.domain.usecase.preferences.PreferencesUseCases
 import com.buzzqw.bbdns.service.firewall.handler.RuleHandler
 import com.buzzqw.bbdns.service.firewall.utils.FirewallCounters
 import com.buzzqw.bbdns.service.firewall.utils.FirewallStatus
+import com.buzzqw.bbdns.service.firewall.utils.DnsProtectionState
 import com.buzzqw.bbdns.service.firewall.utils.SessionInvalidator
 import com.buzzqw.bbdns.service.utils.manager.FirewallManager
 import com.buzzqw.bbdns.service.utils.manager.ProtectionPause
@@ -118,8 +119,16 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
     override fun updateHttpSettings() {
         ruleManager.updateHttpSettings()
     }
+
+    override fun updateDnsProtection(blockDohBypass: Boolean, safeSearch: Boolean) {
+        DnsProtectionState.setDohBypassConfigured(blockDohBypass)
+        if (::tunnelManager.isInitialized) {
+            tunnelManager.setSafeSearchEnabled(safeSearch)
+        }
+    }
     
     override fun setDnsBlocking(enabled: Boolean) {
+        DnsProtectionState.setDnsBlockingEnabled(enabled)
         // Turning blocking back on also ends a pending pause.
         if (enabled && ProtectionState.isPaused) {
             ProtectionPause.resume()
@@ -130,7 +139,10 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
 
     override fun pauseProtection(minutes: Int) {
         val rules = ruleManager
-        ProtectionPause.pause(appContext, minutes) { enabled -> rules.setDnsBlocking(enabled) }
+        ProtectionPause.pause(appContext, minutes) { enabled ->
+            DnsProtectionState.setDnsBlockingEnabled(enabled)
+            rules.setDnsBlocking(enabled)
+        }
         refreshNotification()
     }
 
@@ -327,6 +339,7 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
                 appChangeReceiver.register(this)
                 // Honour a pause that was running when the service was killed.
                 ProtectionPause.restore(appContext) { enabled ->
+                    DnsProtectionState.setDnsBlockingEnabled(enabled)
                     ruleManager.setDnsBlocking(enabled)
                 }
                 BbdsWidgetProvider.updateAll(appContext)
@@ -343,6 +356,8 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
         var dnsServerV4Alt = "149.112.112.112"
         var dnsServerV6 = "2620:fe::fe"
         var dohUrl: String? = null
+        var blockDohBypass = false
+        var safeSearch = false
         runBlocking {
             preferencesUseCases.loadSettings.execute().fold(
                 ifSuccess = {
@@ -356,10 +371,16 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
                     dnsServerV4Alt = it.dnsServer2
                     dnsServerV6 = it.dnsServer1v6
                     dohUrl = if (it.dohEnabled && it.dohUrl.isNotBlank()) it.dohUrl else null
+                    blockDohBypass = it.blockDohBypass
+                    safeSearch = it.safeSearch
                 },
                 ifFailure = { Logger.error("Cannot read DNS settings: ${it.message}") }
             )
         }
+
+        // The rule chain and the tunnel are created from the saved settings:
+        // changing the switches later goes through updateDnsProtection().
+        DnsProtectionState.setDohBypassConfigured(blockDohBypass)
 
         // Initialize TunnelManager with the injected RuleHandler and user's DNS settings
         tunnelManager = TunnelManager(
@@ -368,6 +389,7 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
             dnsServerV6,
             dnsServerV4Alt,
             dohUrl,
+            safeSearch,
         )
         Logger.info("Tunnel Manager DNS mode: ${if (dohUrl != null) "DoH ($dohUrl)" else "plain ($dnsServerV4 / $dnsServerV4Alt)"}")
         

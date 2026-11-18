@@ -568,6 +568,7 @@
     <string name="block_reason_source_list">Lista</string>
     <string name="block_reason_source_user_rule">Tua regola</string>
     <string name="block_reason_source_custom">Dominio personalizzato</string>
+    <string name="block_reason_source_dns_protection">Protezione bypass DNS</string>
     <string name="block_reason_note_custom_wins">I blocchi dei domini personalizzati prevalgono sulle regole di consenso. Rimuovi la regola in Gestione domini per sbloccarlo.</string>
     <string name="block_reason_note_unreadable">Non ancora scaricate, quindi non analizzate: %1$s</string>
     <string name="block_reason_allow">Consenti questo dominio</string>
@@ -596,6 +597,7 @@
     <string name="settings_language_option_system">Predefinita di sistema</string>
     <string name="dns_resolver_section_server">Resolver</string>
     <string name="dns_resolver_section_encrypted">DNS cifrato</string>
+    <string name="dns_resolver_section_hardening">Protezione del filtro</string>
     <string name="dns_resolver_section_android">Android</string>
     <string name="dns_resolver_server_title">Server DNS</string>
     <string name="dns_resolver_server_custom">Personalizzato: %1$s</string>
@@ -607,6 +609,10 @@
     <string name="dns_resolver_private_dns_desc">Apri le impostazioni del DNS privato di Android. Tienilo disattivato perché le richieste DNS passino da BBDNS.</string>
     <string name="dns_resolver_private_dns_doh_desc">Disattiva il DNS privato nelle impostazioni di Android mentre usi il DoH di BBDNS, altrimenti il resolver di sistema potrebbe aggirare l\'app.</string>
     <string name="dns_resolver_private_dns_unavailable">Le impostazioni del DNS privato non sono disponibili su questo dispositivo. Apri Impostazioni → Rete e internet → DNS privato.</string>
+    <string name="dns_resolver_block_bypass_title">Blocca bypass DNS</string>
+    <string name="dns_resolver_block_bypass_desc">Chiude il DNS over TLS e gli endpoint DNS over HTTPS più noti: browser e app non possono risolvere nomi fuori dal filtro. Disattiva prima il DNS privato di Android.</string>
+    <string name="dns_resolver_safe_search_title">SafeSearch</string>
+    <string name="dns_resolver_safe_search_desc">Forza Google, Bing e YouTube in SafeSearch o modalità limitata tramite DNS, senza decifrare il traffico. Disattivalo se una pagina non si carica più.</string>
     <string name="blocklists_section_presets">Preimpostazioni di protezione</string>
     <string name="blocklists_section_content">Filtri dei contenuti</string>
     <string name="blocklists_section_advanced">Avanzate</string>

@@ -58,7 +58,9 @@ data class SettingsBackup(
     val trackerProtection: Boolean,
     val autoUpdateInterval: Long,
     val dohEnabled: Boolean = false,
-    val dohUrl: String = "https://cloudflare-dns.com/dns-query"
+    val dohUrl: String = "https://cloudflare-dns.com/dns-query",
+    val blockDohBypass: Boolean = false,
+    val safeSearch: Boolean = false
 )
 
 @Serializable

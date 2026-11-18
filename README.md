@@ -139,6 +139,12 @@ suggestions go to the [issue tracker](https://github.com/buzzqw/BetterBlockerDNS
 - **Plain DNS resolvers**: Google, Cloudflare, Quad9, AdGuard, OpenDNS,
   CleanBrowsing, DNS.SB, Control D, DNS4EU and Yandex, in their standard and
   filtered variants, or your own servers.
+- **DNS bypass protection**: optionally closes DNS-over-TLS and the known
+  DNS-over-HTTPS endpoints, so browsers and apps cannot resolve names outside
+  the filter. Android Private DNS stays off.
+- **SafeSearch**: optionally answers Google, Bing and YouTube with the
+  addresses that force SafeSearch and YouTube restricted mode. It is a DNS
+  redirect: no certificate, no traffic decryption.
 
 ### Control
 - **Per-app rules**: block Wi-Fi or mobile data for a single app, let an app

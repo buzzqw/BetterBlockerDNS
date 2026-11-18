@@ -33,6 +33,7 @@ import com.buzzqw.bbdns.service.firewall.rule.AppRule
 import com.buzzqw.bbdns.service.firewall.handler.RuleHandler
 import com.buzzqw.bbdns.service.firewall.rule.CustomDomainRule
 import com.buzzqw.bbdns.service.firewall.rule.DNSRule
+import com.buzzqw.bbdns.service.firewall.rule.DohBypassRule
 import com.buzzqw.bbdns.service.firewall.rule.FilterRule
 import com.buzzqw.bbdns.service.firewall.rule.HTTPRule
 import com.buzzqw.bbdns.service.firewall.rule.LogRule
@@ -174,6 +175,12 @@ object RulesModule {
 
     @Provides
     @Singleton
+    fun provideDohBypassRule(): DohBypassRule {
+        return DohBypassRule()
+    }
+
+    @Provides
+    @Singleton
     fun provideCustomDomainRule(
         customDomainRepository: CustomDomainRepository
     ): CustomDomainRule {
@@ -189,12 +196,13 @@ object RulesModule {
         httpRule: HTTPRule,
         screenRule: ScreenRule,
         DNSRule: DNSRule,
+        dohBypassRule: DohBypassRule,
         customDomainRule: CustomDomainRule,
         logUseCases: LogUseCases,
         preferencesUseCases: PreferencesUseCases,
         networkChangeReceiver: NetworkChangeReceiver,
         @ApplicationContext context: Context
     ): RuleHandler {
-        return RuleHandler(listOf(appRule, DNSRule, customDomainRule, filterRule, screenRule, httpRule, logRule), logUseCases, preferencesUseCases, networkChangeReceiver, context)
+        return RuleHandler(listOf(appRule, dohBypassRule, DNSRule, customDomainRule, filterRule, screenRule, httpRule, logRule), logUseCases, preferencesUseCases, networkChangeReceiver, context)
     }
 }

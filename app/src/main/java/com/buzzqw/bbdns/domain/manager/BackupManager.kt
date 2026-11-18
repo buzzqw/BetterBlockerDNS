@@ -85,7 +85,9 @@ class BackupManager @Inject constructor(
                     trackerProtection = settings.trackerProtection,
                     autoUpdateInterval = settings.autoUpdateInterval,
                     dohEnabled = settings.dohEnabled,
-                    dohUrl = settings.dohUrl
+                    dohUrl = settings.dohUrl,
+                    blockDohBypass = settings.blockDohBypass,
+                    safeSearch = settings.safeSearch
                 )
             } else {
                 SettingsBackup(
@@ -115,7 +117,9 @@ class BackupManager @Inject constructor(
                     trackerProtection = false,
                     autoUpdateInterval = 24 * 60 * 60 * 1000L,
                     dohEnabled = false,
-                    dohUrl = "https://cloudflare-dns.com/dns-query"
+                    dohUrl = "https://cloudflare-dns.com/dns-query",
+                    blockDohBypass = false,
+                    safeSearch = false
                 )
             }
 
@@ -237,7 +241,9 @@ class BackupManager @Inject constructor(
                     trackerProtection = s.trackerProtection,
                     autoUpdateInterval = s.autoUpdateInterval,
                     dohEnabled = s.dohEnabled,
-                    dohUrl = s.dohUrl
+                    dohUrl = s.dohUrl,
+                    blockDohBypass = s.blockDohBypass,
+                    safeSearch = s.safeSearch
                 )
                 onSettingsRestored(settings)
             }

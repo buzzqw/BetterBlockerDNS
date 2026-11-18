@@ -20,8 +20,10 @@ package com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.domain.model.CustomDomain
 import com.buzzqw.bbdns.domain.repository.CustomDomainRepository
+import com.buzzqw.bbdns.domain.usecase.preferences.PreferencesUseCases
 import com.buzzqw.bbdns.presentation.config
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.RuleDatabase.Companion.HostMatchType
+import com.buzzqw.bbdns.service.firewall.utils.DohBypass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
@@ -60,6 +62,9 @@ enum class BlockRuleSource {
 
     /** A rule from the in-app custom domain management screen. */
     CUSTOM_DOMAIN,
+
+    /** The built-in DNS bypass protection (DoH/DoT endpoints). */
+    DNS_PROTECTION,
 }
 
 /**
@@ -99,6 +104,7 @@ data class BlockReason(
 class BlockReasonFinder @Inject constructor(
     private val ruleDatabase: RuleDatabase,
     private val customDomainRepository: CustomDomainRepository,
+    private val preferencesUseCases: PreferencesUseCases,
 ) {
 
     /**
@@ -111,6 +117,14 @@ class BlockReasonFinder @Inject constructor(
         onProgress: suspend (scanned: Int, total: Int) -> Unit = { _, _ -> },
     ): BlockReason = withContext(Dispatchers.IO) {
         val host = normalize(domain)
+        // The DNS bypass switches are saved with the other settings, not in
+        // config.hosts: read them so "why was this blocked?" can explain a DoH
+        // or DoT endpoint that the built-in protection closed.
+        val blockDohBypass = preferencesUseCases.loadSettings.execute().fold(
+            ifSuccess = { it.blockDohBypass },
+            ifFailure = { false }
+        )
+        val dnsBypassBlocked = blockDohBypass && DohBypass.matches(host)
         // The fast source index lives in RuleDatabase. Make sure the lists have
         // been parsed even when the user opens the log before starting a VPN.
         if (config.hosts.items.any { it.state != HostState.IGNORE } &&
@@ -121,6 +135,15 @@ class BlockReasonFinder @Inject constructor(
         val blockedBy = mutableListOf<BlockMatch>()
         val allowedBy = mutableListOf<BlockMatch>()
         val unreadable = mutableListOf<String>()
+
+        if (dnsBypassBlocked) {
+            blockedBy += BlockMatch(
+                BlockRuleSource.DNS_PROTECTION,
+                "DNS bypass protection",
+                host,
+                BlockMatchType.EXACT,
+            )
+        }
 
         // In-app custom domain rules: blocks are checked before allows and both
         // override the lists (see CustomDomainRule).
@@ -146,6 +169,7 @@ class BlockReasonFinder @Inject constructor(
         val lists = config.hosts.items.filter { it.state != HostState.IGNORE }
         val registryBlocked = ruleDatabase.isBlocked(host)
         val isBlocked = when {
+            dnsBypassBlocked -> true
             customBlocks.isNotEmpty() -> true
             customAllows.isNotEmpty() -> false
             allowedBy.isNotEmpty() -> false

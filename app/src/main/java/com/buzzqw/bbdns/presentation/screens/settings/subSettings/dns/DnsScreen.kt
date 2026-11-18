@@ -21,6 +21,8 @@ package com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns
 import CustomDnsDialog
 import android.widget.Toast
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Block
+import androidx.compose.material.icons.rounded.ChildCare
 import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Security
@@ -115,6 +117,29 @@ fun DnsScreen(
                     }
                 )
             }
+        }
+        settingsContainer(titleRes = R.string.dns_resolver_section_hardening) {
+            SettingsBox(
+                title = stringResource(R.string.dns_resolver_block_bypass_title),
+                description = stringResource(R.string.dns_resolver_block_bypass_desc),
+                icon = IconType.VectorIcon(Icons.Rounded.Block),
+                actionType = SettingType.SWITCH,
+                variable = settings.settings.value.blockDohBypass,
+                onSwitchEnabled = { enabled ->
+                    settings.update(settings.settings.value.copy(blockDohBypass = enabled))
+                }
+            )
+
+            SettingsBox(
+                title = stringResource(R.string.dns_resolver_safe_search_title),
+                description = stringResource(R.string.dns_resolver_safe_search_desc),
+                icon = IconType.VectorIcon(Icons.Rounded.ChildCare),
+                actionType = SettingType.SWITCH,
+                variable = settings.settings.value.safeSearch,
+                onSwitchEnabled = { enabled ->
+                    settings.update(settings.settings.value.copy(safeSearch = enabled))
+                }
+            )
         }
         settingsContainer(titleRes = R.string.dns_resolver_section_android) {
             SettingsBox(

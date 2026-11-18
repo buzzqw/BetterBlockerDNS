@@ -27,6 +27,7 @@ import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.service.firewall.handler.RuleHandler
 import com.buzzqw.bbdns.service.firewall.handler.filterPacket
 import com.buzzqw.bbdns.service.firewall.model.FirewallResult
+import com.buzzqw.bbdns.service.firewall.utils.DnsFilterExclusions
 import com.buzzqw.bbdns.service.vpn.network.transport.tcp.TCPHeader
 import com.buzzqw.bbdns.service.vpn.network.transport.udp.UDPModel
 import com.buzzqw.bbdns.service.vpn.network.transport.udp.toUDPHeader
@@ -39,6 +40,7 @@ import com.buzzqw.bbdns.service.vpn.network.transport.ipv4.toIPv4Header
 import com.buzzqw.bbdns.service.vpn.network.transport.dns.DNSModel
 import com.buzzqw.bbdns.service.vpn.network.transport.dns.toDNSModel
 import com.buzzqw.bbdns.service.vpn.network.transport.udp.soarResponse
+import com.buzzqw.bbdns.service.vpn.network.util.SafeSearch
 import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -46,8 +48,19 @@ import java.net.InetAddress
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.LinkedHashMap
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.random.Random
+import org.xbill.DNS.AAAARecord
+import org.xbill.DNS.ARecord
+import org.xbill.DNS.DClass
+import org.xbill.DNS.Flags
+import org.xbill.DNS.Message
+import org.xbill.DNS.Name
+import org.xbill.DNS.Record
+import org.xbill.DNS.Section
+import org.xbill.DNS.Type
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -64,11 +77,15 @@ class TunnelManager(
     private val dnsServerV6: String = "2620:fe::fe",
     /** Secondary IPv4 resolver, used when the primary does not answer. */
     private val dnsServerV4Alt: String = "",
-    private val dohUrl: String? = null
+    private val dohUrl: String? = null,
+    safeSearchEnabled: Boolean = false
 ) {
 
     @Volatile
     private var contextPtr: Long = 0
+    @Volatile
+    private var safeSearchEnabled: Boolean = safeSearchEnabled
+    private val safeSearchCache = ConcurrentHashMap<String, SafeSearchAddress>()
     private val lock = Any()
     @Volatile
     private var isReleased = false
@@ -134,6 +151,11 @@ class TunnelManager(
     
     fun getMtu(): Int {
         return jni_get_mtu()
+    }
+
+    /** Turns SafeSearch DNS redirection on or off without restarting the VPN. */
+    fun setSafeSearchEnabled(enabled: Boolean) {
+        safeSearchEnabled = enabled
     }
     
     fun getProperty(name: String): String {
@@ -249,6 +271,12 @@ class TunnelManager(
                 val filterResult = filterPacket(udpHeader, ipHeader, ruleHandler, dnsModel)
                 val allowed = filterResult.first
                 val firewallResult = filterResult.third
+                val safeSearchTarget = if (isDnsPacket && rawDnsQuery != null && dnsModel != null &&
+                    safeSearchEnabled && isDnsQuery(rawDnsQuery) &&
+                    !DnsFilterExclusions.isExcluded(filterResult.second)
+                ) {
+                    SafeSearch.targetFor(dnsModel.domainName, dnsModel.queryType)
+                } else null
                 
                 // Handle DNS blocking with SOAR response
                 if (isDnsPacket && firewallResult == FirewallResult.DNS_BLOCKED) {
@@ -271,6 +299,19 @@ class TunnelManager(
                         Log.e("PacketFilter", "Error creating/sending SOAR response: ${e.message}", e)
                         false // Block packet on error
                     }
+                } else if (isDnsPacket && rawDnsQuery != null && dnsModel != null && safeSearchTarget != null) {
+                    // Answer with the SafeSearch address instead of forwarding the
+                    // query. Other record types and failures are handled by
+                    // scheduleSafeSearchResponse, which falls back to a normal
+                    // resolution so search keeps working.
+                    scheduleSafeSearchResponse(
+                        udpHeader,
+                        ipHeader,
+                        rawDnsQuery,
+                        safeSearchTarget,
+                        dnsModel.queryType
+                    )
+                    false
                 } else if (isDnsPacket && rawDnsQuery != null && dohUrl != null && isDnsQuery(rawDnsQuery)) {
                     // Resolve the query over HTTPS and inject the response into the TUN.
                     // The original UDP packet is blocked so it never reaches plain DNS.
@@ -334,6 +375,79 @@ class TunnelManager(
             } catch (e: Exception) {
                 Logger.error("DoH: failed to inject response: ${e.message}", e)
             }
+        }
+    }
+
+    private fun scheduleSafeSearchResponse(
+        udpHeader: UDPModel,
+        ipHeader: IPv4,
+        query: ByteArray,
+        target: String,
+        queryType: Int
+    ) {
+        if (contextPtr == 0L) return
+        dohScope.launch {
+            val payload = try {
+                val address = resolveSafeSearchAddress(target, queryType)
+                address?.let { SafeSearch.buildResponse(query, it) }
+            } catch (e: Exception) {
+                Logger.warn("SafeSearch: ${target} resolution failed: ${e.message}")
+                null
+            } ?: forwardQuery(query)
+
+            try {
+                val packet = handleDnsResponse(udpHeader, ipHeader, payload)
+                synchronized(lock) {
+                    if (!isReleased && contextPtr != 0L) {
+                        jni_send_complete_packet(contextPtr, packet)
+                    }
+                }
+            } catch (e: Exception) {
+                Logger.error("SafeSearch: failed to inject response: ${e.message}", e)
+            }
+        }
+    }
+
+    private fun resolveSafeSearchAddress(target: String, queryType: Int): InetAddress? {
+        val type = if (queryType == Type.AAAA) Type.AAAA else Type.A
+        val key = "$target/$type"
+        val now = System.currentTimeMillis()
+        safeSearchCache[key]?.let { entry ->
+            if (entry.expiresAt > now) return entry.address
+        }
+
+        val request = Message()
+        request.header.setID(Random.nextInt(1, 65535))
+        request.header.setFlag(Flags.RD.toInt())
+        request.addRecord(
+            Record.newRecord(Name.fromString("$target."), type, DClass.IN),
+            Section.QUESTION
+        )
+        val response = Message(forwardQuery(request.toWire()))
+        val answer = response.getSection(Section.ANSWER).firstOrNull { record ->
+            (type == Type.A && record is ARecord) || (type == Type.AAAA && record is AAAARecord)
+        } ?: return null
+        val address = when (answer) {
+            is ARecord -> answer.address
+            is AAAARecord -> answer.address
+            else -> return null
+        }
+        safeSearchCache[key] = SafeSearchAddress(address, now + SAFE_SEARCH_CACHE_MS)
+        return address
+    }
+
+    /**
+     * Resolves [query] the same way the normal path would, so an unexpected
+     * SafeSearch failure never leaves the client without an answer.
+     */
+    private fun forwardQuery(query: ByteArray): ByteArray {
+        val endpoint = dohUrl
+        if (endpoint != null) return resolveDns(endpoint, query)
+        return try {
+            fetchPlainDns(query)
+        } catch (e: Exception) {
+            Logger.warn("SafeSearch: plain DNS fallback failed: ${e.message}")
+            servFail(query)
         }
     }
 
@@ -480,6 +594,8 @@ class TunnelManager(
 
     private data class DohCacheEntry(val expiresAt: Long, val response: ByteArray)
 
+    private data class SafeSearchAddress(val address: InetAddress, val expiresAt: Long)
+
     fun release() {
         synchronized(lock) {
             if (!isReleased) {
@@ -543,6 +659,8 @@ class TunnelManager(
         private const val PLAIN_DNS_TIMEOUT_MS = 1_500
         private const val DOH_CACHE_TTL_MS = 60_000L
         private const val DOH_CACHE_MAX_ENTRIES = 256
+        /** SafeSearch targets change rarely: five minutes avoids a lookup per query. */
+        private const val SAFE_SEARCH_CACHE_MS = 300_000L
         private val DNS_MEDIA_TYPE = "application/dns-message".toMediaType()
 
         init {

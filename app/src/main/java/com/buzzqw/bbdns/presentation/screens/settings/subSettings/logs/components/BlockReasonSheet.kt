@@ -414,6 +414,7 @@ private fun BlockRuleSource.labelRes(): Int = when (this) {
     BlockRuleSource.LIST -> R.string.block_reason_source_list
     BlockRuleSource.USER_RULE -> R.string.block_reason_source_user_rule
     BlockRuleSource.CUSTOM_DOMAIN -> R.string.block_reason_source_custom
+    BlockRuleSource.DNS_PROTECTION -> R.string.block_reason_source_dns_protection
 }
 
 private fun copyDomain(context: Context, domain: String) {

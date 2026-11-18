@@ -8,6 +8,39 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-18
+
+### Release 1.0.49
+- Version 1.0.49 adds optional protection against encrypted DNS that bypasses
+  the filter, and optional SafeSearch for Google, Bing and YouTube. Both
+  switches are off by default, apply without restarting protection and are
+  saved in backups.
+
+### DNS bypass protection
+- A new **Block DNS bypass** switch in *DNS resolver* closes the encrypted
+  resolvers that could skip the filter: DNS-over-TLS on port 853, the known
+  DNS-over-HTTPS endpoints, the Firefox canary domain and the public DoH
+  resolvers that are configured by IP address. Browsers and apps fall back to
+  the filtered DNS. Android Private DNS must stay off while it is on.
+- The block follows a pause of the protection: encrypted DNS works again while
+  protection is paused and is closed again when it resumes, without losing the
+  saved setting.
+
+### SafeSearch without decryption
+- A new **SafeSearch** switch answers Google, Bing and YouTube with the
+  addresses that force SafeSearch and YouTube restricted mode. The redirect
+  happens in DNS, with no certificate and no traffic decryption, and only for
+  A/AAAA queries, so mail, certificates and service discovery keep working.
+- If the SafeSearch address cannot be resolved, the original query is resolved
+  normally instead of failing: search keeps working even when the upstream
+  resolver is having trouble.
+
+### DNS rules under test
+- The DNS helpers, the blocklist parser and the compatibility allowlist now
+  have unit tests, so the rules that keep sites working cannot regress
+  silently. The *why was this blocked?* screen also names the DNS bypass
+  protection when it is the reason.
+
 ## 2026-11-17
 
 ### Release 1.0.48

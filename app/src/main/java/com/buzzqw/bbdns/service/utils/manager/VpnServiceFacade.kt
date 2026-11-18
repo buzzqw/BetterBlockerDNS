@@ -20,6 +20,7 @@ package com.buzzqw.bbdns.service.utils.manager
 import android.content.Context
 import com.buzzqw.bbdns.domain.model.Application
 import com.buzzqw.bbdns.service.firewall.handler.RuleHandler
+import com.buzzqw.bbdns.service.firewall.utils.DnsProtectionState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -66,7 +67,14 @@ class VpnServiceFacade @Inject constructor(
         ruleHandler.updateHttpSettings()
     }
 
+    override fun updateDnsProtection(blockDohBypass: Boolean, safeSearch: Boolean) {
+        // The tunnel (and therefore SafeSearch) only exists while the real
+        // service is bound; it reads the saved settings when it starts.
+        DnsProtectionState.setDohBypassConfigured(blockDohBypass)
+    }
+
     override fun setDnsBlocking(enabled: Boolean) {
+        DnsProtectionState.setDnsBlockingEnabled(enabled)
         if (enabled && ProtectionState.isPaused) {
             ProtectionPause.resume()
         } else {
@@ -78,6 +86,7 @@ class VpnServiceFacade @Inject constructor(
 
     override fun pauseProtection(minutes: Int) {
         ProtectionPause.pause(context, minutes) { enabled ->
+            DnsProtectionState.setDnsBlockingEnabled(enabled)
             ruleHandler.setDnsBlocking(enabled)
         }
     }

@@ -38,6 +38,7 @@
     <string name="block_reason_source_list">List</string>
     <string name="block_reason_source_user_rule">Your rule</string>
     <string name="block_reason_source_custom">Custom domain</string>
+    <string name="block_reason_source_dns_protection">DNS bypass protection</string>
     <string name="block_reason_note_custom_wins">Custom domain blocks win over allow rules. Remove the rule in Domain management to unblock it.</string>
     <string name="block_reason_note_unreadable">Not downloaded yet, so not searched: %1$s</string>
     <string name="block_reason_allow">Allow this domain</string>

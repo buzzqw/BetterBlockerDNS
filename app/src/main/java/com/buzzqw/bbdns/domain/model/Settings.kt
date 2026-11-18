@@ -95,6 +95,17 @@ data class Settings(
      * These apps stay inside the VPN; only DNS filtering is skipped.
      */
     val dnsFilterExcludedPackages: String = "",
+    /**
+     * Closes DNS-over-TLS (853/tcp), the browser DoH endpoints and the
+     * hardcoded public DoH resolvers, so queries cannot leave the device
+     * unfiltered. Requires Android Private DNS to be off.
+     */
+    val blockDohBypass: Boolean = false,
+    /**
+     * Answers Google, Bing and YouTube with the SafeSearch / restricted-mode
+     * addresses. No TLS interception: the redirect happens in DNS.
+     */
+    val safeSearch: Boolean = false,
 
     val dontShowHelp: Boolean = false
 )
