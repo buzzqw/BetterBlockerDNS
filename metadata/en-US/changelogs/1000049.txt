@@ -1,0 +1,1 @@
+New optional switches: Block DNS bypass closes DNS-over-TLS and the known DNS-over-HTTPS endpoints so encrypted resolvers cannot skip the filter, while SafeSearch forces Google, Bing and YouTube into safe modes through DNS, with no certificate and no traffic decryption. Both are off by default and apply without restarting protection.
