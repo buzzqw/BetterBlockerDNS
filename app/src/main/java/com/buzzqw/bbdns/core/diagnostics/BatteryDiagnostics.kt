@@ -173,6 +173,7 @@ object BatteryDiagnostics {
             append("# device=${Build.MANUFACTURER} ${Build.MODEL} android=${Build.VERSION.RELEASE} sdk=${Build.VERSION.SDK_INT}\n")
             val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
             append("# battery_optimization_ignored=${pm?.isIgnoringBatteryOptimizations(context.packageName)}\n")
+            append("# note: rx/tx are the whole app UID and include every packet forwarded through the tunnel\n")
             val exported = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US).format(Date())
             append("# exported=$exported\n")
         }

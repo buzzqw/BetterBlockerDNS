@@ -88,7 +88,7 @@ class RuleDatabaseUpdateWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
-        BatteryDiagnostics.event("blocklist_update")
+        BatteryDiagnostics.event("blocklist_update", context = context)
         val start = System.currentTimeMillis()
         _isRefreshing.value = true
 
@@ -173,6 +173,13 @@ class RuleDatabaseUpdateWorker @AssistedInject constructor(
         val errorCount = errors.size
 
         Logger.info("DNS blocklist $updateType completed: ${successCount} succeeded, ${errorCount} failed (${duration}ms total)")
+        BatteryDiagnostics.event(
+            name = "blocklist_update_done",
+            detail = "type=${if (isAutoUpdate) "auto" else "manual"}" +
+                " ok=$successCount err=$errorCount" +
+                " changed=${if (anyListChanged) 1 else 0} ms=$duration",
+            context = context
+        )
 
         postExecute()
 

@@ -10,6 +10,14 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-19
 
+### Clearer blocklist update reports
+- A blocklist update now records how it ended: whether it was automatic or
+  started by hand, how many lists were refreshed, how many failed and whether
+  anything was actually downloaded. A repeated update that changes nothing is
+  no longer indistinguishable from a real download.
+- The battery report header explains that the traffic counters also include
+  everything forwarded through the tunnel.
+
 ### Protection alerts
 - If Android stops the protection in the background and BBDNS cannot bring it
   back by itself, the app now shows a notification asking you to open it again.
