@@ -23,6 +23,9 @@ import urllib.parse
 import urllib.request
 
 API = "https://androidpublisher.googleapis.com/androidpublisher/v3"
+# Media uploads live under /upload: without that prefix the body is parsed as
+# the JSON metadata of the resource instead of being stored as a bundle.
+UPLOAD_API = "https://androidpublisher.googleapis.com/upload/androidpublisher/v3"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 SCOPE = "https://www.googleapis.com/auth/androidpublisher"
 TIMEOUT = 300
@@ -180,7 +183,8 @@ def main():
 
     with open(args.bundle, "rb") as handle:
         bundle_bytes = handle.read()
-    upload_url = "%s/edits/%s/bundles?uploadType=media" % (base, edit)
+    upload_url = "%s/applications/%s/edits/%s/bundles?uploadType=media" % (
+        UPLOAD_API, args.package, edit)
     uploaded = call("POST", upload_url, token, bundle_bytes,
                     content_type="application/octet-stream")
     print("BBDNS: uploaded %s (%.1f MB) as versionCode %s"
