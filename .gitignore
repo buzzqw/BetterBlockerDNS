@@ -72,6 +72,9 @@ render.experimental.xml
 *.jks
 *.keystore
 
+# Google Play service account keys
+play-service-account*.json
+
 # Android Profiling
 *.hprof
 

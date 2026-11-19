@@ -58,6 +58,41 @@ per-device APKs and signs them with the app signing key configured above.
 Always bump `version.properties` before a release: Play refuses a `versionCode`
 that is not higher than the previous one.
 
+## Upload from the command line
+
+`scripts/upload_play_bundle.sh` pushes the current bundle to a track with the
+Google Play Android Developer API. The first bundle and every store declaration
+still have to be uploaded by hand in Play Console; from then on a release is one
+command.
+
+One-time setup:
+
+1. In Google Cloud, create (or reuse) a project and enable the
+   **Google Play Android Developer API**.
+2. Create a **service account** and a **JSON key** for it. Save the key outside
+   the repository, by default `~/.config/bbdns/play-service-account.json`
+   (`BBDNS_PLAY_SERVICE_ACCOUNT` overrides the path). Never commit it.
+3. In Play Console, **Users and permissions → Invite new users**: invite the
+   service account address with **Release to testing tracks** (and
+   **Release to production** only when you really want that) for this app.
+4. Wait a few minutes: Play takes up to 24 hours to propagate new permissions.
+
+Usage:
+
+```bash
+scripts/upload_play_bundle.sh --track internal          # or alpha, beta, production
+scripts/upload_play_bundle.sh --track production --status draft
+```
+
+The script builds the bundle when it is missing, refuses anything not signed
+with the project key (`b6de8e17…`), and uses
+`metadata/en-US/changelogs/<versionCode>.txt` as release notes, so keep that
+file updated together with `CHANGELOG.md`. `--notes FILE` overrides it.
+
+The helper is `scripts/upload_play_bundle.py`; it needs only Python 3 and the
+`cryptography` module (the `openssl` command is used when it is missing). It
+never stores credentials: everything is read from the JSON key at runtime.
+
 ## Play-only restrictions
 
 These changes are already in the project; keep them when editing the manifest:

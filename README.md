@@ -319,6 +319,8 @@ to debug signing, which is what F-Droid and other external builders use.
 - Google Play accepts app bundles only: `scripts/build_play_bundle.sh` builds
   one signed with the same key, and [`docs/PLAY.md`](docs/PLAY.md) lists the
   console steps, the declarations and the store listing.
+  `scripts/upload_play_bundle.sh` uploads that bundle to a track through the
+  Play Developer API once the service account is configured.
 
 ### Project structure
 
