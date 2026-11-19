@@ -1,0 +1,1 @@
+Protection alerts: if Android stops the protection and BBDNS cannot restart it by itself, a notification now asks you to open the app, and the background check only runs while protection is on. Blocklist updates also report in the diagnostic log how many lists were refreshed or failed.

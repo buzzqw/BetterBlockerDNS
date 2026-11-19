@@ -10,6 +10,11 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-19
 
+### Release 1.0.50
+- Version 1.0.50 tells you when protection was stopped in the background and
+  could not be restarted automatically, and stops the periodic restart check
+  when you turn protection off.
+
 ### Clearer blocklist update reports
 - A blocklist update now records how it ended: whether it was automatic or
   started by hand, how many lists were refreshed, how many failed and whether
