@@ -314,6 +314,10 @@
     <string name="notification_install_channel_desc">­Benachrichtigungen für App-Installationen</string>
     <string name="notification_network_speed_channel">Netzwerkgeschwindigkeitsmonitor</string>
     <string name="notification_network_speed_channel_desc">Zeigt die Netzwerkgeschwindigkeit in Echtzeit an</string>
+    <string name="notification_protection_channel">Schutz-Warnungen</string>
+    <string name="notification_protection_channel_desc">Warnt, wenn der Schutz gestoppt wurde und nicht automatisch neu gestartet werden konnte</string>
+    <string name="notification_protection_down_title">Schutz ist aus</string>
+    <string name="notification_protection_down_desc">BBDNS konnte den Schutz nicht selbst neu starten. Öffnen Sie die App, um ihn wieder einzuschalten. Bis dahin wird Ihr DNS-Datenverkehr nicht gefiltert.</string>
     <string name="backup_selection_description">Wählen Sie aus, was in das Backup aufgenommen werden soll</string>
     <string name="backup_option_settings">Einstellungen</string>
     <string name="backup_option_domains">Benutzerdefinierte Domains</string>

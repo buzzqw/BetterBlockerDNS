@@ -29,6 +29,7 @@ import android.os.PowerManager
 import com.buzzqw.bbdns.service.vpn.network.util.NetworkConstants
 import com.buzzqw.bbdns.core.diagnostics.BatteryDiagnostics
 import com.buzzqw.bbdns.core.logging.Logger
+import com.buzzqw.bbdns.data.service.ProtectionWatchdog
 import com.buzzqw.bbdns.domain.model.Application
 import com.buzzqw.bbdns.domain.model.Settings
 import com.buzzqw.bbdns.service.utils.receiver.AppChangeCallback
@@ -45,6 +46,7 @@ import com.buzzqw.bbdns.service.utils.manager.ProtectionPause
 import com.buzzqw.bbdns.service.utils.manager.ProtectionState
 import com.buzzqw.bbdns.service.utils.manager.FirewallService
 import com.buzzqw.bbdns.service.utils.manager.VpnManager
+import com.buzzqw.bbdns.service.utils.notifications.ProtectionDownNotification
 import com.buzzqw.bbdns.service.utils.notifications.showInstallNotification
 import com.buzzqw.bbdns.service.utils.notifications.showStartNotification
 import com.buzzqw.bbdns.service.widget.BbdsWidgetProvider
@@ -331,6 +333,10 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
                 ProtectionState.isRunning = true
                 ProtectionState.sessionStartedAt = System.currentTimeMillis()
                 persistProtectionEnabled(true)
+                // Protection is up again (the watchdog may have started us):
+                // keep the safety net queued and drop any stale warning.
+                ProtectionWatchdog.schedule(appContext)
+                ProtectionDownNotification.clear(appContext)
                 startVpnCoroutines()
                 // Rule changes end the open flows so they are filtered again.
                 SessionInvalidator.setListener { clearSessions() }
@@ -542,8 +548,11 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
         FirewallCounters.flush()
         notificationJob?.cancel()
         if (userInitiated) {
-            // The user turned protection off: the watchdog must not restart it.
+            // The user turned protection off: the watchdog must not restart it
+            // and any "protection is off" warning is now redundant.
             persistProtectionEnabled(false)
+            ProtectionWatchdog.cancel(appContext)
+            ProtectionDownNotification.clear(appContext)
         }
         if (::firewallManager.isInitialized) {
             firewallManager.update(FirewallStatus.OFFLINE)

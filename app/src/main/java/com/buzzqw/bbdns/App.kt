@@ -22,20 +22,17 @@ import android.app.Application
 import android.content.Context
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.data.cache.DomainCacheService
-import com.buzzqw.bbdns.data.service.ProtectionWatchdogWorker
+import com.buzzqw.bbdns.data.service.ProtectionWatchdog
 import com.buzzqw.bbdns.domain.usecase.preferences.PreferencesUseCases
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.AutoUpdateManager
+import com.buzzqw.bbdns.service.utils.manager.ProtectionState
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -60,12 +57,9 @@ class App : Application(), Configuration.Provider {
         App.applicationContext = this
         instance = this
         
-        // Initialize auto-update on app startup
-        initializeAutoUpdate()
+        // Initialize background workers on app startup
+        initializeBackgroundWork()
 
-        // Keep protection alive: periodically check the VPN service.
-        scheduleProtectionWatchdog()
-        
         // Don't initialize domains on app startup - they'll be loaded when needed
         // This significantly improves app startup time
         // Domains will be loaded when:
@@ -75,8 +69,8 @@ class App : Application(), Configuration.Provider {
         // 4. Auto-update worker runs
     }
     
-    private fun initializeAutoUpdate() {
-        // Read the saved interval and enabled flag before scheduling: the old
+    private fun initializeBackgroundWork() {
+        // Read the saved settings once, then apply them to the workers: the old
         // code always scheduled a 15-minute job, even when the user had turned
         // automatic updates off or kept the default 24 hours.
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
@@ -87,26 +81,19 @@ class App : Application(), Configuration.Provider {
                         settings.autoUpdateEnabled,
                         settings.autoUpdateInterval
                     )
+                    // Keep protection alive only while the user wants it. The
+                    // runtime flag also covers a VPN started by the system
+                    // before this read completed.
+                    if (settings.protectionEnabled || ProtectionState.isRunning) {
+                        ProtectionWatchdog.schedule(this@App)
+                    } else {
+                        ProtectionWatchdog.cancel(this@App)
+                    }
                 },
                 ifFailure = { error ->
-                    Logger.error("Cannot schedule blocklist auto-update: ${error.message}")
+                    Logger.error("Cannot schedule background workers: ${error.message}")
                 }
             )
-        }
-    }
-
-    private fun scheduleProtectionWatchdog() {
-        try {
-            val request = PeriodicWorkRequestBuilder<ProtectionWatchdogWorker>(
-                15, TimeUnit.MINUTES
-            ).build()
-            WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                "protection_watchdog",
-                ExistingPeriodicWorkPolicy.KEEP,
-                request
-            )
-        } catch (e: Exception) {
-            Logger.error("Cannot schedule protection watchdog: ${e.message}")
         }
     }
 

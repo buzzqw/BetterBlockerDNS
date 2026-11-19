@@ -313,6 +313,10 @@
     <string name="notification_install_channel_desc">Notifications for app installations</string>
     <string name="notification_network_speed_channel">Network Speed Monitor</string>
     <string name="notification_network_speed_channel_desc">Shows real-time network speed</string>
+    <string name="notification_protection_channel">Protection Alerts</string>
+    <string name="notification_protection_channel_desc">Warns when protection stopped and could not be restarted automatically</string>
+    <string name="notification_protection_down_title">Protection is off</string>
+    <string name="notification_protection_down_desc">BBDNS could not restart protection by itself. Open the app to turn it back on. Until then your DNS traffic is not filtered.</string>
 
     <!-- Backup Selection Dialog -->
     <string name="backup_selection_description">Select what to include in the backup</string>

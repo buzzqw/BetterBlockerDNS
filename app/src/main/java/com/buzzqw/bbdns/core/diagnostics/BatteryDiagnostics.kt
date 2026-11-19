@@ -146,9 +146,17 @@ object BatteryDiagnostics {
         stopSampler(ctx)
     }
 
-    /** Record a one-off event (session reset, worker run…) when enabled. */
-    fun event(name: String, detail: String = "") {
-        if (samplerJob == null) return
+    /**
+     * Record a one-off event (session reset, worker run…) when the log is
+     * enabled. It also works when protection is not running (a watchdog run
+     * that found the VPN down, a blocklist update), which is exactly when the
+     * report is most useful: [context] is needed in that case because the
+     * sampler may not have initialised yet.
+     */
+    fun event(name: String, detail: String = "", context: Context? = null) {
+        val ctx = context?.applicationContext ?: appContext ?: return
+        if (!isEnabled(ctx)) return
+        if (appContext == null) appContext = ctx
         scope.launch { write("E", "event=$name" + if (detail.isNotEmpty()) " $detail" else "") }
     }
 

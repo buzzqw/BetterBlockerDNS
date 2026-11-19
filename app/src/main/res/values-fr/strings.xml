@@ -314,6 +314,10 @@
     <string name="notification_install_channel_desc">Notifications pour installations d\'applications</string>
     <string name="notification_network_speed_channel">Surveillance de la vitesse réseau</string>
     <string name="notification_network_speed_channel_desc">Affiche la vitesse réseau en temps réel</string>
+    <string name="notification_protection_channel">Alertes de protection</string>
+    <string name="notification_protection_channel_desc">Prévient lorsque la protection s\'est arrêtée et n\'a pas pu être redémarrée automatiquement</string>
+    <string name="notification_protection_down_title">La protection est désactivée</string>
+    <string name="notification_protection_down_desc">BBDNS n\'a pas pu relancer la protection par elle-même. Ouvrez l\'application pour la réactiver. D\'ici là, votre trafic DNS n\'est pas filtré.</string>
     <string name="backup_selection_description">Sélectionnez ce qu\'inclure dans la sauvegarde</string>
     <string name="backup_option_settings">Paramètres</string>
     <string name="backup_option_domains">Domaines personnalisés</string>

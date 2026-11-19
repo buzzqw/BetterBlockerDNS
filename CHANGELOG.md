@@ -8,6 +8,18 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-19
+
+### Protection alerts
+- If Android stops the protection in the background and BBDNS cannot bring it
+  back by itself, the app now shows a notification asking you to open it again.
+  The warning disappears as soon as protection is running again.
+- The periodic check that can restart the protection after a system stop now
+  runs only while protection is on, so it no longer wakes the app when you have
+  turned protection off.
+- The battery diagnostic report now records whether that check found protection
+  down, so an interrupted protection is easier to recognise.
+
 ## 2026-11-18
 
 ### Release 1.0.49

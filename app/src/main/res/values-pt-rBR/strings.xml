@@ -258,6 +258,10 @@
     <string name="notification_install_channel_desc">Notificações de instalação de apps</string>
     <string name="notification_network_speed_channel">Monitor de velocidade da rede</string>
     <string name="notification_network_speed_channel_desc">Mostra a velocidade da rede em tempo real</string>
+    <string name="notification_protection_channel">Alertas de proteção</string>
+    <string name="notification_protection_channel_desc">Avisa quando a proteção parou e não pôde ser reiniciada automaticamente</string>
+    <string name="notification_protection_down_title">A proteção está desativada</string>
+    <string name="notification_protection_down_desc">O BBDNS não conseguiu reiniciar a proteção sozinho. Abra o app para ativá-la novamente. Até lá, o tráfego DNS não é filtrado.</string>
     <string name="notification_allowed_blocked">Permitidos %1$s, bloqueados %2$s</string>
     <string name="notification_install_message">Foi instalado</string>
 

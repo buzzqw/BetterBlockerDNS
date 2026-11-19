@@ -28,12 +28,17 @@ import com.buzzqw.bbdns.service.utils.manager.FirewallManager
 import com.buzzqw.bbdns.service.utils.manager.FirewallMode
 import com.buzzqw.bbdns.service.utils.manager.ProtectionState
 import com.buzzqw.bbdns.service.utils.manager.VpnManager
+import com.buzzqw.bbdns.service.utils.notifications.ProtectionDownNotification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
 /**
  * Periodic watchdog: if the user had protection enabled but the VPN service is
  * no longer running (killed by the system or crashed), start it again.
+ *
+ * The common case (protection is up, nothing to do) returns before touching
+ * DataStore, and every run reports its outcome to the battery diagnostics as
+ * `down=0/1`, so an interrupted protection is visible in an exported log.
  */
 @HiltWorker
 class ProtectionWatchdogWorker @AssistedInject constructor(
@@ -44,20 +49,35 @@ class ProtectionWatchdogWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        BatteryDiagnostics.event("watchdog_run")
+        // Fast path: the service marks this as soon as it is up. Nothing to
+        // read, nothing to write, nothing to restart.
+        if (ProtectionState.isRunning) {
+            BatteryDiagnostics.event("watchdog_run", "down=0", applicationContext)
+            return Result.success()
+        }
+
+        BatteryDiagnostics.event("watchdog_run", "down=1", applicationContext)
         return try {
             preferencesUseCases.loadSettings.execute().fold(
                 ifSuccess = { settings ->
-                    if (!settings.protectionEnabled || ProtectionState.isRunning) {
+                    if (!settings.protectionEnabled) {
+                        // The user turned protection off: stop the periodic
+                        // check instead of waking the process for nothing.
+                        BatteryDiagnostics.event("watchdog_run", "reason=disabled", applicationContext)
+                        ProtectionWatchdog.cancel(applicationContext)
+                        ProtectionDownNotification.clear(applicationContext)
                         return@fold
                     }
                     if (!VpnManager.permissionChecker(applicationContext)) {
                         Logger.warn("Protection watchdog: VPN permission missing, cannot restart")
+                        BatteryDiagnostics.event("watchdog_run", "reason=no_permission", applicationContext)
+                        ProtectionDownNotification.show(applicationContext)
                         return@fold
                     }
                     Logger.info("Protection watchdog: protection down, restarting it")
                     firewallManager.setFirewallMode(FirewallMode.VPN)
                     firewallManager.startFirewall()
+                    BatteryDiagnostics.event("protection_restored", context = applicationContext)
                 },
                 ifFailure = { error ->
                     Logger.error("Protection watchdog: failed to read settings: ${error.message}")
@@ -69,9 +89,12 @@ class ProtectionWatchdogWorker @AssistedInject constructor(
             // would only loop: wait for the next periodic run (or the system
             // Always-on VPN) instead.
             Logger.warn("Protection watchdog: background start not allowed: ${e.message}")
+            BatteryDiagnostics.event("watchdog_run", "reason=background_denied", applicationContext)
+            ProtectionDownNotification.show(applicationContext)
             Result.success()
         } catch (e: Exception) {
             Logger.error("Protection watchdog error: ${e.message}", e)
+            BatteryDiagnostics.event("watchdog_run", "reason=error", applicationContext)
             Result.retry()
         }
     }

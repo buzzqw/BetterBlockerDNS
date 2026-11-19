@@ -258,6 +258,10 @@
     <string name="notification_install_channel_desc">应用安装通知</string>
     <string name="notification_network_speed_channel">网络速度监控</string>
     <string name="notification_network_speed_channel_desc">显示实时网络速度</string>
+    <string name="notification_protection_channel">防护提醒</string>
+    <string name="notification_protection_channel_desc">当防护停止且无法自动重启时提醒</string>
+    <string name="notification_protection_down_title">防护已关闭</string>
+    <string name="notification_protection_down_desc">BBDNS 无法自行恢复防护。请打开应用重新开启。在此之前，DNS 流量不会被过滤。</string>
     <string name="notification_allowed_blocked">已允许 %1$s，已拦截 %2$s</string>
     <string name="notification_install_message">已安装</string>
 

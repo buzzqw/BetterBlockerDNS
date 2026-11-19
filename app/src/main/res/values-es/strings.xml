@@ -314,6 +314,10 @@
     <string name="notification_install_channel_desc">Notificaciones para instalaciones de aplicaciones</string>
     <string name="notification_network_speed_channel">Monitor de velocidad de red</string>
     <string name="notification_network_speed_channel_desc">Muestra la velocidad de la red en tiempo real</string>
+    <string name="notification_protection_channel">Avisos de protección</string>
+    <string name="notification_protection_channel_desc">Avisa cuando la protección se detuvo y no se pudo reiniciar automáticamente</string>
+    <string name="notification_protection_down_title">La protección está desactivada</string>
+    <string name="notification_protection_down_desc">BBDNS no pudo reiniciar la protección por sí mismo. Abre la app para volver a activarla. Hasta entonces, el tráfico DNS no se filtra.</string>
     <string name="backup_selection_description">Selecciona qué incluir en la copia de seguridad</string>
     <string name="backup_option_settings">Ajustes</string>
     <string name="backup_option_domains">Dominios Personales</string>
