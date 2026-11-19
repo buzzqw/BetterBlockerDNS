@@ -26,6 +26,13 @@
 BBDNS is easy enough for everyday use: pick a protection profile and turn it on.
 Anyone who wants more can tune every list, rule, resolver and app.
 
+> [!TIP]
+> **Help bring BBDNS to Google Play.** Google requires a closed test with at
+> least 12 testers for 14 days before an app can be published. It takes two
+> minutes: join the [bbdns-testers group](https://groups.google.com/g/bbdns-testers),
+> then install the app from the [Play testing page](https://play.google.com/apps/testing/com.buzzqw.bbdns).
+> Details in [Become a tester](#become-a-tester).
+
 **Contents:**
 [Install](#install) ·
 [Getting started](#getting-started) ·
