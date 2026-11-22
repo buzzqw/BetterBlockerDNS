@@ -10,6 +10,13 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-22
 
+### Release 1.0.53
+- Version 1.0.53 adds an export button to the log: the entries can be saved as
+  a CSV file and checked outside the app, which is what makes it possible to
+  see which names were let through and which were blocked, and by which app.
+  The battery diagnostic also reports how many different domains the blocked
+  requests were for.
+
 ### Export the log
 - The log screen can now save its entries as a CSV file through the system file
   picker: time, app, destination, port, protocol and whether the request was

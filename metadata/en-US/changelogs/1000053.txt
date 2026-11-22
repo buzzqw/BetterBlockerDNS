@@ -1,0 +1,1 @@
+New: the log screen can save its entries as a CSV file, so the names the filter saw, and whether they were allowed or blocked and by which app, can be checked outside the app or shared with support. The file goes where you choose; nothing is uploaded. The battery diagnostic also reports how many different domains the blocked requests were for.
