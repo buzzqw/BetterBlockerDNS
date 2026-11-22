@@ -577,6 +577,9 @@
     <string name="home_onboarding_desc">Appuyez sur le bouton d\'alimentation pour commencer à bloquer les publicités, les trackers et les logiciels malveillants.</string>
     <string name="home_onboarding_skip">Passer</string>
     <string name="logs_delete_all">Supprimer les journaux</string>
+    <string name="logs_export">Exporter le journal</string>
+    <string name="logs_export_done">Journal exporté</string>
+    <string name="logs_export_failed">Le journal n\'a pas pu être exporté</string>
     <string name="logs_open_details">Ouvrir les détails</string>
     <string name="logs_detailed_endpoint">%1$s  %2$s :%3$s  →  %4$s :%5$s</string>
     <string name="logs_session_since_started_ago">Depuis le début de la protection • Il y a %1$s</string>

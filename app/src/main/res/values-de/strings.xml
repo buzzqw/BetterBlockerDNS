@@ -577,6 +577,9 @@
     <string name="home_onboarding_desc">Tippen Sie auf die Ein/Aus-Taste, um Anzeigen, Tracker und Malware zu blockieren.</string>
     <string name="home_onboarding_skip">Überspringen</string>
     <string name="logs_delete_all">Protokolle löschen</string>
+    <string name="logs_export">Protokoll exportieren</string>
+    <string name="logs_export_done">Protokoll exportiert</string>
+    <string name="logs_export_failed">Das Protokoll konnte nicht exportiert werden</string>
     <string name="logs_open_details">Offene Details</string>
     <string name="logs_detailed_endpoint">%1$s  %2$s:%3$s  →  %4$s:%5$s</string>
     <string name="logs_session_since_started_ago">Seit Beginn des Schutzes • vor %1$s</string>

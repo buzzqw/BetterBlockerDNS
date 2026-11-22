@@ -18,6 +18,9 @@
 package com.buzzqw.bbdns.presentation.screens.settings.subSettings.logs
 
 import android.content.Context
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,6 +38,7 @@ import androidx.compose.material.icons.rounded.FileCopy
 import androidx.compose.material.icons.rounded.Analytics
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Dns
+import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -58,6 +62,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.buzzqw.bbdns.R
 import com.buzzqw.bbdns.core.utils.extensions.*
@@ -68,7 +78,6 @@ import com.buzzqw.bbdns.presentation.screens.home.components.SearchBar
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.logs.viewModel.LogsViewModel
 import com.buzzqw.bbdns.presentation.screens.settings.viewModel.SettingsViewModel
 import com.buzzqw.bbdns.service.firewall.utils.Port
-import java.util.Locale
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -99,6 +108,33 @@ fun LogsScreen(
 
     val filteredLogs = logsViewModel.filteredLogs.collectAsState()
 
+    val exportedMessage = stringResource(R.string.logs_export_done)
+    val exportFailedMessage = stringResource(R.string.logs_export_failed)
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument(LogCsv.MIME)
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        coroutineScope.launch(Dispatchers.IO) {
+            val ok = runCatching {
+                val csv = logsViewModel.exportCsv()
+                context.contentResolver.openOutputStream(uri)?.use {
+                    it.write(csv.toByteArray())
+                } != null
+            }.getOrDefault(false)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    if (ok) exportedMessage else exportFailedMessage,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+    val onExportClick = {
+        val stamp = SimpleDateFormat("yyyyMMdd-HHmm", Locale.US).format(Date())
+        exportLauncher.launch("bbdns-log-$stamp.csv")
+    }
+
     // DNS-blocked entry whose "Why is this blocked?" sheet is open.
     var reasonDomain by rememberSaveable { mutableStateOf<String?>(null) }
     var reasonLogId by rememberSaveable { mutableStateOf<Int?>(null) }
@@ -116,6 +152,7 @@ fun LogsScreen(
                 onQueryChange = logsViewModel::onQueryChanged,
                 onClearClick = logsViewModel::clearQuery,
                 onDeleteClick = logsViewModel::deleteLogs,
+                onExportClick = onExportClick,
                 onBackClicked = onBackNavClicked
             )
         }
@@ -161,6 +198,7 @@ fun LogsTopBar(
     onQueryChange: (String) -> Unit,
     onClearClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    onExportClick: () -> Unit,
     onBackClicked: () -> Unit
 ) {
     Column {
@@ -170,8 +208,13 @@ fun LogsTopBar(
             onQueryChange = onQueryChange,
             onClearClick = onClearClick,
             button = {
-                IconButton(onClick = onDeleteClick) {
-                    Icon(Icons.Rounded.Delete, contentDescription = stringResource(R.string.logs_delete_all))
+                Row {
+                    IconButton(onClick = onExportClick) {
+                        Icon(Icons.Rounded.Save, contentDescription = stringResource(R.string.logs_export))
+                    }
+                    IconButton(onClick = onDeleteClick) {
+                        Icon(Icons.Rounded.Delete, contentDescription = stringResource(R.string.logs_delete_all))
+                    }
                 }
             },
             onBackClicked = onBackClicked

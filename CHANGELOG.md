@@ -10,6 +10,16 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-22
 
+### Export the log
+- The log screen can now save its entries as a CSV file through the system file
+  picker: time, app, destination, port, protocol and whether the request was
+  allowed or blocked. It is the list of names the filter saw, so it can be
+  checked, sorted or shared with support instead of read one row at a time.
+  The file goes where you choose; BBDNS has no server and uploads nothing.
+- The battery diagnostic now also says how many different domains the blocked
+  requests were for (`dblock=`), so a high block count can be told apart from
+  many different sites.
+
 ### Release 1.0.52
 - Version 1.0.52 makes the protection profiles load StevenBlack Unified:
   Balanced and the stricter profiles now download the malware and advertising

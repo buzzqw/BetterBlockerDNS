@@ -139,6 +139,9 @@
 
     <!-- Logs -->
     <string name="logs_delete_all">Excluir registros</string>
+    <string name="logs_export">Exportar registro</string>
+    <string name="logs_export_done">Registro exportado</string>
+    <string name="logs_export_failed">Não foi possível exportar o registro</string>
     <string name="logs_open_details">Abrir detalhes</string>
     <string name="logs_detailed_endpoint">%1$s  %2$s:%3$s  →  %4$s:%5$s</string>
     <string name="logs_session_since_started_ago">Desde o início da proteção • há %1$s</string>

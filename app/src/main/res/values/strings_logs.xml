@@ -2,6 +2,9 @@
 <resources>
     <!-- Logs screen -->
     <string name="logs_delete_all">Delete logs</string>
+    <string name="logs_export">Export log</string>
+    <string name="logs_export_done">Log exported</string>
+    <string name="logs_export_failed">The log could not be exported</string>
     <string name="logs_open_details">Open details</string>
     <string name="logs_detailed_endpoint">%1$s  %2$s:%3$s  →  %4$s:%5$s</string>
     <string name="logs_session_since_started_ago">Since protection started • %1$s ago</string>

@@ -139,6 +139,9 @@
 
     <!-- Logs -->
     <string name="logs_delete_all">删除日志</string>
+    <string name="logs_export">导出日志</string>
+    <string name="logs_export_done">日志已导出</string>
+    <string name="logs_export_failed">无法导出日志</string>
     <string name="logs_open_details">打开详情</string>
     <string name="logs_detailed_endpoint">%1$s  %2$s:%3$s  →  %4$s:%5$s</string>
     <string name="logs_session_since_started_ago">自保护启动以来 • %1$s 前</string>

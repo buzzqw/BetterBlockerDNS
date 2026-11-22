@@ -577,6 +577,9 @@
     <string name="home_onboarding_desc">Toque el botón de encendido para comenzar a bloquear anuncios, rastreadores y malware.</string>
     <string name="home_onboarding_skip">Omitir</string>
     <string name="logs_delete_all">Eliminar registros</string>
+    <string name="logs_export">Exportar registro</string>
+    <string name="logs_export_done">Registro exportado</string>
+    <string name="logs_export_failed">No se pudo exportar el registro</string>
     <string name="logs_open_details">Abrir detalles</string>
     <string name="logs_detailed_endpoint">%1$s  %2$s:%3$s  →  %4$s:%5$s</string>
     <string name="logs_session_since_started_ago">Desde que comenzó la protección • hace %1$s</string>

@@ -28,6 +28,7 @@ import com.buzzqw.bbdns.core.utils.extensions.toFormattedDateTime
 import com.buzzqw.bbdns.core.utils.extensions.uidToApplication
 import com.buzzqw.bbdns.domain.model.Log
 import com.buzzqw.bbdns.domain.model.NetworkStatsState
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.logs.LogCsv
 import com.buzzqw.bbdns.domain.usecase.log.LogUseCases
 import com.buzzqw.bbdns.service.firewall.model.FirewallResult
 import com.buzzqw.bbdns.service.firewall.utils.FirewallStatus
@@ -411,6 +412,23 @@ class LogsViewModel @Inject constructor(
         }
         
         return result
+    }
+
+    /**
+     * The rows currently in the log as CSV, for the export in the screen.
+     * Saved by the user, never uploaded: the app has no server to send it to.
+     */
+    fun exportCsv(): String {
+        val packageManager = context.packageManager
+        return LogCsv.export(_logs.value.flatten(), appLabel = { uid ->
+            val packageName = runCatching { packageManager.getPackagesForUid(uid)?.firstOrNull() }.getOrNull()
+            val label = packageName?.let { name ->
+                runCatching {
+                    packageManager.getApplicationLabel(packageManager.getApplicationInfo(name, 0)).toString()
+                }.getOrNull()
+            }
+            label ?: packageName ?: "uid:$uid"
+        })
     }
 
     private fun getLogs() {

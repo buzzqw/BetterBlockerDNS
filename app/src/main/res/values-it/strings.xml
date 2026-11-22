@@ -540,6 +540,9 @@
 
     <!-- strings_logs.xml -->
     <string name="logs_delete_all">Elimina log</string>
+    <string name="logs_export">Esporta log</string>
+    <string name="logs_export_done">Log esportato</string>
+    <string name="logs_export_failed">Non è stato possibile esportare il log</string>
     <string name="logs_open_details">Apri dettagli</string>
     <string name="logs_detailed_endpoint">%1$s  %2$s:%3$s  →  %4$s:%5$s</string>
     <string name="logs_session_since_started_ago">Dall\'avvio della protezione • %1$s fa</string>
