@@ -210,6 +210,15 @@ object FirewallCounters {
     /** @return allowed to blocked snapshot. */
     fun snapshot(): Pair<Long, Long> = allowed.get() to blocked.get()
 
+    /**
+     * Distinct domains blocked in this session, capped at [TOP_DOMAINS_LIMIT].
+     *
+     * The block counter counts requests, so one app retrying a blocked name
+     * shows as hundreds of blocks: exporting both numbers is what tells "many
+     * sites" from "one site asked for a lot".
+     */
+    fun blockedDomainCount(): Int = blockedByDomain.size
+
     fun details(topLimit: Int = 5, recentLimit: Int = 5): SessionDetails {
         val top = blockedByDomain.entries
             .map { it.key to it.value.get() }

@@ -339,6 +339,9 @@ object BatteryDiagnostics {
                 sb.append(" udp=").append(it[11])
                 sb.append(" icmp=").append(it[12])
             }
+            // Session gauge: the block counter above counts requests, this is
+            // how many different names they were for.
+            sb.append(" dblock=").append(FirewallCounters.blockedDomainCount())
             write("S", sb.toString())
         } catch (e: Exception) {
             Logger.warn("Battery diagnostics sample failed: ${e.message}")
