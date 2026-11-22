@@ -5,6 +5,17 @@ updates:
     schedule:
       interval: "weekly"
     rebase-strategy: "disabled"
+    ignore:
+      # These versions refuse to build unless the app compiles against a
+      # newer API level (`checkReleaseAarMetadata`: "requires compileSdk 37"),
+      # and the project is deliberately held at API 36. Remove the matching
+      # entry once the SDK bump lands, so the update comes back as a PR.
+      - dependency-name: "com.squareup.okhttp3:okhttp"
+        versions: [">=5.0.0"]
+      - dependency-name: "androidx.navigation:navigation-compose"
+        versions: [">=2.10.0"]
+      - dependency-name: "androidx.biometric:biometric"
+        versions: [">=1.3.0"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
