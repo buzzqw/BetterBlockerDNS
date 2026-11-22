@@ -124,8 +124,8 @@ suggestions go to the [issue tracker](https://github.com/buzzqw/BetterBlockerDNS
   extensions.
 - **One-tap protection profiles**: Essential, Balanced, Pro (recommended),
   Aggressive and Maximum. From Balanced upwards a profile also enables the
-  AdGuard DNS filter, and a profile only manages the Multi/TIF group plus that
-  filter, so your other lists are kept.
+  AdGuard DNS filter and StevenBlack Unified, and a profile only manages the
+  Multi/TIF group plus that filter, so your other lists are kept.
 - **Compatibility allowlist** for banking, payments, public administration,
   app stores, push notifications and captive portals. Rules also cover
   subdomains: `paypal.com` includes `www.paypal.com`.

@@ -10,6 +10,13 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-22
 
+### Profiles load StevenBlack Unified
+- Choosing Balanced, Pro, Aggressive or Maximum now downloads StevenBlack
+  Unified as part of the profile, so the malware and advertising base is loaded
+  by the profile itself instead of depending on what the installation had
+  before. Essential keeps its two HaGeZi lists. The download dialog names the
+  list, and a copy that is already enabled is not added twice.
+
 ### Release 1.0.51
 - Version 1.0.51 blocks trackers that hide behind the site's own name, can show
   a page on the phone that explains a block and lets a site through for ten
