@@ -617,6 +617,8 @@
     <string name="dns_resolver_block_bypass_desc">Chiude il DNS over TLS e gli endpoint DNS over HTTPS più noti: browser e app non possono risolvere nomi fuori dal filtro. Disattiva prima il DNS privato di Android.</string>
     <string name="dns_resolver_safe_search_title">SafeSearch</string>
     <string name="dns_resolver_safe_search_desc">Forza Google, Bing e YouTube in SafeSearch o modalità limitata tramite DNS, senza decifrare il traffico. Disattivalo se una pagina non si carica più.</string>
+    <string name="dns_resolver_notice_page_title">Pagina di avviso per i siti bloccati</string>
+    <string name="dns_resolver_notice_page_desc">Risponde a un sito bloccato via HTTP con una pagina sul telefono che spiega il blocco e può lasciarlo passare per 10 minuti. I siti HTTPS non possono mostrarla: servirebbe decifrare la connessione.</string>
     <string name="blocklists_section_presets">Preimpostazioni di protezione</string>
     <string name="blocklists_section_content">Filtri dei contenuti</string>
     <string name="blocklists_section_advanced">Avanzate</string>

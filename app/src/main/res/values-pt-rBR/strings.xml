@@ -53,6 +53,13 @@
     <string name="dns_resolver_private_dns_desc">Abra as configurações de DNS privado do Android. Mantenha desativado para que as consultas DNS passem pelo BBDNS.</string>
     <string name="dns_resolver_private_dns_doh_desc">Desative o DNS privado nas configurações do Android ao usar o DoH do BBDNS, caso contrário o resolvedor do sistema pode ignorar o app.</string>
     <string name="dns_resolver_private_dns_unavailable">As configurações de DNS privado não estão disponíveis neste dispositivo. Abra Configurações → Rede e internet → DNS privado.</string>
+    <string name="dns_resolver_section_hardening">Proteção do filtro</string>
+    <string name="dns_resolver_block_bypass_title">Bloquear desvio de DNS</string>
+    <string name="dns_resolver_block_bypass_desc">Fecha o DNS over TLS e os endpoints DNS over HTTPS conhecidos, para que navegadores e apps não resolvam nomes fora do filtro. Desative antes o DNS privado do Android.</string>
+    <string name="dns_resolver_safe_search_title">SafeSearch</string>
+    <string name="dns_resolver_safe_search_desc">Força o Google, o Bing e o YouTube no SafeSearch ou no modo restrito via DNS, sem descriptografar o tráfego. Desative se alguma página parar de carregar.</string>
+    <string name="dns_resolver_notice_page_title">Página de aviso para sites bloqueados</string>
+    <string name="dns_resolver_notice_page_desc">Responde a um site bloqueado via HTTP com uma página no telefone que explica o bloqueio e pode liberá-lo por 10 minutos. Sites HTTPS não podem mostrá-la, pois seria preciso descriptografar a conexão.</string>
     <string name="dns_protection_tile_label">Proteção DNS</string>
     <string name="dns_blocking_title">Bloqueio DNS</string>
     <string name="dns_status_disabled">Bloqueio DNS desativado</string>
@@ -158,6 +165,7 @@
     <string name="block_reason_type_wildcard">Regra curinga</string>
     <string name="block_reason_type_regex">Regra regex</string>
     <string name="block_reason_source_list">Lista</string>
+    <string name="block_reason_source_dns_protection">Proteção contra desvio de DNS</string>
     <string name="block_reason_source_user_rule">Sua regra</string>
     <string name="block_reason_source_custom">Domínio personalizado</string>
     <string name="block_reason_note_custom_wins">Bloqueios de domínios personalizados têm prioridade sobre regras de permissão. Remova a regra no gerenciamento de domínios para desbloquear.</string>

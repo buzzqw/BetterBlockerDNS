@@ -91,6 +91,13 @@ object NetworkConstants {
     /** Second local DNS address: Android uses it when the primary times out. */
     const val VPN_DNS_ADDRESS_ALT: String = "198.18.0.2"
     const val VPN_DNS6_ADDRESS: String = "fd00::53"    // Local DNS for IPv6
+    /**
+     * Address answered for a blocked site when the local notice page is on.
+     * Inside the benchmarking range reserved by RFC 2544, so it can never be a
+     * real site, and inside the tunnel: the native stack relays TCP to the
+     * on-device notice server instead of connecting to it.
+     */
+    const val NOTICE_PAGE_ADDRESS: String = "198.18.0.3"
     const val ALL_TRAFFIC: String = "0.0.0.0"
     const val VPN6_ADDRESS: String = "fd00:1:fd00:1:fd00:1:fd00:1"
 

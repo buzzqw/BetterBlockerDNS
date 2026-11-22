@@ -53,6 +53,13 @@
     <string name="dns_resolver_private_dns_desc">打开 Android 私人 DNS 设置。请保持关闭，以便 DNS 查询经过 BBDNS。</string>
     <string name="dns_resolver_private_dns_doh_desc">使用 BBDNS DoH 时，请在 Android 设置中关闭私人 DNS，否则系统解析器可能会绕过本应用。</string>
     <string name="dns_resolver_private_dns_unavailable">此设备不支持私人 DNS 设置。请前往“设置 → 网络和互联网 → 私人 DNS”。</string>
+    <string name="dns_resolver_section_hardening">过滤防护</string>
+    <string name="dns_resolver_block_bypass_title">阻止 DNS 绕过</string>
+    <string name="dns_resolver_block_bypass_desc">关闭 DNS over TLS 和已知的 DNS over HTTPS 端点，使浏览器和应用无法解析过滤器之外的域名。请先关闭 Android 的私人 DNS。</string>
+    <string name="dns_resolver_safe_search_title">安全搜索</string>
+    <string name="dns_resolver_safe_search_desc">通过 DNS 强制 Google、必应和 YouTube 使用安全搜索或受限模式，无需解密流量。如果页面无法加载，请关闭此功能。</string>
+    <string name="dns_resolver_notice_page_title">拦截页面提示</string>
+    <string name="dns_resolver_notice_page_desc">对被拦截的网站通过普通 HTTP 返回一个本地页面，说明拦截原因，并可在 10 分钟内放行。HTTPS 网站无法显示该页面，因为那需要解密连接。</string>
     <string name="dns_protection_tile_label">DNS 保护</string>
     <string name="dns_blocking_title">DNS 拦截</string>
     <string name="dns_status_disabled">DNS 拦截已停用</string>
@@ -158,6 +165,7 @@
     <string name="block_reason_type_wildcard">通配符规则</string>
     <string name="block_reason_type_regex">正则规则</string>
     <string name="block_reason_source_list">列表</string>
+    <string name="block_reason_source_dns_protection">DNS 绕过防护</string>
     <string name="block_reason_source_user_rule">你的规则</string>
     <string name="block_reason_source_custom">自定义域名</string>
     <string name="block_reason_note_custom_wins">自定义域名拦截优先于允许规则。请在域名管理中删除规则以解除拦截。</string>

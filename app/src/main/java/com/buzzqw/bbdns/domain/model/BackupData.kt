@@ -60,7 +60,8 @@ data class SettingsBackup(
     val dohEnabled: Boolean = false,
     val dohUrl: String = "https://cloudflare-dns.com/dns-query",
     val blockDohBypass: Boolean = false,
-    val safeSearch: Boolean = false
+    val safeSearch: Boolean = false,
+    val localBlockPage: Boolean = false
 )
 
 @Serializable

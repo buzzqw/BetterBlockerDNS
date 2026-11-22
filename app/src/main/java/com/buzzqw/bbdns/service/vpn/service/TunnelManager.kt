@@ -38,8 +38,12 @@ import com.buzzqw.bbdns.service.vpn.network.transport.icmp.toICMPPacket
 import com.buzzqw.bbdns.service.vpn.network.transport.ipv4.IPv4
 import com.buzzqw.bbdns.service.vpn.network.transport.ipv4.toIPv4Header
 import com.buzzqw.bbdns.service.vpn.network.transport.dns.DNSModel
+import com.buzzqw.bbdns.service.vpn.network.transport.dns.DnsAnswers
 import com.buzzqw.bbdns.service.vpn.network.transport.dns.toDNSModel
-import com.buzzqw.bbdns.service.vpn.network.transport.udp.soarResponse
+import com.buzzqw.bbdns.service.vpn.network.util.CnameCloak
+import com.buzzqw.bbdns.service.vpn.network.util.CnameCloakGuard
+import com.buzzqw.bbdns.service.vpn.network.util.DohCircuitBreaker
+import com.buzzqw.bbdns.service.vpn.network.util.NetworkConstants
 import com.buzzqw.bbdns.service.vpn.network.util.SafeSearch
 import java.io.IOException
 import java.net.DatagramPacket
@@ -78,13 +82,20 @@ class TunnelManager(
     /** Secondary IPv4 resolver, used when the primary does not answer. */
     private val dnsServerV4Alt: String = "",
     private val dohUrl: String? = null,
-    safeSearchEnabled: Boolean = false
+    safeSearchEnabled: Boolean = false,
+    localBlockPageEnabled: Boolean = false
 ) {
 
     @Volatile
     private var contextPtr: Long = 0
     @Volatile
     private var safeSearchEnabled: Boolean = safeSearchEnabled
+    @Volatile
+    private var localBlockPage: Boolean = localBlockPageEnabled
+    /** Loopback port of the notice page, 0 while the page is off. */
+    @Volatile
+    private var noticePagePort: Int = 0
+    private val dohBreaker = DohCircuitBreaker()
     private val safeSearchCache = ConcurrentHashMap<String, SafeSearchAddress>()
     private val lock = Any()
     @Volatile
@@ -156,6 +167,27 @@ class TunnelManager(
     /** Turns SafeSearch DNS redirection on or off without restarting the VPN. */
     fun setSafeSearchEnabled(enabled: Boolean) {
         safeSearchEnabled = enabled
+    }
+
+    /**
+     * Turns the local notice page on or off and tells the native stack which
+     * loopback port to relay a blocked site to. Must be called after
+     * [initialize]: there is no tunnel to point anywhere before that.
+     */
+    fun setLocalBlockPage(enabled: Boolean, port: Int) {
+        localBlockPage = enabled && port > 0
+        noticePagePort = if (localBlockPage) port else 0
+        if (contextPtr != 0L) {
+            try {
+                jni_set_notice_page(
+                    contextPtr,
+                    if (localBlockPage) NetworkConstants.NOTICE_PAGE_ADDRESS else "",
+                    noticePagePort
+                )
+            } catch (e: UnsatisfiedLinkError) {
+                Logger.error("Native library unavailable for the notice page: ${e.message}")
+            }
+        }
     }
     
     fun getProperty(name: String): String {
@@ -278,17 +310,26 @@ class TunnelManager(
                     SafeSearch.targetFor(dnsModel.domainName, dnsModel.queryType)
                 } else null
                 
-                // Handle DNS blocking with SOAR response
+                // Handle DNS blocking with a reply built on the phone
                 if (isDnsPacket && firewallResult == FirewallResult.DNS_BLOCKED) {
                     try {
-                        // Create a buffer with UDP header and data for soarResponse
+                        // Create a buffer with UDP header and data for the reply
                         val udpPacketData = ByteBuffer.wrap(data, udpStartPosition, length - udpStartPosition)
                         udpPacketData.order(ByteOrder.BIG_ENDIAN)
-                        
-                        val soarResponsePayload = soarResponse(udpPacketData, ipHeader)
+                        val wire = rawDnsQuery ?: udpHeader.extractUDPData(udpPacketData)
+
+                        // With the notice page on, an A query is answered with
+                        // the address the native stack relays to the local
+                        // server, so the browser gets an explanation. Every
+                        // other query keeps the plain blocked answer.
+                        val responsePayload = if (localBlockPage && noticePagePort > 0) {
+                            DnsAnswers.noticeReply(wire, NetworkConstants.NOTICE_PAGE_ADDRESS)
+                        } else {
+                            DnsAnswers.blockedReply(wire)
+                        }
 
                         // Create complete response packet using Kotlin packet creation system
-                        val completeResponsePacket = handleDnsResponse(udpHeader, ipHeader, soarResponsePayload)
+                        val completeResponsePacket = handleDnsResponse(udpHeader, ipHeader, responsePayload)
 
                         // Send complete packet through VPN interface
                         if (contextPtr != 0L) {
@@ -296,7 +337,7 @@ class TunnelManager(
                         }
                         false // Block original packet
                     } catch (e: Exception) {
-                        Log.e("PacketFilter", "Error creating/sending SOAR response: ${e.message}", e)
+                        Log.e("PacketFilter", "Error creating/sending DNS reply: ${e.message}", e)
                         false // Block packet on error
                     }
                 } else if (isDnsPacket && rawDnsQuery != null && dnsModel != null && safeSearchTarget != null) {
@@ -315,7 +356,7 @@ class TunnelManager(
                 } else if (isDnsPacket && rawDnsQuery != null && dohUrl != null && isDnsQuery(rawDnsQuery)) {
                     // Resolve the query over HTTPS and inject the response into the TUN.
                     // The original UDP packet is blocked so it never reaches plain DNS.
-                    scheduleDohResponse(udpHeader, ipHeader, rawDnsQuery)
+                    scheduleDohResponse(udpHeader, ipHeader, rawDnsQuery, filterResult.second)
                     false
                 } else {
                     allowed
@@ -355,14 +396,20 @@ class TunnelManager(
     private fun isDnsQuery(query: ByteArray): Boolean =
         query.size >= 12 && (query[2].toInt() and 0x80) == 0
 
-    private fun scheduleDohResponse(udpHeader: UDPModel, ipHeader: IPv4, query: ByteArray) {
+    private fun scheduleDohResponse(udpHeader: UDPModel, ipHeader: IPv4, query: ByteArray, uid: Int) {
         val endpoint = dohUrl ?: return
         if (contextPtr == 0L) return
 
         dohScope.launch {
             // Bound the number of blocking lookups so a slow or unreachable
-            // DoH server cannot exhaust the shared IO pool.
-            val response = dohPermits.withPermit { resolveDns(endpoint, query) }
+            // DoH server cannot exhaust the shared IO pool. A blocked alias is
+            // journaled here: the query itself was allowed, so the packet path
+            // has no log line for it.
+            val response = dohPermits.withPermit {
+                resolveDns(endpoint, query) { cloak ->
+                    ruleHandler?.recordCnameBlock(uid, udpHeader, ipHeader, cloak.domain, cloak.target)
+                }
+            }
             try {
                 val packet = handleDnsResponse(udpHeader, ipHeader, response)
                 // Inject under the release lock: the native context must not
@@ -451,7 +498,11 @@ class TunnelManager(
         }
     }
 
-    private fun resolveDns(endpoint: String, query: ByteArray): ByteArray {
+    private fun resolveDns(
+        endpoint: String,
+        query: ByteArray,
+        onCnameBlock: ((CnameCloak) -> Unit)? = null
+    ): ByteArray {
         val key = dohCacheKey(query)
         synchronized(dohCacheLock) {
             dohCache[key]?.let { entry ->
@@ -465,7 +516,19 @@ class TunnelManager(
 
         dohRequests.incrementAndGet()
         val response = try {
-            fetchDohWithRetry(endpoint, query)
+            if (!dohBreaker.allowRequest()) {
+                // The endpoint has been failing: skip the timeout and ask the
+                // plain resolver straight away.
+                Logger.warn("DoH: paused after ${dohBreaker.failureCount()} failures; using plain DNS")
+                fetchPlainDns(query)
+            } else {
+                try {
+                    fetchDohWithRetry(endpoint, query).also { dohBreaker.recordSuccess() }
+                } catch (e: Exception) {
+                    dohBreaker.recordFailure()
+                    throw e
+                }
+            }
         } catch (e: Exception) {
             dohFailures.incrementAndGet()
             Logger.warn("DoH: ${e.message}; falling back to plain DNS")
@@ -478,13 +541,16 @@ class TunnelManager(
         }
 
         val normalized = if (response.size >= 12) response else servFail(query)
-        val cached = normalized.copyOf().also {
+        // A blocked alias is detected on the answer, before it is cached, so
+        // the cached bytes are always the upstream ones.
+        val guarded = applyCnameGuard(normalized, query, onCnameBlock)
+        val cached = guarded.copyOf().also {
             it[0] = 0
             it[1] = 0
         }
-        val truncated = (normalized[2].toInt() and 0x02) != 0
-        val servFailResponse = (normalized[3].toInt() and 0x0F) == 2
-        if (!truncated && !servFailResponse) {
+        val truncated = (guarded[2].toInt() and 0x02) != 0
+        val servFailResponse = (guarded[3].toInt() and 0x0F) == 2
+        if (guarded === normalized && !truncated && !servFailResponse) {
             synchronized(dohCacheLock) {
                 dohCache[key] = DohCacheEntry(
                     expiresAt = System.currentTimeMillis() + DOH_CACHE_TTL_MS,
@@ -493,6 +559,37 @@ class TunnelManager(
             }
         }
         return withTransactionId(cached, query)
+    }
+
+    /**
+     * Blocks an answer whose CNAME chain ends in a blocked domain, even when
+     * the queried name itself is clean (CNAME cloaking). The reply is built
+     * here so the browser fails fast instead of resolving the tracker.
+     */
+    private fun applyCnameGuard(
+        response: ByteArray,
+        query: ByteArray,
+        onCnameBlock: ((CnameCloak) -> Unit)?
+    ): ByteArray {
+        val handler = ruleHandler ?: return response
+        val queried = try {
+            Message(query).question?.name?.toString(true)
+        } catch (e: Exception) {
+            null
+        } ?: return response
+
+        val cloak = CnameCloakGuard.find(
+            response = response,
+            queried = queried,
+            isBlocked = handler::isDomainBlocked,
+            isExplicitlyAllowed = handler::isDomainExplicitlyAllowed
+        ) ?: return response
+
+        onCnameBlock?.invoke(cloak)
+        // No notice page here: the page names the list that blocks the site,
+        // and this site is not on a list. It is blocked because of where it
+        // points, which the page would explain wrongly.
+        return DnsAnswers.blockedReply(query)
     }
 
     /**
@@ -564,15 +661,7 @@ class TunnelManager(
         }
     }
 
-    private fun servFail(query: ByteArray): ByteArray {
-        val response = query.copyOf()
-        if (response.size >= 12) {
-            response[2] = (response[2].toInt() or 0x80).toByte() // QR = response
-            response[3] = ((response[3].toInt() and 0xF0) or 0x02).toByte() // RA + SERVFAIL
-            for (index in 6..11) response[index] = 0 // no answer/authority/additional records
-        }
-        return response
-    }
+    private fun servFail(query: ByteArray): ByteArray = DnsAnswers.servFail(query)
 
     private fun dohCacheKey(query: ByteArray): String {
         val normalized = query.copyOf()
@@ -631,6 +720,7 @@ class TunnelManager(
     private external fun jni_get_mtu(): Int
     private external fun jni_clear_sessions(context: Long)
     private external fun jni_set_dns_servers(context: Long, dnsV4: String, dnsV4Alt: String, dnsV6: String)
+    private external fun jni_set_notice_page(context: Long, address: String, port: Int)
     private external fun jni_send_complete_packet(context: Long, packetData: ByteArray)
 
     companion object {

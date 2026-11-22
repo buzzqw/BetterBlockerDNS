@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use BetterBlockerDNS in research or in a product, cite it as below."
+title: "BetterBlockerDNS: a local DNS ad and tracker blocker for Android"
+abstract: >-
+  BetterBlockerDNS (BBDNS) is an open-source DNS filtering app for Android. It
+  runs a local VpnService tunnel that inspects DNS queries on the device and
+  answers blocked names itself, so ad, tracker, malware and phishing domains
+  are stopped before a connection is made. Queries are forwarded to a plain or
+  DNS-over-HTTPS resolver of the user's choice; nothing is decrypted and no
+  data leaves the phone. Blocklists are compiled into a compact hash index so
+  that a large catalogue of lists fits in the memory of a phone.
+type: software
+authors:
+  - alias: buzzqw
+    name: "BetterBlockerDNS project"
+    email: azanzani@gmail.com
+    website: "https://github.com/buzzqw"
+repository-code: "https://github.com/buzzqw/BetterBlockerDNS"
+url: "https://github.com/buzzqw/BetterBlockerDNS"
+license: GPL-3.0-or-later
+version: "1.0.49"
+date-released: "2026-11-18"
+keywords:
+  - dns
+  - ad-blocking
+  - tracker-blocking
+  - android
+  - vpnservice
+  - dns-over-https
+  - privacy
+  - open-source
+identifiers:
+  - type: url
+    value: "https://github.com/buzzqw/BetterBlockerDNS/releases/latest"
+    description: "Signed release APK"

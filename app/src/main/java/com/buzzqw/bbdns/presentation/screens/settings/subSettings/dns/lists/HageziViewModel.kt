@@ -242,7 +242,11 @@ class HageziViewModel @Inject constructor(
                 .mapNotNull { HageziCatalog.profileSources[it]?.url }
                 .toSet()
             config.hosts.items.removeAll { it.data in managedUrls }
-            lists.forEach { list ->
+            // StevenBlack Unified is part of every profile from Balanced up
+            // but is not owned by one: a user who already had it (the malware
+            // defaults add it) must not get a second copy in the list.
+            val present = config.hosts.items.map { it.data }.toSet()
+            lists.filterNot { it.url in present }.forEach { list ->
                 config.hosts.items.add(
                     HostFile(title = list.name, data = list.url, state = HostState.DENY)
                 )

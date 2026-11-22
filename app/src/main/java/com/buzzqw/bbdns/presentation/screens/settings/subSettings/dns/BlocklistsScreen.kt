@@ -188,12 +188,14 @@ fun BlocklistsScreen(
     // Track if we're actively updating domains (different from initial load)
     var isDomainUpdateInProgress by remember { mutableStateOf(false) }
 
-    // Update auto-update interval and enabled state when the screen loads (in case settings changed)
+    // Only make sure a periodic update is scheduled. Re-scheduling it here
+    // cancelled the pending job and started a full download of every list on
+    // each visit, so opening this screen twice meant downloading twice.
     LaunchedEffect(settings.settings.value.autoUpdateInterval, settings.settings.value.autoUpdateEnabled) {
-        AutoUpdateManager.scheduleAutoUpdateWorker(
+        AutoUpdateManager.initializeAutoUpdate(
             context,
-            settings.settings.value.autoUpdateInterval,
-            enabled = settings.settings.value.autoUpdateEnabled
+            settings.settings.value.autoUpdateEnabled,
+            settings.settings.value.autoUpdateInterval
         )
     }
 

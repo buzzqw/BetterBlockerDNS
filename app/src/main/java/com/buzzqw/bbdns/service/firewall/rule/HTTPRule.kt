@@ -65,6 +65,12 @@ class HTTPRule @Inject constructor(
         logUseCases: LogUseCases,
         result: FirewallResult
     ): FirewallResult {
-        return if (packet.destinationPort == 80 && blockHTTP) FirewallResult.DROP else FirewallResult.ACCEPT
+        return if (packet.destinationPort == 80 && blockHTTP &&
+            packet.destinationIP != com.buzzqw.bbdns.service.vpn.network.util.NetworkConstants.NOTICE_PAGE_ADDRESS
+        ) {
+            FirewallResult.DROP
+        } else {
+            FirewallResult.ACCEPT
+        }
     }
 }

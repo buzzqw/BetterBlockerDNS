@@ -1,0 +1,70 @@
+name: Security
+
+# Secrets and dependency advisories are separate from the build: they must run
+# even when a build is red, because a leaked key is not fixed by a green build.
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+  schedule:
+    # Weekly, so a new advisory is noticed even without a commit.
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    name: Secrets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history: a key is often removed from the working tree but
+          # stays in the commits that follow it.
+          fetch-depth: 0
+
+      - name: Scan the history for secrets
+        uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The action is free for personal repositories. If this project ever
+          # moves to an organisation, add a GITLEAKS_LICENSE secret.
+
+  # Gradle resolves most dependencies from google()/mavenCentral() without a
+  # lockfile, so the OSV scanner has nothing to read. The dependency graph that
+  # GitHub builds from build.gradle is what this job reviews instead.
+  dependencies:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@da24556b548a50705dd671f47852072ea4c105d9 # v4.7.1
+        with:
+          # A new dependency that adds a known vulnerability fails the pull
+          # request; licences are checked against the GPL-3.0 this project ships.
+          fail-on-severity: moderate
+          comment-summary-in-pr: on-failure
+          allow-licenses: >-
+            GPL-3.0, GPL-3.0-only, GPL-3.0-or-later, LGPL-2.1, LGPL-3.0,
+            Apache-2.0, MIT, MIT-0, BSD-2-Clause, BSD-3-Clause, ISC,
+            MPL-2.0, EPL-1.0, EPL-2.0, CDDL-1.0, Unlicense, CC0-1.0

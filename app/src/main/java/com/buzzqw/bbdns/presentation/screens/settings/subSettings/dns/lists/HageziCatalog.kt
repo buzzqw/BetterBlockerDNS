@@ -432,7 +432,7 @@ object HageziCatalog {
      * Profiles resolve their list ids here.
      */
     val profileSources: Map<String, BlocklistSource> by lazy {
-        (all + AdguardCatalog.all).associateBy { it.id }
+        (all + AdguardCatalog.all + StevenBlackCatalog.all).associateBy { it.id }
     }
 
     /**
@@ -443,6 +443,17 @@ object HageziCatalog {
         all.filter { it.coreTier || it.threatFeed }.forEach { add(it.id) }
         AdguardCatalog.all.forEach { add(it.id) }
     }
+
+    /**
+     * Lists every profile from Balanced upwards adds on top of its HaGeZi
+     * tiers: the AdGuard DNS filter for coverage the HaGeZi lists leave out,
+     * and StevenBlack Unified as the malware/ads base every installation
+     * expects to see loaded. Essential keeps only its two HaGeZi lists.
+     */
+    private val PROFILE_EXTRAS = listOf(
+        AdguardCatalog.DNS_FILTER.id,
+        StevenBlackCatalog.UNIFIED.id,
+    )
 
     val profiles: List<HageziProfile> = listOf(
         HageziProfile(
@@ -460,7 +471,7 @@ object HageziCatalog {
             description = "All-round filtering of advertising, tracking and malware domains with a compact TIF.",
             descriptionRes = R.string.catalog_profile_balanced_desc,
             listIds = listOf(NORMAL.id, TIF_MINI.id),
-            extraListIds = listOf(AdguardCatalog.DNS_FILTER.id),
+            extraListIds = PROFILE_EXTRAS,
             recommended = true
         ),
         HageziProfile(
@@ -470,7 +481,7 @@ object HageziCatalog {
             description = "HaGeZi's recommended setup: Multi PRO plus the full Threat Intelligence Feed (TIF).",
             descriptionRes = R.string.catalog_profile_pro_desc,
             listIds = listOf(PRO.id, TIF.id),
-            extraListIds = listOf(AdguardCatalog.DNS_FILTER.id)
+            extraListIds = PROFILE_EXTRAS
         ),
         HageziProfile(
             id = "aggressive",
@@ -479,7 +490,7 @@ object HageziCatalog {
             description = "Multi PRO++ plus the full TIF. Strong protection, some sites may need a manual allow rule.",
             descriptionRes = R.string.catalog_profile_aggressive_desc,
             listIds = listOf(PRO_PLUS.id, TIF.id),
-            extraListIds = listOf(AdguardCatalog.DNS_FILTER.id)
+            extraListIds = PROFILE_EXTRAS
         ),
         HageziProfile(
             id = "maximum",
@@ -488,7 +499,7 @@ object HageziCatalog {
             description = "Ultimate plus the full TIF. Only for users who want the strictest filtering.",
             descriptionRes = R.string.catalog_profile_maximum_desc,
             listIds = listOf(ULTIMATE.id, TIF.id),
-            extraListIds = listOf(AdguardCatalog.DNS_FILTER.id)
+            extraListIds = PROFILE_EXTRAS
         )
     )
 

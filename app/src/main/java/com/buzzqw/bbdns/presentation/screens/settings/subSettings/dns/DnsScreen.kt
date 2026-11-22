@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.ChildCare
 import androidx.compose.material.icons.rounded.Dns
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Warning
@@ -138,6 +139,17 @@ fun DnsScreen(
                 variable = settings.settings.value.safeSearch,
                 onSwitchEnabled = { enabled ->
                     settings.update(settings.settings.value.copy(safeSearch = enabled))
+                }
+            )
+
+            SettingsBox(
+                title = stringResource(R.string.dns_resolver_notice_page_title),
+                description = stringResource(R.string.dns_resolver_notice_page_desc),
+                icon = IconType.VectorIcon(Icons.Rounded.Info),
+                actionType = SettingType.SWITCH,
+                variable = settings.settings.value.localBlockPage,
+                onSwitchEnabled = { enabled ->
+                    settings.update(settings.settings.value.copy(localBlockPage = enabled))
                 }
             )
         }

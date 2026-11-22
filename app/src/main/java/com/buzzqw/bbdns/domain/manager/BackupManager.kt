@@ -87,7 +87,8 @@ class BackupManager @Inject constructor(
                     dohEnabled = settings.dohEnabled,
                     dohUrl = settings.dohUrl,
                     blockDohBypass = settings.blockDohBypass,
-                    safeSearch = settings.safeSearch
+                    safeSearch = settings.safeSearch,
+                    localBlockPage = settings.localBlockPage
                 )
             } else {
                 SettingsBackup(
@@ -119,7 +120,8 @@ class BackupManager @Inject constructor(
                     dohEnabled = false,
                     dohUrl = "https://cloudflare-dns.com/dns-query",
                     blockDohBypass = false,
-                    safeSearch = false
+                    safeSearch = false,
+                    localBlockPage = false
                 )
             }
 
@@ -243,7 +245,8 @@ class BackupManager @Inject constructor(
                     dohEnabled = s.dohEnabled,
                     dohUrl = s.dohUrl,
                     blockDohBypass = s.blockDohBypass,
-                    safeSearch = s.safeSearch
+                    safeSearch = s.safeSearch,
+                    localBlockPage = s.localBlockPage
                 )
                 onSettingsRestored(settings)
             }

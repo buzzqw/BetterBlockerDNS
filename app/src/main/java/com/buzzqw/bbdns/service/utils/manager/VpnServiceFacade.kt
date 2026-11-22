@@ -67,9 +67,10 @@ class VpnServiceFacade @Inject constructor(
         ruleHandler.updateHttpSettings()
     }
 
-    override fun updateDnsProtection(blockDohBypass: Boolean, safeSearch: Boolean) {
-        // The tunnel (and therefore SafeSearch) only exists while the real
-        // service is bound; it reads the saved settings when it starts.
+    override fun updateDnsProtection(blockDohBypass: Boolean, safeSearch: Boolean, localBlockPage: Boolean) {
+        // The tunnel (and therefore SafeSearch and the notice page) only
+        // exists while the real service is bound; it reads the saved settings
+        // when it starts.
         DnsProtectionState.setDohBypassConfigured(blockDohBypass)
     }
 

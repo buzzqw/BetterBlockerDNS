@@ -8,6 +8,74 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-22
+
+### Profiles load StevenBlack Unified
+- Choosing Balanced, Pro, Aggressive or Maximum now downloads StevenBlack
+  Unified as part of the profile, so the malware and advertising base is loaded
+  by the profile itself instead of depending on what the installation had
+  before. Essential keeps its two HaGeZi lists. The download dialog names the
+  list, and a copy that is already enabled is not added twice.
+
+### Release 1.0.51
+- Version 1.0.51 blocks trackers that hide behind the site's own name, can show
+  a page on the phone that explains a block and lets a site through for ten
+  minutes, and stops a dead DoH endpoint from adding a timeout to every lookup.
+  Opening the blocklist screen no longer downloads every list again.
+  Everything still happens on the device: nothing is decrypted.
+
+### Blocklist updates no longer restart on every visit
+- Opening the blocklist screen used to cancel the pending automatic update and
+  queue a new one, which ran a full download of every enabled list and reloaded
+  the rules: on a phone that showed up as repeated updates a few seconds apart
+  and a heavy CPU spike. Visiting the screen now only makes sure the periodic
+  update exists; a download happens when it is due or when you change the
+  interval.
+
+### Trackers hidden behind a site's own name
+- A site can no longer serve a tracker from its own domain: when the answer to
+  an allowed name points (CNAME) to a blocked one, BBDNS blocks the answer and
+  counts it in the log for the site you visited. This closes the most common
+  way around a DNS filter.
+- The check runs on the answer, so it needs DoH, which is what lets the app
+  read the answer. With plain DNS the tunnel forwards the resolver's answer
+  unchanged, as before.
+
+### A page that explains the block
+- New **Notice page for blocked sites** switch in *DNS resolver*. When it is
+  on, a blocked site opened over plain HTTP shows a page served by the phone
+  instead of the browser's generic error: it names the list that blocked the
+  site and offers to let it through for ten minutes.
+- The page works with no network, follows the system light and dark mode and
+  needs no permission. HTTPS sites are still judged by name only and never
+  decrypted, so they show the browser's own error; the switch description says
+  so.
+- The page is off by default, applies without restarting protection, and is
+  saved in backups with the other DNS settings.
+
+### A dead DoH endpoint no longer slows every lookup
+- After three failures in a row the app sets the endpoint aside for a minute
+  and asks the plain resolver straight away, instead of paying a timeout on
+  every query. One test request is let through, and normal DoH use resumes as
+  soon as it answers.
+
+### Tests, CI and security paperwork
+- New unit tests cover the DNS answers the app builds, the CNAME check, the
+  DoH breaker, the temporary allow list and the notice page itself, including
+  the signed "continue" link and the refusal to relay private addresses.
+- Every push now runs the unit tests and Android Lint in CI, and a new
+  security workflow scans the full history for committed secrets and reviews
+  the dependencies a pull request adds.
+- The project now ships [SECURITY.md](SECURITY.md) (supported versions, what
+  the app connects to, private reporting), [ACCESSIBILITY.md](ACCESSIBILITY.md)
+  (screen reader, large text and contrast, and the known gaps) and
+  [CITATION.cff](CITATION.cff) for citing the app in research.
+
+### Translations
+- The new switch is translated into German, Spanish, French, Brazilian
+  Portuguese and Chinese, together with the DNS bypass and SafeSearch
+  switches added in the previous version, which were English-only.
+
 ## 2026-11-19
 
 ### Release 1.0.50

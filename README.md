@@ -42,7 +42,9 @@ Anyone who wants more can tune every list, rule, resolver and app.
 [Battery](#performance-and-battery-life) ·
 [Troubleshooting](#troubleshooting) ·
 [Build](#building-from-source) ·
-[Contributing](#contributing)
+[Contributing](#contributing) ·
+[Security](SECURITY.md) ·
+[Accessibility](ACCESSIBILITY.md)
 
 ---
 
@@ -122,8 +124,8 @@ suggestions go to the [issue tracker](https://github.com/buzzqw/BetterBlockerDNS
   extensions.
 - **One-tap protection profiles**: Essential, Balanced, Pro (recommended),
   Aggressive and Maximum. From Balanced upwards a profile also enables the
-  AdGuard DNS filter, and a profile only manages the Multi/TIF group plus that
-  filter, so your other lists are kept.
+  AdGuard DNS filter and StevenBlack Unified, and a profile only manages the
+  Multi/TIF group plus that filter, so your other lists are kept.
 - **Compatibility allowlist** for banking, payments, public administration,
   app stores, push notifications and captive portals. Rules also cover
   subdomains: `paypal.com` includes `www.paypal.com`.
@@ -152,6 +154,13 @@ suggestions go to the [issue tracker](https://github.com/buzzqw/BetterBlockerDNS
 - **SafeSearch**: optionally answers Google, Bing and YouTube with the
   addresses that force SafeSearch and YouTube restricted mode. It is a DNS
   redirect: no certificate, no traffic decryption.
+- **CNAME cloaking**: a site cannot smuggle a tracker in through its own name.
+  When the answer to an allowed domain points to a blocked one, the answer is
+  blocked too and the log says so (with DoH, which is what lets the app read
+  the answer).
+- **Notice page for blocked sites**: optionally answers a blocked site with a
+  page on the phone that names the list that blocked it and can let it through
+  for ten minutes. Plain HTTP only, no certificate, nothing decrypted.
 
 ### Control
 - **Per-app rules**: block Wi-Fi or mobile data for a single app, let an app
@@ -183,8 +192,11 @@ it, and the packet engine (written in C, from NetGuard) handles it on the
 device:
 
 1. **DNS queries** are checked against the enabled lists and your rules. A
-   blocked domain gets an empty answer, so the app never connects to it. An
-   allowed query goes to the resolver you chose, over HTTPS when DoH is on.
+   blocked domain gets an empty answer, so the app never connects to it — or,
+   if *Notice page* is on, an address that leads to a page on the phone that
+   explains the block. An allowed query goes to the resolver you chose, over
+   HTTPS when DoH is on; the aliases in that answer are checked as well, so a
+   tracker hidden behind a CNAME is still blocked.
 2. **New connections** are checked against the per-app, IP and screen-off
    rules. Packets of an accepted connection then pass straight through.
 3. **When a rule changes**, the open connections are closed, so the new rule

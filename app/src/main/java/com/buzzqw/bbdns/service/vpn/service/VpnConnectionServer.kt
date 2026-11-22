@@ -40,6 +40,8 @@ import com.buzzqw.bbdns.service.firewall.handler.RuleHandler
 import com.buzzqw.bbdns.service.firewall.utils.FirewallCounters
 import com.buzzqw.bbdns.service.firewall.utils.FirewallStatus
 import com.buzzqw.bbdns.service.firewall.utils.DnsProtectionState
+import com.buzzqw.bbdns.service.firewall.utils.TemporaryDnsAllow
+import com.buzzqw.bbdns.service.http.LocalNoticeServer
 import com.buzzqw.bbdns.service.firewall.utils.SessionInvalidator
 import com.buzzqw.bbdns.service.utils.manager.FirewallManager
 import com.buzzqw.bbdns.service.utils.manager.ProtectionPause
@@ -73,6 +75,9 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
 
     private var vpnInterface: ParcelFileDescriptor? = null
     private lateinit var tunnelManager: TunnelManager
+
+    /** Local page that explains a block, or null while the setting is off. */
+    private var noticeServer: LocalNoticeServer? = null
     private var netGuardJob: Job? = null
     private var notificationJob: Job? = null
 
@@ -122,11 +127,50 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
         ruleManager.updateHttpSettings()
     }
 
-    override fun updateDnsProtection(blockDohBypass: Boolean, safeSearch: Boolean) {
+    override fun updateDnsProtection(blockDohBypass: Boolean, safeSearch: Boolean, localBlockPage: Boolean) {
         DnsProtectionState.setDohBypassConfigured(blockDohBypass)
         if (::tunnelManager.isInitialized) {
             tunnelManager.setSafeSearchEnabled(safeSearch)
+            applyLocalBlockPage(localBlockPage)
         }
+    }
+
+    /**
+     * Starts or stops the local notice page without restarting the VPN: the
+     * tunnel only needs the loopback port to relay a blocked site to.
+     */
+    private fun applyLocalBlockPage(enabled: Boolean) {
+        val current = noticeServer
+        if (!enabled) {
+            current?.stop()
+            noticeServer = null
+            TemporaryDnsAllow.clear()
+            tunnelManager.setLocalBlockPage(false, 0)
+            return
+        }
+        if (current != null) {
+            tunnelManager.setLocalBlockPage(true, current.port)
+            return
+        }
+        val server = LocalNoticeServer(
+            policy = NoticePolicy(),
+            log = { message -> Logger.info(message) }
+        )
+        val port = server.start()
+        if (port > 0) {
+            noticeServer = server
+            tunnelManager.setLocalBlockPage(true, port)
+        } else {
+            Logger.warn("Local notice page could not start")
+        }
+    }
+
+    /** Answers the notice page from the same rule chain the DNS path uses. */
+    private inner class NoticePolicy : LocalNoticeServer.NoticePolicy {
+        override fun isBlocked(host: String): Boolean = ruleManager.isDomainBlocked(host)
+        override fun sourceOf(host: String): String? = ruleManager.blockSourceOf(host)
+        override fun allowTemporarily(host: String, minutes: Int) = ruleManager.allowTemporarily(host, minutes)
+        override fun isTemporarilyAllowed(host: String): Boolean = ruleManager.isTemporarilyAllowed(host)
     }
     
     override fun setDnsBlocking(enabled: Boolean) {
@@ -364,6 +408,7 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
         var dohUrl: String? = null
         var blockDohBypass = false
         var safeSearch = false
+        var localBlockPage = false
         runBlocking {
             preferencesUseCases.loadSettings.execute().fold(
                 ifSuccess = {
@@ -379,6 +424,7 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
                     dohUrl = if (it.dohEnabled && it.dohUrl.isNotBlank()) it.dohUrl else null
                     blockDohBypass = it.blockDohBypass
                     safeSearch = it.safeSearch
+                    localBlockPage = it.localBlockPage
                 },
                 ifFailure = { Logger.error("Cannot read DNS settings: ${it.message}") }
             )
@@ -396,6 +442,7 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
             dnsServerV4Alt,
             dohUrl,
             safeSearch,
+            localBlockPage,
         )
         Logger.info("Tunnel Manager DNS mode: ${if (dohUrl != null) "DoH ($dohUrl)" else "plain ($dnsServerV4 / $dnsServerV4Alt)"}")
         
@@ -403,6 +450,10 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
             Logger.error("Failed to initialize Tunnel Manager")
             stopSelf()
             return false
+        }
+
+        if (localBlockPage) {
+            applyLocalBlockPage(true)
         }
 
         Logger.info("Tunnel Manager initialized successfully")
@@ -484,6 +535,9 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
         FirewallCounters.flush()
         notificationJob?.cancel()
         netGuardJob?.cancel()
+        noticeServer?.stop()
+        noticeServer = null
+        TemporaryDnsAllow.clear()
         if (::tunnelManager.isInitialized) {
             tunnelManager.stop()
             tunnelManager.release()

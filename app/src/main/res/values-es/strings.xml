@@ -533,6 +533,13 @@
     <string name="dns_resolver_private_dns_desc">Abra la configuración de DNS privado de Android. Manténgalo apagado para que las consultas DNS pasen por BBDNS.</string>
     <string name="dns_resolver_private_dns_doh_desc">Deshabilite el DNS privado en la configuración de Android mientras usa BBDNS DoH, de lo contrario, el solucionador del sistema puede omitir la aplicación.</string>
     <string name="dns_resolver_private_dns_unavailable">La configuración de DNS privado no está disponible en este dispositivo. Abre Configuración DNS → privado de → red e internet.</string>
+    <string name="dns_resolver_section_hardening">Protección del filtro</string>
+    <string name="dns_resolver_block_bypass_title">Bloquear el bypass de DNS</string>
+    <string name="dns_resolver_block_bypass_desc">Cierra DNS over TLS y los puntos de acceso DNS over HTTPS conocidos, para que los navegadores y las apps no puedan resolver nombres fuera del filtro. Desactiva antes el DNS privado de Android.</string>
+    <string name="dns_resolver_safe_search_title">SafeSearch</string>
+    <string name="dns_resolver_safe_search_desc">Obliga a Google, Bing y YouTube a usar SafeSearch o el modo restringido mediante DNS, sin descifrar el tráfico. Desactívalo si alguna página deja de cargar.</string>
+    <string name="dns_resolver_notice_page_title">Página de aviso para sitios bloqueados</string>
+    <string name="dns_resolver_notice_page_desc">Responde a un sitio bloqueado por HTTP con una página en el teléfono que explica el bloqueo y puede dejarlo pasar durante 10 minutos. Los sitios HTTPS no pueden mostrarla, porque haría falta descifrar la conexión.</string>
     <string name="blocklists_section_presets">Preajustes de protección</string>
     <string name="blocklists_section_content">Filtros de contenido</string>
     <string name="blocklists_section_advanced">Avanzado</string>
@@ -596,6 +603,7 @@
     <string name="block_reason_type_wildcard">Regla de comodín</string>
     <string name="block_reason_type_regex">Regla Regex</string>
     <string name="block_reason_source_list">Lista</string>
+    <string name="block_reason_source_dns_protection">Protección contra el bypass de DNS</string>
     <string name="block_reason_source_user_rule">Tu regla</string>
     <string name="block_reason_source_custom">Dominio personalizado</string>
     <string name="block_reason_note_custom_wins">Los bloques de dominio personalizados ganan sobre las reglas de permiso. Elimina la regla en la gestión de dominios para desbloquearla.</string>

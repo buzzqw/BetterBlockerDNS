@@ -292,6 +292,31 @@ JNIEXPORT void JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_j
     }
 }
 
+JNIEXPORT void JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_jni_1set_1notice_1page(JNIEnv *env, jobject instance, jlong context, jstring address, jint port) {
+    if (context == 0) return;
+
+    struct context *ctx = (struct context *) context;
+    if (ctx == NULL) return;
+
+    // 0 disables the redirect.
+    ctx->notice_page_addr = 0;
+    ctx->notice_page_port = 0;
+    if (address == NULL || port <= 0 || port > 65535) return;
+
+    const char *addr_str = (*env)->GetStringUTFChars(env, address, 0);
+    if (addr_str == NULL) return;
+
+    struct in_addr addr;
+    if (inet_pton(AF_INET, addr_str, &addr) == 1) {
+        ctx->notice_page_addr = addr.s_addr;
+        ctx->notice_page_port = (uint16_t) port;
+        log_android(ANDROID_LOG_INFO, "Notice page: %s relayed to 127.0.0.1:%d", addr_str, port);
+    } else {
+        log_android(ANDROID_LOG_WARN, "Notice page: invalid address %s", addr_str);
+    }
+    (*env)->ReleaseStringUTFChars(env, address, addr_str);
+}
+
 JNIEXPORT void JNICALL Java_com_buzzqw_bbdns_service_vpn_service_TunnelManager_jni_1send_1complete_1packet(JNIEnv *env, jobject instance, jlong context, jbyteArray packetData) {
     if (context == 0) return;
 

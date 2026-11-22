@@ -142,11 +142,13 @@ class SettingsViewModel @Inject constructor(
                         }
 
                         if (oldSettings.blockDohBypass != newSettings.blockDohBypass ||
-                            oldSettings.safeSearch != newSettings.safeSearch
+                            oldSettings.safeSearch != newSettings.safeSearch ||
+                            oldSettings.localBlockPage != newSettings.localBlockPage
                         ) {
                             firewallManager.updateDnsProtection(
                                 newSettings.blockDohBypass,
-                                newSettings.safeSearch
+                                newSettings.safeSearch,
+                                newSettings.localBlockPage
                             )
                         }
 
