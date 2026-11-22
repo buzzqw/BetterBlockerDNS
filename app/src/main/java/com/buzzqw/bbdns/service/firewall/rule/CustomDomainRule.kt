@@ -105,6 +105,14 @@ class CustomDomainRule @Inject constructor(
         ruleHandler = handler
     }
 
+    /** True when an in-app custom allow rule covers [domain]. */
+    fun isAllowlisted(domain: String): Boolean =
+        isCustomDomainRulesEnabled && allowlistDomains.any { it.matches(domain) }
+
+    /** True when an in-app custom block rule covers [domain]. */
+    fun isBlockedByUserRule(domain: String): Boolean =
+        isCustomDomainRulesEnabled && blocklistDomains.any { it.matches(domain) }
+
     override fun check(
         packet: FireWallModel,
         dnsModel: DNSModel?,

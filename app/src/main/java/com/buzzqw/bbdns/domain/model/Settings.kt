@@ -106,6 +106,12 @@ data class Settings(
      * addresses. No TLS interception: the redirect happens in DNS.
      */
     val safeSearch: Boolean = false,
+    /**
+     * Answers a blocked site with a small page served on the phone that
+     * explains the block and can let the site through for a few minutes.
+     * Plain HTTP only: HTTPS is judged by name and never decrypted.
+     */
+    val localBlockPage: Boolean = false,
 
     val dontShowHelp: Boolean = false
 )

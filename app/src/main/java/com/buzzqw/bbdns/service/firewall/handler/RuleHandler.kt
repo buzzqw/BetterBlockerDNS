@@ -24,6 +24,7 @@ import android.net.ConnectivityManager
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.registerReceiver
 import com.buzzqw.bbdns.core.logging.Logger
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.RuleDatabase
 import com.buzzqw.bbdns.data.service.NetworkChangeReceiver
 import com.buzzqw.bbdns.data.service.ScreenStateManager
 import com.buzzqw.bbdns.data.service.ScreenStateReceiver
@@ -41,8 +42,11 @@ import com.buzzqw.bbdns.service.firewall.rule.HTTPRule
 import com.buzzqw.bbdns.service.firewall.rule.LogRule
 import com.buzzqw.bbdns.service.firewall.rule.ScreenRule
 import com.buzzqw.bbdns.service.firewall.utils.FirewallCounters
+import com.buzzqw.bbdns.service.firewall.utils.TemporaryDnsAllow
 import com.buzzqw.bbdns.service.firewall.utils.isLocalIPv4
 import com.buzzqw.bbdns.service.vpn.network.transport.dns.DNSModel
+import com.buzzqw.bbdns.service.vpn.network.transport.ipv4.IPv4
+import com.buzzqw.bbdns.service.vpn.network.transport.udp.UDPModel
 import com.buzzqw.bbdns.service.vpn.service.VpnConnectionServer
 import com.buzzqw.bbdns.service.vpn.network.util.NetworkConstants
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -51,11 +55,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.Serializable
 import javax.inject.Inject
+import org.xbill.DNS.DClass
+import org.xbill.DNS.Type
 
 class RuleHandler @Inject constructor(
     private val rules: List<FirewallRule>,
     private val logUseCases: LogUseCases,
     private val preferencesUseCases: PreferencesUseCases,
+    private val ruleDatabase: RuleDatabase,
     networkChangeReceiver: NetworkChangeReceiver,
     @ApplicationContext private val context: Context
 ) {
@@ -126,7 +133,78 @@ class RuleHandler @Inject constructor(
     }
     
     fun isCustomDomainRulesEnabled(): Boolean {
-        return rules.filterIsInstance<CustomDomainRule>().firstOrNull()?.isCustomDomainRulesEnabled() ?: false
+        return rules.filterIsInstance<CustomDomainRule>().firstOrNull()
+            ?.isCustomDomainRulesEnabled() ?: false
+    }
+
+    /**
+     * True when [host] is blocked right now, with the same precedence as the
+     * packet path: an explicit allow wins, then the user's custom rules, then
+     * the lists. A "continue" from the notice page counts as an allow.
+     *
+     * This is the hostname-only view used by the local notice page and the
+     * CNAME check; it has no app (UID) information.
+     */
+    fun isDomainBlocked(host: String): Boolean {
+        val domain = host.trim().trimEnd('.').lowercase()
+        if (domain.isEmpty()) return false
+        if (!isDnsBlockingEnabled()) return false
+        if (TemporaryDnsAllow.isAllowed(domain)) return false
+
+        val custom = rules.filterIsInstance<CustomDomainRule>().firstOrNull()
+        if (custom?.isBlockedByUserRule(domain) == true) return true
+        if (custom?.isAllowlisted(domain) == true) return false
+
+        if (ruleDatabase.isAllowlisted(domain)) return false
+        return ruleDatabase.isBlocked(domain)
+    }
+
+    /** True when an allow rule (list whitelist or custom allow) covers [host]. */
+    fun isDomainExplicitlyAllowed(host: String): Boolean {
+        val domain = host.trim().trimEnd('.').lowercase()
+        if (domain.isEmpty()) return false
+        val custom = rules.filterIsInstance<CustomDomainRule>().firstOrNull()
+        if (custom?.isAllowlisted(domain) == true) return true
+        if (TemporaryDnsAllow.isAllowed(domain)) return true
+        return ruleDatabase.isAllowlisted(domain)
+    }
+
+    /** Title of the source that blocks [host], when the index knows it. */
+    fun blockSourceOf(host: String): String? {
+        val domain = host.trim().trimEnd('.').lowercase()
+        if (domain.isEmpty()) return null
+        val custom = rules.filterIsInstance<CustomDomainRule>().firstOrNull()
+        if (custom?.isBlockedByUserRule(domain) == true) return "Custom domain rules"
+        return ruleDatabase.sourceFor(domain)?.title
+    }
+
+    /** The user chose "continue" on the notice page. */
+    fun allowTemporarily(host: String, minutes: Int = NOTICE_ALLOW_MINUTES) {
+        TemporaryDnsAllow.allow(host, minutes)
+    }
+
+    /** True while a "continue" from the notice page is still valid. */
+    fun isTemporarilyAllowed(host: String): Boolean = TemporaryDnsAllow.isAllowed(host)
+
+    /**
+     * Journals a block decided after the answer arrived: the query itself was
+     * allowed, so [handle] never saw it and the log would not explain why the
+     * app could not reach the site.
+     */
+    fun recordCnameBlock(
+        uid: Int,
+        udpHeader: UDPModel,
+        ipHeader: IPv4?,
+        domain: String,
+        target: String
+    ) {
+        val model = ProtocolHandlerFactory.getHandler(udpHeader)?.handle(udpHeader, ipHeader)
+            ?: FireWallModel()
+        model.uid = uid
+        val dnsModel = DNSModel(0, 0, 1, 0, 0, 0, domain, Type.A, DClass.IN)
+        logRule.check(model, dnsModel, logUseCases, FirewallResult.DNS_BLOCKED)
+        FirewallCounters.record(false, domain, uid)
+        Logger.info("Blocked $domain: it resolves through $target (CNAME cloaking)")
     }
 
     fun updateScreenSetting() {
@@ -178,5 +256,10 @@ class RuleHandler @Inject constructor(
             FirewallCounters.record(result == FirewallResult.ACCEPT, dnsModel?.domainName, packet.uid)
         }
         return Triple(result == FirewallResult.ACCEPT, packet.uid, result)
+    }
+
+    companion object {
+        /** How long "continue" on the notice page lasts. */
+        const val NOTICE_ALLOW_MINUTES = 10
     }
 }

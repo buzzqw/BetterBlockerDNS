@@ -533,6 +533,13 @@
     <string name="dns_resolver_private_dns_desc">Ouvrez les paramètres DNS privés Android. Ne le faites pas pour que les requêtes DNS passent par BBDNS.</string>
     <string name="dns_resolver_private_dns_doh_desc">Désactivez le DNS privé dans les paramètres Android lorsque vous utilisez BBDNS DoH, sinon le résolveur système peut contourner l\'application.</string>
     <string name="dns_resolver_private_dns_unavailable">Les paramètres DNS privés ne sont pas disponibles sur cet appareil. Ouvrez Paramètres → Réseau et Internet DNS → privé.</string>
+    <string name="dns_resolver_section_hardening">Protection du filtrage</string>
+    <string name="dns_resolver_block_bypass_title">Bloquer le contournement DNS</string>
+    <string name="dns_resolver_block_bypass_desc">Ferme DNS over TLS et les points d\'accès DNS over HTTPS connus, afin que les navigateurs et les applications ne puissent pas résoudre des noms hors du filtre. Désactivez d\'abord le DNS privé d\'Android.</string>
+    <string name="dns_resolver_safe_search_title">SafeSearch</string>
+    <string name="dns_resolver_safe_search_desc">Force Google, Bing et YouTube en SafeSearch ou en mode restreint via DNS, sans déchiffrer le trafic. Désactivez-le si une page ne se charge plus.</string>
+    <string name="dns_resolver_notice_page_title">Page d\'avertissement pour les sites bloqués</string>
+    <string name="dns_resolver_notice_page_desc">Répond à un site bloqué en HTTP avec une page sur le téléphone qui explique le blocage et peut le laisser passer pendant 10 minutes. Les sites HTTPS ne peuvent pas l\'afficher, car il faudrait déchiffrer la connexion.</string>
     <string name="blocklists_section_presets">Préréglages de protection</string>
     <string name="blocklists_section_content">Filtres de contenu</string>
     <string name="blocklists_section_advanced">Avancé</string>
@@ -596,6 +603,7 @@
     <string name="block_reason_type_wildcard">Règle des caractères génériques</string>
     <string name="block_reason_type_regex">Règle Regex</string>
     <string name="block_reason_source_list">Liste</string>
+    <string name="block_reason_source_dns_protection">Protection contre le contournement DNS</string>
     <string name="block_reason_source_user_rule">Votre règle</string>
     <string name="block_reason_source_custom">Domaine personnalisé</string>
     <string name="block_reason_note_custom_wins">Les blocs de domaine personnalisés l\'emportent sur les règles d\'autorisation. Supprimez la règle dans la gestion des domaines pour la débloquer.</string>

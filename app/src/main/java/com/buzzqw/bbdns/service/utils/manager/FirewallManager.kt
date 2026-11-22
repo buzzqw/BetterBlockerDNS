@@ -47,8 +47,8 @@ interface FirewallService {
     fun updateScreen(value: Boolean)
     suspend fun updateDomains(progressCallback: (suspend (Int) -> Unit)? = null)
     fun updateHttpSettings()
-    /** Applies the DoH/DoT bypass and SafeSearch switches without a VPN restart. */
-    fun updateDnsProtection(blockDohBypass: Boolean, safeSearch: Boolean)
+    /** Applies the DNS switches (DoH/DoT bypass, SafeSearch, notice page) without a VPN restart. */
+    fun updateDnsProtection(blockDohBypass: Boolean, safeSearch: Boolean, localBlockPage: Boolean)
     fun setDnsBlocking(enabled: Boolean)
     fun isDnsBlockingEnabled(): Boolean
     /** Disable DNS blocking for [minutes]; it resumes on its own. */
@@ -118,8 +118,8 @@ class FirewallManager @Inject constructor(
         currentService.value?.updateHttpSettings()
     }
 
-    fun updateDnsProtection(blockDohBypass: Boolean, safeSearch: Boolean) {
-        currentService.value?.updateDnsProtection(blockDohBypass, safeSearch)
+    fun updateDnsProtection(blockDohBypass: Boolean, safeSearch: Boolean, localBlockPage: Boolean) {
+        currentService.value?.updateDnsProtection(blockDohBypass, safeSearch, localBlockPage)
     }
 
     fun update(state: FirewallStatus) {

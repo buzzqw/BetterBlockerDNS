@@ -201,8 +201,16 @@ object RulesModule {
         logUseCases: LogUseCases,
         preferencesUseCases: PreferencesUseCases,
         networkChangeReceiver: NetworkChangeReceiver,
+        ruleDatabase: RuleDatabase,
         @ApplicationContext context: Context
     ): RuleHandler {
-        return RuleHandler(listOf(appRule, dohBypassRule, DNSRule, customDomainRule, filterRule, screenRule, httpRule, logRule), logUseCases, preferencesUseCases, networkChangeReceiver, context)
+        return RuleHandler(
+            listOf(appRule, dohBypassRule, DNSRule, customDomainRule, filterRule, screenRule, httpRule, logRule),
+            logUseCases,
+            preferencesUseCases,
+            ruleDatabase,
+            networkChangeReceiver,
+            context
+        )
     }
 }

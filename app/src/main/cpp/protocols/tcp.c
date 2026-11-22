@@ -574,6 +574,21 @@ jboolean handle_tcp(const struct arguments *args, const uint8_t *pkt, size_t len
                 }
             }
 
+            // Local notice page: a blocked plain-HTTP site is answered with
+            // the notice address, so the connection arrives here. Relaying it
+            // to the loopback server (any port: the server refuses everything
+            // but its own page) keeps the browser from calling an address
+            // inside the tunnel, which would loop back into this stack.
+            struct allowed notice_redirect;
+            if (version == 4 && redirect == NULL &&
+                s->tcp.daddr.ip4 == args->ctx->notice_page_addr &&
+                args->ctx->notice_page_port != 0) {
+                memset(&notice_redirect, 0, sizeof(notice_redirect));
+                strncpy(notice_redirect.raddr, "127.0.0.1", sizeof(notice_redirect.raddr) - 1);
+                notice_redirect.rport = args->ctx->notice_page_port;
+                tcp_redirect = &notice_redirect;
+            }
+
             s->socket = open_tcp_socket(args, &s->tcp, tcp_redirect);
             if (s->socket < 0) {
                 ng_free(s, __FILE__, __LINE__);

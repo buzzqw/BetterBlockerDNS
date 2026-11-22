@@ -533,6 +533,13 @@
     <string name="dns_resolver_private_dns_desc">Öffnen Sie die Android Private DNS-Einstellungen. Halten Sie es ausgeschaltet, damit DNS-Abfragen über BBDNS laufen.</string>
     <string name="dns_resolver_private_dns_doh_desc">Deaktivieren Sie Private DNS in den Android-Einstellungen, während Sie BBDNS DoH verwenden, andernfalls kann der Systemresolver die App umgehen.</string>
     <string name="dns_resolver_private_dns_unavailable">Private DNS-Einstellungen sind auf diesem Gerät nicht verfügbar. Öffne Einstellungen → Netzwerk &amp; Internet → Private DNS.</string>
+    <string name="dns_resolver_section_hardening">Filter-Schutz</string>
+    <string name="dns_resolver_block_bypass_title">DNS-Bypass blockieren</string>
+    <string name="dns_resolver_block_bypass_desc">Schließt DNS-over-TLS und die bekannten DNS-over-HTTPS-Endpunkte, damit Browser und Apps keine Namen außerhalb des Filters auflösen können. Schalte zuerst das private DNS von Android aus.</string>
+    <string name="dns_resolver_safe_search_title">SafeSearch</string>
+    <string name="dns_resolver_safe_search_desc">Zwingt Google, Bing und YouTube über DNS in SafeSearch bzw. den eingeschränkten Modus, ohne Datenverkehr zu entschlüsseln. Schalte es aus, wenn eine Seite nicht mehr lädt.</string>
+    <string name="dns_resolver_notice_page_title">Hinweisseite für blockierte Seiten</string>
+    <string name="dns_resolver_notice_page_desc">Beantwortet eine blockierte Seite über einfaches HTTP mit einer Seite auf dem Telefon, die die Blockierung erklärt und sie für 10 Minuten zulassen kann. HTTPS-Seiten können sie nicht anzeigen, weil dafür die Verbindung entschlüsselt werden müsste.</string>
     <string name="blocklists_section_presets">Schutzvoreinstellungen</string>
     <string name="blocklists_section_content">Inhaltsfilter</string>
     <string name="blocklists_section_advanced">Erweitert</string>
@@ -596,6 +603,7 @@
     <string name="block_reason_type_wildcard">Platzhalterregel</string>
     <string name="block_reason_type_regex">Regex-Regel</string>
     <string name="block_reason_source_list">Liste</string>
+    <string name="block_reason_source_dns_protection">DNS-Bypass-Schutz</string>
     <string name="block_reason_source_user_rule">Ihre Regel</string>
     <string name="block_reason_source_custom">Benutzerdefinierte Domain</string>
     <string name="block_reason_note_custom_wins">Benutzerdefinierte Domain-Blöcke gewinnen über Zulassungsregeln. Entfernen Sie die Regel in der Domänenverwaltung, um sie zu entsperren.</string>

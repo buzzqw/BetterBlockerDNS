@@ -52,3 +52,84 @@ jobs:
           name: BBDNS-verification-${{ github.sha }}
           path: app/build/outputs/apk/release/app-release.apk
           retention-days: 7
+
+  # The unit tests are plain JVM tests (no emulator): they cover the DNS
+  # answers the app builds, the blocklist parser and the notice page, i.e. the
+  # places where a wrong answer is worse than a crash.
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Java 17
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: gradle
+
+      # AGP configures the native build even for a Kotlin-only task, so the
+      # pinned NDK must be there.
+      - name: Set up Android NDK
+        uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779 # v1
+        with:
+          ndk-version: r27c
+
+      - name: Grant execution permission to Gradle Wrapper
+        run: chmod +x gradlew
+
+      - name: Run unit tests
+        run: ./gradlew :app:testDebugUnitTest --no-daemon --console=plain
+        env:
+          BBDNS_SKIP_EMAIL: "1"
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: unit-test-report-${{ github.sha }}
+          path: app/build/reports/tests/testDebugUnitTest
+          retention-days: 7
+
+  # Android Lint catches the platform mistakes a compiler accepts: missing
+  # permissions, the wrong API level, a resource used on the wrong screen size.
+  # It runs on Java 17 on purpose: AGP 9.5 crashes while converting Kotlin
+  # files to UAST on newer JDKs.
+  lint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Java 17
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: gradle
+
+      - name: Set up Android NDK
+        uses: nttld/setup-ndk@ed92fe6cadad69be94a966a7ee3271275e62f779 # v1
+        with:
+          ndk-version: r27c
+
+      - name: Grant execution permission to Gradle Wrapper
+        run: chmod +x gradlew
+
+      - name: Run Android Lint
+        run: ./gradlew :app:lintDebug --no-daemon --console=plain
+        env:
+          BBDNS_SKIP_EMAIL: "1"
+
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: lint-report-${{ github.sha }}
+          path: app/build/reports/lint-results-debug.html
+          retention-days: 7

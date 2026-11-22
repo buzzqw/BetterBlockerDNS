@@ -25,6 +25,8 @@ Stop known bad domains before your apps contact them, system-wide and inside app
 - Free plain DNS resolvers: Google, Cloudflare (standard, malware, family), Quad9, AdGuard (standard, family), OpenDNS, CleanBrowsing, DNS.SB, Control D, DNS4EU and Yandex
 - Custom DNS servers
 - Block specific domains manually
+- CNAME cloaking protection: a tracker hidden behind a site's own name is still blocked
+- Optional notice page: a blocked site opened over plain HTTP explains which list blocked it and can be let through for ten minutes
 - Simple or detailed DNS request logging in real time
 
 🔒 PRIVACY FIRST

@@ -294,6 +294,13 @@ class RuleDatabase {
     /** Titles of the lists that contain @@ whitelist entries. */
     fun listsWithWhitelistEntries(): Set<String> = whitelistListTitles
 
+    /**
+     * True when an allow rule covers [host], including a parent domain.
+     * Public so "why was this blocked?" and the local notice page apply the
+     * same allow semantics as the DNS path.
+     */
+    fun isAllowlisted(host: String): Boolean = isWhitelisted(host.lowercase().trimEnd('.'))
+
     private fun isWhitelisted(host: String): Boolean {
         if (whitelistedHosts.contains(host)) {
             return true

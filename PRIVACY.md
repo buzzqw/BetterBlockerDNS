@@ -25,6 +25,11 @@ your device, and there is nothing to send: the app has no backend.
 - **List downloads.** Blocklists are downloaded from the public sources you
   enable (for example HaGeZi or StevenBlack). Those servers see the download
   request, as with any file download from your phone.
+- **Notice page (optional, off by default).** When you turn it on, a blocked
+  site over plain HTTP is answered with a small page served by the phone
+  itself: it names the list that blocked the site and can let it through for
+  ten minutes. The page runs on `127.0.0.1`, so no data leaves the device, and
+  the request is only relayed to the real site after you press *continue*.
 - **Logs and statistics.** Blocked domains, recent activity and counters are
   stored only in the app's private storage on your phone. They are never
   uploaded. You can clear them at any time from the app, and the detailed log

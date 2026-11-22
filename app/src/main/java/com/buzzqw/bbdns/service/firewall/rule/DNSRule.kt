@@ -23,6 +23,7 @@ import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.hosts.Rule
 import com.buzzqw.bbdns.service.firewall.model.FireWallModel
 import com.buzzqw.bbdns.service.firewall.model.FirewallResult
 import com.buzzqw.bbdns.service.firewall.utils.DnsFilterExclusions
+import com.buzzqw.bbdns.service.firewall.utils.TemporaryDnsAllow
 import com.buzzqw.bbdns.service.vpn.network.transport.dns.DNSModel
 import javax.inject.Inject
 
@@ -65,6 +66,11 @@ class DNSRule @Inject constructor(
             // logged and counted as allowed). packet.uid is resolved by AppRule,
             // which runs before this rule; see DnsFilterExclusions for limits.
             if (DnsFilterExclusions.isExcluded(packet.uid)) {
+                return FirewallResult.ACCEPT
+            }
+            // "Continue" on the local notice page: the same choice must hold
+            // for the next lookup, not only for the request still in flight.
+            if (TemporaryDnsAllow.isAllowed(dnsModel.domainName)) {
                 return FirewallResult.ACCEPT
             }
             if (ruleDatabase.isBlocked(dnsModel.domainName)) {

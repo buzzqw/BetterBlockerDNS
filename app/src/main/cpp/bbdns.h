@@ -121,6 +121,11 @@ struct context {
     unsigned int clear_gen;
     int sdk;
     struct ng_session *ng_session;    char dns_server_v4[INET_ADDRSTRLEN];    char dns_server_v4_alt[INET_ADDRSTRLEN];    char dns_server_v6[INET6_ADDRSTRLEN];
+    // Local notice page: TCP to this address is relayed to the loopback
+    // server on notice_page_port, so a blocked plain-HTTP site can explain
+    // itself instead of failing. 0 disables the redirect.
+    uint32_t notice_page_addr; // network notation
+    uint16_t notice_page_port; // host notation
 };
 
 struct arguments {
