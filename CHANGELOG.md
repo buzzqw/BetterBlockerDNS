@@ -10,6 +10,13 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-22
 
+### Release 1.0.51
+- Version 1.0.51 blocks trackers that hide behind the site's own name, can show
+  a page on the phone that explains a block and lets a site through for ten
+  minutes, and stops a dead DoH endpoint from adding a timeout to every lookup.
+  Opening the blocklist screen no longer downloads every list again.
+  Everything still happens on the device: nothing is decrypted.
+
 ### Blocklist updates no longer restart on every visit
 - Opening the blocklist screen used to cancel the pending automatic update and
   queue a new one, which ran a full download of every enabled list and reloaded
