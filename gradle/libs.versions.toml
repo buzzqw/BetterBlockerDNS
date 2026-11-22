@@ -22,7 +22,7 @@ material3 = "1.3.2"
 navigationCompose = "2.9.2"
 appcompat = "1.7.1"
 workRuntimeKtx = "2.12.0"
-hiltCommon = "1.2.0"
+hiltCommon = "1.4.0"
 m3color = "2024.6"
 
 [libraries]
