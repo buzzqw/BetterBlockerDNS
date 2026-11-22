@@ -10,6 +10,13 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-22
 
+### Release 1.0.52
+- Version 1.0.52 makes the protection profiles load StevenBlack Unified:
+  Balanced and the stricter profiles now download the malware and advertising
+  base themselves, instead of depending on what the installation already had.
+  The list is named in the download dialog, and a copy that is already enabled
+  is not added twice. Essential keeps its two HaGeZi lists.
+
 ### Profiles load StevenBlack Unified
 - Choosing Balanced, Pro, Aggressive or Maximum now downloads StevenBlack
   Unified as part of the profile, so the malware and advertising base is loaded
