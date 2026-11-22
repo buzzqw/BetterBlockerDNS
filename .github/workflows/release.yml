@@ -127,7 +127,8 @@ jobs:
       - name: Write the release notes from CHANGELOG.md
         run: |
           # The day section that contains "### Release <version>", without its
-          # date heading and without the release marker line.
+          # date heading, without the release marker line and without any older
+          # release that shares the same date.
           awk -v rel="### Release $VERSION" '
             /^## / { if (found) exit; block = ""; next }
             { block = block $0 "\n" }
@@ -136,6 +137,9 @@ jobs:
           ' CHANGELOG.md \
             | awk -v rel="### Release $VERSION" '
                 $0 == rel { skip = 1; next }
+                # Two releases can share a date: stop before the older one
+                # instead of pasting its notes into this release.
+                /^### Release / { exit }
                 skip && /^### / { skip = 0 }
                 !skip' > section.md
           {
