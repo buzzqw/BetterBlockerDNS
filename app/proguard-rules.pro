@@ -44,15 +44,6 @@
 # Suppress kotlinx-serialization R8 warnings
 -dontwarn kotlinx.serialization.**
 
-# Keep license verification classes (prevent R8 from breaking premium code verification)
--keep class com.buzzqw.bbdns.data.remote.LicenseResponse { *; }
--keep class com.buzzqw.bbdns.data.remote.LicenseData { *; }
--keep class com.buzzqw.bbdns.data.remote.ActivationData { *; }
--keep class com.buzzqw.bbdns.data.remote.LicenseApi { *; }
--keep class com.buzzqw.bbdns.data.remote.LicenseRepository { *; }
--keep class com.buzzqw.bbdns.data.remote.LicenseRepositoryImpl { *; }
--keep class com.buzzqw.bbdns.data.remote.VerifyLicenseUseCase { *; }
-
 # Room Database rules - prevent R8 from breaking database operations
 -keep class androidx.room.** { *; }
 -keep class androidx.sqlite.** { *; }
@@ -72,51 +63,8 @@
 -keep class com.buzzqw.bbdns.data.local.database.** { *; }
 -keep class com.buzzqw.bbdns.domain.model.** { *; }
 
-# Shizuku rules - prevent R8 from breaking Shizuku services and AIDL interfaces
--keep class moe.shizuku.** { *; }
--keep class rikka.shizuku.** { *; }
--keep interface rikka.shizuku.** { *; }
--keepclassmembers class * implements rikka.shizuku.** {
-    *;
-}
-
-# AIDL interface preservation
--keep class * extends android.os.Binder { *; }
--keep class * implements android.os.IInterface { *; }
--keep class **$Stub { *; }
--keep class **$Stub$Proxy { *; }
-
-# Shizuku service classes
--keep class com.buzzqw.bbdns.service.shizuku.** { *; }
--keep interface com.buzzqw.bbdns.service.shizuku.** { *; }
+# Hilt-provided firewall classes are created reflectively.
 -keep class com.buzzqw.bbdns.di.firewall.** { *; }
-
-# AIDL generated classes and interfaces
--keep class com.buzzqw.bbdns.service.shizuku.IShizukuFirewallService { *; }
--keep class com.buzzqw.bbdns.service.shizuku.IShizukuFirewallService$Stub { *; }
--keep class com.buzzqw.bbdns.service.shizuku.IShizukuFirewallService$Stub$Proxy { *; }
-
-# Preserve Shizuku UserService args and binding
--keepclassmembers class rikka.shizuku.Shizuku$UserServiceArgs {
-    *;
-}
--keep class android.content.ServiceConnection { *; }
--keepclassmembers class * implements android.content.ServiceConnection {
-    *;
-}
-
-# Preserve reflection-based method calls used by Shizuku
--keepclassmembers class * {
-    @rikka.shizuku.** *;
-}
-
-# Keep Shizuku permission and version checking methods
--keepclassmembers class rikka.shizuku.Shizuku {
-    public static boolean pingBinder();
-    public static int checkSelfPermission();
-    public static void requestPermission(int);
-    public static int getVersion();
-}
 
 # Enhanced optimization rules for smaller APK size
 -allowaccessmodification

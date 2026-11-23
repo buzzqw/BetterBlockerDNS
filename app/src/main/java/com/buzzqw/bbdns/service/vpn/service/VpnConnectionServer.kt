@@ -224,7 +224,7 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
                 tunnelManager.clearSessions()
             }
         } catch (e: Exception) {
-
+            Logger.warn("Cannot clear sessions before updating rules: ${e.message}")
         }
         
         runBlocking {
@@ -255,7 +255,9 @@ class VpnConnectionServer : Service(), CoroutineScope by MainScope(), AppChangeC
     }
 
     override fun onAppUninstalled(packageName: String?) {
-
+        // The app list is kept up to date by HomeViewModel; the exclusion UID
+        // set drops the missing app on its next refresh.
+        Logger.info("App removed: $packageName")
     }
 
     override fun onBind(intent: Intent): IBinder = VpnConnection()

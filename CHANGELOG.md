@@ -24,6 +24,25 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
   open connections. Protection behaves exactly as before, but leaves more
   processor time to the rest of the phone, which helps battery life.
 
+## 2026-11-23
+
+### Hardening pass for filtering and packet handling
+- Apps you excluded from DNS filtering now get the same treatment with DoH on:
+  their answers are no longer rejected because of a blocked alias (CNAME
+  cloaking), and their queries do not share the filtered answer cache. What you
+  excluded stays unfiltered from the question through the answer.
+- A malformed DNS name can no longer make the filter misread a query. Names
+  with compression are understood, and truncated or looping names are rejected
+  cleanly instead of producing a wrong answer.
+- The packet engine logs through a size-bounded buffer, so a long log line
+  cannot overflow it. Dead code left over from removed privileged modes was
+  dropped from the build configuration.
+- The tunnel now advertises the same packet size to Android and to its own
+  buffers, which avoids unnecessary IP fragmentation on large packets.
+- Internal cleanups: more unpredictable DNS transaction IDs, no silently
+  swallowed errors during rule updates, and no dead progress-building code
+  during list downloads. Nothing changes in the UI.
+
 ## 2026-11-22
 
 ### Release 1.0.53

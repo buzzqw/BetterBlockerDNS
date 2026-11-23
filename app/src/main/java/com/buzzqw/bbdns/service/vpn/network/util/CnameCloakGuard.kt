@@ -34,6 +34,9 @@ data class CnameCloak(val domain: String, val target: String)
  * An explicit allow always wins, on the queried name and on the alias: a user
  * who allowed a domain means it, and an alias it points to is part of that
  * domain's answer.
+ *
+ * An app excluded from DNS filtering is left alone here too. Its question was
+ * not checked against the blocklists, so its answer must not be either.
  */
 object CnameCloakGuard {
 
@@ -45,13 +48,18 @@ object CnameCloakGuard {
      * @param isBlocked true when the domain is blocked by lists or custom rules.
      * @param isExplicitlyAllowed true for an allow rule the user (or a list)
      *   wrote on purpose, which [isBlocked] alone cannot tell from "not listed".
+     * @param uid UID of the app that asked, or -1 when it is not known.
+     * @param isExcluded tells whether [uid] was excluded from DNS filtering.
      */
     fun find(
         response: ByteArray,
         queried: String,
         isBlocked: (String) -> Boolean,
         isExplicitlyAllowed: (String) -> Boolean = { false },
+        uid: Int = -1,
+        isExcluded: (Int) -> Boolean = { false },
     ): CnameCloak? {
+        if (uid > 0 && isExcluded(uid)) return null
         val domain = normalize(queried)
         if (domain.isEmpty()) return null
         // Already blocked: the normal path answers before the response exists.

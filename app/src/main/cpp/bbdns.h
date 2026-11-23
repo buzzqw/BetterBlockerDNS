@@ -425,8 +425,6 @@ void log_android(int prio, const char *fmt, ...);
 int compare_u32(uint32_t seq1, uint32_t seq2);
 
 
-char *hex(const u_int8_t *data, const size_t len);
-
 int is_readable(int fd);
 
 

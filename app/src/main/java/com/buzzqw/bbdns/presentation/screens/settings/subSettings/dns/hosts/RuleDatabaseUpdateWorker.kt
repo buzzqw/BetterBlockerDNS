@@ -74,7 +74,6 @@ class RuleDatabaseUpdateWorker @AssistedInject constructor(
     }
 
     private val errors = ArrayList<String>()
-    private val pending = ArrayList<String>()
     private val done = ArrayList<String>()
 
     /** True when at least one list was actually downloaded in this run. */
@@ -226,17 +225,6 @@ class RuleDatabaseUpdateWorker @AssistedInject constructor(
     }
 
     @Synchronized
-    private fun updateProgressNotification() {
-        val builder = StringBuilder()
-        for (p in pending) {
-            if (builder.isNotEmpty()) {
-                builder.append("\n")
-            }
-            builder.append(p)
-        }
-    }
-
-    @Synchronized
     private fun postExecute() {
         if (!errors.isEmpty()) {
             lastErrors = errors
@@ -255,15 +243,11 @@ class RuleDatabaseUpdateWorker @AssistedInject constructor(
     fun addDone(item: Host, upToDate: Boolean = false) {
         setItemState(item, if (upToDate) ItemState.UP_TO_DATE else ItemState.DONE)
         // Don't update domains here - wait until all downloads complete
-        pending.remove(item.title)
         done.add(item.title)
         doneNames.value = doneNames.value.toMutableList().apply { add(item.title) }
-        updateProgressNotification()
     }
     @Synchronized
     fun addBegin(item: Host) {
         setItemState(item, ItemState.DOWNLOADING)
-        pending.add(item.title)
-        updateProgressNotification()
     }
 }

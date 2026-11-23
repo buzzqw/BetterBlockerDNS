@@ -50,12 +50,12 @@ import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
 import java.nio.ByteBuffer
+import java.security.SecureRandom
 import java.nio.ByteOrder
 import java.util.LinkedHashMap
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.random.Random
 import org.xbill.DNS.AAAARecord
 import org.xbill.DNS.ARecord
 import org.xbill.DNS.DClass
@@ -107,6 +107,7 @@ class TunnelManager(
             size > DOH_CACHE_MAX_ENTRIES
     }
     private val dohCacheLock = Any()
+    private val secureRandom = SecureRandom()
 
     private val dohClient = OkHttpClient.Builder()
         .connectTimeout(DOH_CONNECT_TIMEOUT_MS, TimeUnit.MILLISECONDS)
@@ -406,9 +407,9 @@ class TunnelManager(
             // journaled here: the query itself was allowed, so the packet path
             // has no log line for it.
             val response = dohPermits.withPermit {
-                resolveDns(endpoint, query) { cloak ->
+                resolveDns(endpoint, query, uid = uid, onCnameBlock = { cloak ->
                     ruleHandler?.recordCnameBlock(uid, udpHeader, ipHeader, cloak.domain, cloak.target)
-                }
+                })
             }
             try {
                 val packet = handleDnsResponse(udpHeader, ipHeader, response)
@@ -464,7 +465,7 @@ class TunnelManager(
         }
 
         val request = Message()
-        request.header.setID(Random.nextInt(1, 65535))
+        request.header.setID(secureRandom.nextInt(1, 65535))
         request.header.setFlag(Flags.RD.toInt())
         request.addRecord(
             Record.newRecord(Name.fromString("$target."), type, DClass.IN),
@@ -501,16 +502,22 @@ class TunnelManager(
     private fun resolveDns(
         endpoint: String,
         query: ByteArray,
+        uid: Int = -1,
         onCnameBlock: ((CnameCloak) -> Unit)? = null
     ): ByteArray {
+        // An excluded app must never receive an answer that was filtered for
+        // somebody else, or leave a filtered answer in the shared cache.
+        val unfiltered = uid > 0 && DnsFilterExclusions.isExcluded(uid)
         val key = dohCacheKey(query)
-        synchronized(dohCacheLock) {
-            dohCache[key]?.let { entry ->
-                if (entry.expiresAt > System.currentTimeMillis()) {
-                    dohCacheHits.incrementAndGet()
-                    return withTransactionId(entry.response, query)
+        if (!unfiltered) {
+            synchronized(dohCacheLock) {
+                dohCache[key]?.let { entry ->
+                    if (entry.expiresAt > System.currentTimeMillis()) {
+                        dohCacheHits.incrementAndGet()
+                        return withTransactionId(entry.response, query)
+                    }
+                    dohCache.remove(key)
                 }
-                dohCache.remove(key)
             }
         }
 
@@ -543,14 +550,14 @@ class TunnelManager(
         val normalized = if (response.size >= 12) response else servFail(query)
         // A blocked alias is detected on the answer, before it is cached, so
         // the cached bytes are always the upstream ones.
-        val guarded = applyCnameGuard(normalized, query, onCnameBlock)
+        val guarded = applyCnameGuard(normalized, query, uid, onCnameBlock)
         val cached = guarded.copyOf().also {
             it[0] = 0
             it[1] = 0
         }
         val truncated = (guarded[2].toInt() and 0x02) != 0
         val servFailResponse = (guarded[3].toInt() and 0x0F) == 2
-        if (guarded === normalized && !truncated && !servFailResponse) {
+        if (!unfiltered && guarded === normalized && !truncated && !servFailResponse) {
             synchronized(dohCacheLock) {
                 dohCache[key] = DohCacheEntry(
                     expiresAt = System.currentTimeMillis() + DOH_CACHE_TTL_MS,
@@ -569,6 +576,7 @@ class TunnelManager(
     private fun applyCnameGuard(
         response: ByteArray,
         query: ByteArray,
+        uid: Int,
         onCnameBlock: ((CnameCloak) -> Unit)?
     ): ByteArray {
         val handler = ruleHandler ?: return response
@@ -582,7 +590,9 @@ class TunnelManager(
             response = response,
             queried = queried,
             isBlocked = handler::isDomainBlocked,
-            isExplicitlyAllowed = handler::isDomainExplicitlyAllowed
+            isExplicitlyAllowed = handler::isDomainExplicitlyAllowed,
+            uid = uid,
+            isExcluded = DnsFilterExclusions::isExcluded
         ) ?: return response
 
         onCnameBlock?.invoke(cloak)

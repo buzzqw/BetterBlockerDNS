@@ -62,11 +62,6 @@ class BlockListViewModel @Inject constructor(
     val isLoading = domainCacheService.isLoading
     val isInitialized = domainCacheService.isInitialized
 
-    init {
-        // Domain initialization happens automatically in App.onCreate()
-        // No need to call it here - it would block the UI
-    }
-
     fun refreshDomains() {
         domainCacheService.forceRefresh()
     }

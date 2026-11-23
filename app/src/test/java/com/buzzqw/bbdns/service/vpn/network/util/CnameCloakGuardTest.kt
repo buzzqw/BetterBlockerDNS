@@ -106,4 +106,29 @@ class CnameCloakGuardTest {
     fun `a response that does not parse is ignored`() {
         assertNull(CnameCloakGuard.find(ByteArray(4), "metrics.example.com", { it in blocked }))
     }
+
+    @Test
+    fun `an app excluded from DNS filtering keeps its cloaked answer`() {
+        // The excluded app's question was never checked against the lists, so
+        // the answer must not be checked either.
+        val cloak = CnameCloakGuard.find(
+            response = response("metrics.example.com", listOf("tracker.adnetwork.net")),
+            queried = "metrics.example.com",
+            isBlocked = { it in blocked },
+            uid = 10145,
+            isExcluded = { it == 10145 },
+        )
+        assertNull(cloak)
+    }
+
+    @Test
+    fun `an unknown UID is still checked`() {
+        val cloak = CnameCloakGuard.find(
+            response = response("metrics.example.com", listOf("tracker.adnetwork.net")),
+            queried = "metrics.example.com",
+            isBlocked = { it in blocked },
+            isExcluded = { true },
+        )
+        assertEquals("tracker.adnetwork.net", cloak?.target)
+    }
 }

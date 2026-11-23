@@ -23,7 +23,10 @@ int max_tun_msg = 0;
 extern int loglevel;
 
 uint16_t get_mtu() {
-    return 10000;
+    // Keep in sync with NetworkConstants.MAX_PACKET_LEN, which is also the
+    // MTU passed to Android's VPN builder. A larger value would advertise a
+    // TCP MSS the tunnel cannot carry and force fragmentation.
+    return 8192;
 }
 
 uint16_t get_default_mss(int version) {

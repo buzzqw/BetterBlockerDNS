@@ -113,26 +113,10 @@ void log_android(int prio, const char *fmt, ...) {
         char line[1024];
         va_list argptr;
         va_start(argptr, fmt);
-        vsprintf(line, fmt, argptr);
+        vsnprintf(line, sizeof(line), fmt, argptr);
         __android_log_print(prio, TAG, "%s", line);
         va_end(argptr);
     }
-}
-
-char *hex(const u_int8_t *data, const size_t len) {
-    char hex_str[] = "0123456789ABCDEF";
-
-    char *hexout;
-    hexout = (char *) ng_malloc(len * 3 + 1, "hex"); // TODO free
-
-    for (size_t i = 0; i < len; i++) {
-        hexout[i * 3 + 0] = hex_str[(data[i] >> 4) & 0x0F];
-        hexout[i * 3 + 1] = hex_str[(data[i]) & 0x0F];
-        hexout[i * 3 + 2] = ' ';
-    }
-    hexout[len * 3] = 0;
-
-    return hexout;
 }
 
 int is_event(int fd, short event) {
