@@ -10,6 +10,10 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-24
 
+### Release 1.0.54
+- Version 1.0.54 trims unused work from the DNS tunnel and makes the battery
+  log report easier to read. Protection and filtering behave exactly as before.
+
 ### Battery log reports only real spinning
 - Exported battery logs no longer list ordinary downloads as a tunnel problem.
   The report looks for empty wake-ups with almost no traffic, so it is easier

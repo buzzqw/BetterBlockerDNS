@@ -1,0 +1,1 @@
+Small efficiency improvement: the DNS tunnel now skips unused work while connections are open, and the battery log report no longer mistakes normal downloads for a problem. Protection and filtering behave as before.
