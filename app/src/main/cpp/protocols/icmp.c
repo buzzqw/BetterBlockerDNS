@@ -30,16 +30,6 @@ int check_icmp_session(const struct arguments *args, struct ng_session *s, int s
     int timeout = get_icmp_timeout(&s->icmp, sessions, maxsessions);
 
     if (s->icmp.stop || s->icmp.time + timeout < now) {
-        char source[INET6_ADDRSTRLEN + 1];
-        char dest[INET6_ADDRSTRLEN + 1];
-        if (s->icmp.version == 4) {
-            inet_ntop(AF_INET, &s->icmp.saddr.ip4, source, sizeof(source));
-            inet_ntop(AF_INET, &s->icmp.daddr.ip4, dest, sizeof(dest));
-        } else {
-            inet_ntop(AF_INET6, &s->icmp.saddr.ip6, source, sizeof(source));
-            inet_ntop(AF_INET6, &s->icmp.daddr.ip6, dest, sizeof(dest));
-        }
-
         if (s->socket >= 0) {
             if (close(s->socket) != 0) {
                 log_android(ANDROID_LOG_WARN, "Failed to close ICMP socket %d: %s", s->socket, strerror(errno));

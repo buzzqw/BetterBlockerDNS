@@ -390,44 +390,6 @@ void ng_delete_alloc(void *ptr, const char *file, int line) {
 #endif
 }
 
-void log_packet_hex(const struct arguments *args, const uint8_t *data, size_t length, const char *direction) {
-    if (args == NULL || args->env == NULL || args->instance == NULL || data == NULL) {
-        return;
-    }
-    
-    JNIEnv *env = args->env;
-    
-    jclass cls = (*env)->GetObjectClass(env, args->instance);
-    if (cls == NULL) return;
-    
-    jmethodID methodID = (*env)->GetMethodID(env, cls, "onPacketReceived", "([BILjava/lang/String;)V");
-    if (methodID == NULL) {
-        (*env)->DeleteLocalRef(env, cls);
-        return;
-    }
-    
-    jbyteArray dataArray = (*env)->NewByteArray(env, (jsize)length);
-    if (dataArray == NULL) {
-        (*env)->DeleteLocalRef(env, cls);
-        return;
-    }
-    
-    (*env)->SetByteArrayRegion(env, dataArray, 0, (jsize)length, (const jbyte*)data);
-    
-    jstring directionStr = (*env)->NewStringUTF(env, direction);
-    if (directionStr == NULL) {
-        (*env)->DeleteLocalRef(env, dataArray);
-        (*env)->DeleteLocalRef(env, cls);
-        return;
-    }
-    
-    (*env)->CallVoidMethod(env, args->instance, methodID, dataArray, (jint)length, directionStr);
-    
-    (*env)->DeleteLocalRef(env, dataArray);
-    (*env)->DeleteLocalRef(env, directionStr);
-    (*env)->DeleteLocalRef(env, cls);
-}
-
 jboolean filter_tcp_packet(const struct arguments *args, const uint8_t *data, size_t length, const char *direction) {
     if (args == NULL || args->env == NULL || args->instance == NULL || data == NULL) {
         return JNI_TRUE; // Allow packet if arguments are invalid

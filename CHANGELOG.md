@@ -8,6 +8,13 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-24
+
+### Lower processor use while connections are open
+- The tunnel no longer repeats address work that was never used while checking
+  open connections. Protection behaves exactly as before, but leaves more
+  processor time to the rest of the phone, which helps battery life.
+
 ## 2026-11-22
 
 ### Release 1.0.53

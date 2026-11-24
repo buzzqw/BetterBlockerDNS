@@ -50,16 +50,8 @@ int get_tcp_timeout(const struct tcp_session *t, int sessions, int maxsessions) 
 int check_tcp_session(const struct arguments *args, struct ng_session *s, int sessions, int maxsessions) {
     time_t now = time(NULL);
 
-    char source[INET6_ADDRSTRLEN + 1];
-    char dest[INET6_ADDRSTRLEN + 1];
-    if (s->tcp.version == 4) {
-        inet_ntop(AF_INET, &s->tcp.saddr.ip4, source, sizeof(source));
-        inet_ntop(AF_INET, &s->tcp.daddr.ip4, dest, sizeof(dest));
-    } else {
-        inet_ntop(AF_INET6, &s->tcp.saddr.ip6, source, sizeof(source));
-        inet_ntop(AF_INET6, &s->tcp.daddr.ip6, dest, sizeof(dest));
-    }
-
+    // No address formatting here: the cleanup pass runs every 100 ms for
+    // every live session and these strings were never used.
     int timeout = get_tcp_timeout(&s->tcp, sessions, maxsessions);
 
     if (s->tcp.state != TCP_CLOSING && s->tcp.state != TCP_CLOSE && s->tcp.time + timeout < now) {

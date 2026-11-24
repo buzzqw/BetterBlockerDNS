@@ -441,7 +441,6 @@ void *ng_malloc(size_t __byte_count, const char *tag);
 void *ng_calloc(size_t __item_count, size_t __item_size, const char *tag);
 
 void ng_free(void *__ptr, const char *file, int line);
-void log_packet_hex(const struct arguments *args, const uint8_t *data, size_t length, const char *direction);
 jboolean filter_tcp_packet(const struct arguments *args, const uint8_t *data, size_t length, const char *direction);
 jboolean filter_udp_packet(const struct arguments *args, const uint8_t *data, size_t length, const char *direction);
 jboolean filter_icmp_packet(const struct arguments *args, const uint8_t *data, size_t length, const char *direction);

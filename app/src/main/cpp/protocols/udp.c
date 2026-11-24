@@ -28,16 +28,8 @@ int get_udp_timeout(const struct udp_session *u, int sessions, int maxsessions) 
 int check_udp_session(const struct arguments *args, struct ng_session *s, int sessions, int maxsessions) {
     time_t now = time(NULL);
 
-    char source[INET6_ADDRSTRLEN + 1];
-    char dest[INET6_ADDRSTRLEN + 1];
-    if (s->udp.version == 4) {
-        inet_ntop(AF_INET, &s->udp.saddr.ip4, source, sizeof(source));
-        inet_ntop(AF_INET, &s->udp.daddr.ip4, dest, sizeof(dest));
-    } else {
-        inet_ntop(AF_INET6, &s->udp.saddr.ip6, source, sizeof(source));
-        inet_ntop(AF_INET6, &s->udp.daddr.ip6, dest, sizeof(dest));
-    }
-
+    // No address formatting here: the cleanup pass runs every 100 ms for
+    // every live session and these strings were never used.
     int timeout = get_udp_timeout(&s->udp, sessions, maxsessions);
     if (s->udp.state == UDP_ACTIVE && s->udp.time + timeout < now) {
         s->udp.state = UDP_FINISHING;
