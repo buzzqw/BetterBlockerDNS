@@ -137,14 +137,18 @@ def main():
     counts = Counter(e.get("event", "?") for e in events)
     print("Events: " + ", ".join(f"{k}={v}" for k, v in counts.most_common()))
 
-    # Intervals where the event loop spun: many 100 ms waits that ended without
-    # any event, or keep-alive ACKs for TCP flows with a full window. A high
-    # "rck" alone is normal under traffic: the loop also uses the short wait
-    # whenever it ran less than 100 ms after the previous session cleanup.
-    spins = [r for r in samples if num(r, "idle") > 300 or num(r, "zwin") > 0]
+    # Empty epoll timeouts are only suspicious when the tunnel carried almost
+    # nothing: under real traffic the loop legitimately waits 100 ms between
+    # bursts, so a plain "idle > 300" flags every download. A zero-window
+    # keep-alive (zwin) is a spin regardless of traffic.
+    spins = [r for r in samples
+             if num(r, "zwin") > 0
+             or (num(r, "idle") > 300
+                 and num(r, "tin") + num(r, "tout") < 200
+                 and num(r, "loops") > 5 * (num(r, "tin") + num(r, "tout")))]
     if spins:
         print(f"\nWARNING: {len(spins)} intervals where the event loop spun "
-              "(>300 empty wake-ups or TCP flows with a full window):")
+              "(empty wake-ups with no TUN traffic, or TCP flows with a full window):")
         for r in spins[:10]:
             print(f"  {r['ts']} scr={r.get('scr')} rck={r.get('rck')} idle={r.get('idle')} "
                   f"zwin={r.get('zwin')} tcp={r.get('tcp')}")

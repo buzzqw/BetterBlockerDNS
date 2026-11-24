@@ -10,6 +10,11 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-24
 
+### Battery log reports only real spinning
+- Exported battery logs no longer list ordinary downloads as a tunnel problem.
+  The report looks for empty wake-ups with almost no traffic, so it is easier
+  to see when something is genuinely wrong.
+
 ### Lower processor use while connections are open
 - The tunnel no longer repeats address work that was never used while checking
   open connections. Protection behaves exactly as before, but leaves more
