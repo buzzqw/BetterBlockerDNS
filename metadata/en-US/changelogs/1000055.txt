@@ -1,0 +1,1 @@
+New: BBDNS tells you when a new version is published. It checks GitHub at most once a day when you open the app, shows a banner in Settings and lets you check again from About. Nothing about you is sent. This release also includes the latest filtering hardening and fixes SafeSearch on phones older than Android 15.

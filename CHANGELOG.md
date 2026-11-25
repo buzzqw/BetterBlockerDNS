@@ -10,6 +10,11 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-25
 
+### Release 1.0.55
+- Version 1.0.55 adds a version check: BBDNS now tells you when a new release
+  is published, without sending anything about you. It also brings the latest
+  filtering hardening and fixes SafeSearch on phones older than Android 15.
+
 ### BBDNS tells you when a new version is out
 - The app now asks GitHub for the latest release at most once a day, when you
   open it, and shows a banner at the top of Settings with a link to download
