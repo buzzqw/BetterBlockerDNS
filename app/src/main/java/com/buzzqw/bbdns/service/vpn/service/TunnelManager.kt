@@ -465,7 +465,9 @@ class TunnelManager(
         }
 
         val request = Message()
-        request.header.setID(secureRandom.nextInt(1, 65535))
+        // nextInt(bound) keeps the call on java.util.Random, available since
+        // API 24; the two-argument overload lives on RandomGenerator (API 35).
+        request.header.setID(1 + secureRandom.nextInt(65534))
         request.header.setFlag(Flags.RD.toInt())
         request.addRecord(
             Record.newRecord(Name.fromString("$target."), type, DClass.IN),

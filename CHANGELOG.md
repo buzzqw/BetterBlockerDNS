@@ -8,6 +8,13 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-25
+
+### SafeSearch works on older Android versions
+- SafeSearch filtering no longer fails on phones older than Android 15: the
+  address lookups behind it now use a random transaction number that every
+  supported version can handle.
+
 ## 2026-11-24
 
 ### Release 1.0.54
