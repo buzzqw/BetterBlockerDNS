@@ -149,6 +149,10 @@ that no traffic, domain or app name is transmitted anywhere.
 - No data is transmitted off the device by the developer.
 - Data is not processed ephemerally by any third party on the developer's
   behalf; the resolver the user chooses is the user's own configuration.
+- The daily version check asks GitHub's public API for the latest release and
+  sends nothing but the request (no account, no identifier, no phone data). It
+  is a request to GitHub, not to the developer, and is disclosed in
+  `PRIVACY.md`.
 
 Mention in the description that DNS queries go to the resolver the user picks,
 which is not the developer.

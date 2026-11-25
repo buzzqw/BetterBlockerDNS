@@ -244,6 +244,14 @@
     <string name="about_translator">开发者</string>
     <string name="about_build_type">构建类型</string>
     <string name="about_latest_release">最新版本</string>
+    <string name="update_check_title">检查更新</string>
+    <string name="update_state_checking">正在检查…</string>
+    <string name="update_state_available">版本 %1$s 可用</string>
+    <string name="update_state_latest">你已是最新版本</string>
+    <string name="update_state_failed">现在无法检查，点按重试</string>
+    <string name="update_state_never">点按检查更新</string>
+    <string name="update_banner_title">BBDNS %1$s 已发布</string>
+    <string name="update_banner_action">点按从 GitHub 下载</string>
     <string name="about_changelog">更新日志</string>
     <string name="about_source_code">源代码</string>
     <string name="about_your_name">buzzqw</string>

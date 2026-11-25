@@ -26,10 +26,12 @@ import androidx.lifecycle.viewModelScope
 import com.buzzqw.bbdns.BuildConfig
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.core.utils.DeviceDisplay
+import com.buzzqw.bbdns.data.service.UpdateChecker
 import com.buzzqw.bbdns.domain.model.Settings
 import com.buzzqw.bbdns.domain.usecase.preferences.PreferencesUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.CancellationException
@@ -42,7 +44,8 @@ import java.security.NoSuchAlgorithmException
 class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val preferenceUseCases: PreferencesUseCases,
-    private val firewallManager: FirewallManager
+    private val firewallManager: FirewallManager,
+    private val updateChecker: UpdateChecker
 ) : ViewModel() {
 
     private val _settings = mutableStateOf(Settings())
@@ -52,6 +55,11 @@ class SettingsViewModel @Inject constructor(
     
     val version: String = BuildConfig.VERSION_NAME
     val build: String = BuildConfig.BUILD_TYPE
+
+    /** Latest release known from GitHub, shown in About and in the banner. */
+    val updateStatus: StateFlow<UpdateChecker.Status> = updateChecker.status
+
+    fun checkForUpdates() = updateChecker.checkNow()
     
     // Callback for when app filtering settings change
     var onAppFilteringSettingsChanged: (() -> Unit)? = null

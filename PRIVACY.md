@@ -1,6 +1,6 @@
 # Privacy policy
 
-**BetterBlockerDNS (BBDNS)** — last updated 11 November 2026
+**BetterBlockerDNS (BBDNS)** — last updated 25 November 2026
 
 BBDNS is a DNS filtering app for Android. It runs entirely on your phone and
 has no servers of its own. This policy explains what the app does with your
@@ -25,6 +25,11 @@ your device, and there is nothing to send: the app has no backend.
 - **List downloads.** Blocklists are downloaded from the public sources you
   enable (for example HaGeZi or StevenBlack). Those servers see the download
   request, as with any file download from your phone.
+- **Version check.** When you open the app, at most once a day, it asks the
+  public GitHub Releases API for the latest version so it can show whether an
+  update exists. The request contains nothing but the app name and its version:
+  no account, no identifier, no domain and no phone data. It can be triggered
+  earlier from *Settings → About*, and the answer is only used to show a banner.
 - **Notice page (optional, off by default).** When you turn it on, a blocked
   site over plain HTTP is answered with a small page served by the phone
   itself: it names the list that blocked the site and can let it through for
@@ -44,7 +49,7 @@ your device, and there is nothing to send: the app has no backend.
 | Permission | Purpose |
 |---|---|
 | VPN service (asked by Android) | Create the local tunnel where DNS filtering happens. BBDNS never routes your traffic through an external server; the tunnel starts and ends on your phone. |
-| Internet and network state | Forward allowed DNS queries, download the lists you enable, detect Wi-Fi and mobile networks. |
+| Internet and network state | Forward allowed DNS queries, download the lists you enable, check for a new release on GitHub, detect Wi-Fi and mobile networks. |
 | Installed apps (`QUERY_ALL_PACKAGES`) | Show the list of apps so you can create per-app rules. The list never leaves the device. |
 | Foreground service and notifications | Keep protection running and show its status. |
 | Start at boot | Restore protection after the phone restarts, only if you asked for it. |

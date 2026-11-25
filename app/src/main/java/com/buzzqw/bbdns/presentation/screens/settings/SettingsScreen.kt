@@ -18,27 +18,49 @@
 package com.buzzqw.bbdns.presentation.screens.settings
 
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.NewReleases
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.RuleFolder
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Wifi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.buzzqw.bbdns.R
+import com.buzzqw.bbdns.core.utils.constants.ProjectConstants
 import com.buzzqw.bbdns.core.utils.extensions.safeNavigate
 import com.buzzqw.bbdns.presentation.navigation.routes.SettingRoutes
 import com.buzzqw.bbdns.presentation.screens.settings.components.SectionBlock
 import com.buzzqw.bbdns.presentation.screens.settings.components.SettingSection
 import com.buzzqw.bbdns.presentation.screens.settings.components.SettingsScaffold
 import com.buzzqw.bbdns.presentation.screens.settings.viewModel.SettingsViewModel
+import com.buzzqw.bbdns.presentation.theme.BbdnsShapes
 import com.buzzqw.bbdns.service.vpn.network.util.DohProviders
 import com.buzzqw.bbdns.service.vpn.network.util.NetworkConstants
 
@@ -62,6 +84,8 @@ fun SettingsScreen(
     }
 
     val settingsValue = settings.settings.value
+    val update by settings.updateStatus.collectAsState()
+    val uriHandler = LocalUriHandler.current
     val currentResolver = NetworkConstants.DNS_SERVERS
         .firstOrNull { it.ipv4Primary == settingsValue.dnsServer1 }
         ?.name
@@ -80,6 +104,18 @@ fun SettingsScreen(
         title = stringResource(id = R.string.common_settings),
         onBackNavClicked = { navController.navigateUp() }
     ) {
+        if (update.updateAvailable) {
+            item {
+                UpdateBanner(
+                    version = update.latestVersion.orEmpty(),
+                    onClick = {
+                        uriHandler.openUri(
+                            update.releaseUrl ?: ProjectConstants.PROJECT_DOWNLOADS
+                        )
+                    }
+                )
+            }
+        }
         item {
             SectionBlock(
                 title = stringResource(id = R.string.settings_section_protection),
@@ -210,6 +246,47 @@ fun SettingsScreen(
                         onClick = { navController.safeNavigate(SettingRoutes.About.route) }
                     )
                 )
+            )
+        }
+    }
+}
+
+/**
+ * Shown at the top of Settings when the daily check found a newer release.
+ * It opens the GitHub release page; both channels are signed with the same
+ * key, so the download installs over a Play build too.
+ */
+@Composable
+private fun UpdateBanner(
+    version: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(BbdnsShapes.group)
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.NewReleases,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(id = R.string.update_banner_title, version),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            Text(
+                text = stringResource(id = R.string.update_banner_action),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
             )
         }
     }

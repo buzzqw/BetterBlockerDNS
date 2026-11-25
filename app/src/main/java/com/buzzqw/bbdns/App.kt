@@ -25,6 +25,7 @@ import androidx.work.Configuration
 import com.buzzqw.bbdns.core.logging.Logger
 import com.buzzqw.bbdns.data.cache.DomainCacheService
 import com.buzzqw.bbdns.data.service.ProtectionWatchdog
+import com.buzzqw.bbdns.data.service.UpdateChecker
 import com.buzzqw.bbdns.domain.usecase.preferences.PreferencesUseCases
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.AutoUpdateManager
 import com.buzzqw.bbdns.service.utils.manager.ProtectionState
@@ -47,6 +48,9 @@ class App : Application(), Configuration.Provider {
     @Inject
     lateinit var preferencesUseCases: PreferencesUseCases
 
+    @Inject
+    lateinit var updateChecker: UpdateChecker
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -59,6 +63,10 @@ class App : Application(), Configuration.Provider {
         
         // Initialize background workers on app startup
         initializeBackgroundWork()
+
+        // Ask GitHub for a new release at most once a day. The check runs off
+        // the main thread and never blocks the start of the tunnel.
+        updateChecker.checkOnceADay()
 
         // Don't initialize domains on app startup - they'll be loaded when needed
         // This significantly improves app startup time

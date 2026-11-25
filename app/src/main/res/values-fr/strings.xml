@@ -36,6 +36,14 @@
     <string name="about_translator">Traducteur</string>
     <string name="about_build_type">Type de build</string>
     <string name="about_latest_release">Dernière version</string>
+    <string name="update_check_title">Rechercher des mises à jour</string>
+    <string name="update_state_checking">Vérification…</string>
+    <string name="update_state_available">La version %1$s est disponible</string>
+    <string name="update_state_latest">Vous utilisez la dernière version</string>
+    <string name="update_state_failed">Vérification impossible pour le moment. Touchez pour réessayer</string>
+    <string name="update_state_never">Touchez pour rechercher des mises à jour</string>
+    <string name="update_banner_title">BBDNS %1$s est disponible</string>
+    <string name="update_banner_action">Touchez pour la télécharger depuis GitHub</string>
     <string name="about_changelog">Nouveautés</string>
     <string name="about_source_code">Code Source</string>
     <string name="about_email">Courriel</string>

@@ -209,8 +209,11 @@ with another VPN app.
 
 - Filtering happens **on the phone**. BBDNS has no servers, accounts, ads,
   analytics or crash reporting.
-- The only network requests BBDNS makes itself are **DNS queries** to the
-  resolver you choose and **list downloads** from the sources you enable.
+- The network requests BBDNS makes itself are **DNS queries** to the resolver
+  you choose, **list downloads** from the sources you enable and a **version
+  check** against GitHub Releases when you open the app (at most once a day).
+  The check sends nothing but the request itself: no account, no identifier, no
+  domain and no phone data.
 - Logs and statistics stay on the device; you can turn logs off or clear them.
 
 | Permission | Why |

@@ -10,6 +10,15 @@ Entries dated before 2026-11-07 are kept from the project's earlier history.
 
 ## 2026-11-25
 
+### BBDNS tells you when a new version is out
+- The app now asks GitHub for the latest release at most once a day, when you
+  open it, and shows a banner at the top of Settings with a link to download
+  it. The check can also be run on demand from About, which shows the version
+  found and when the last check happened.
+- The request carries nothing but the app name and its version: no account, no
+  device identifier and no browsing data. The privacy policy and the README
+  now mention this request next to DNS queries and list downloads.
+
 ### SafeSearch works on older Android versions
 - SafeSearch filtering no longer fails on phones older than Android 15: the
   address lookups behind it now use a random transaction number that every

@@ -48,6 +48,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -85,6 +86,7 @@ fun AboutScreen(
     settings: SettingsViewModel,
 ) {
     val uriHandler = LocalUriHandler.current
+    val update by settings.updateStatus.collectAsState()
     
     SettingsScaffold(
         settings = settings,
@@ -117,6 +119,29 @@ fun AboutScreen(
                 description = settings.version,
                 icon = IconType.VectorIcon(Icons.Rounded.Info),
                 actionType = SettingType.TEXT,
+            )
+            SettingsBox(
+                title = stringResource(id = R.string.update_check_title),
+                description = when {
+                    update.checking -> stringResource(id = R.string.update_state_checking)
+                    update.updateAvailable -> stringResource(
+                        id = R.string.update_state_available,
+                        update.latestVersion.orEmpty()
+                    )
+                    update.failed -> stringResource(id = R.string.update_state_failed)
+                    update.checkedAt > 0L -> stringResource(id = R.string.update_state_latest)
+                    else -> stringResource(id = R.string.update_state_never)
+                },
+                icon = IconType.VectorIcon(Icons.Rounded.NewReleases),
+                actionType = SettingType.CUSTOM,
+                onCustomClick = {
+                    val release = update.releaseUrl
+                    if (update.updateAvailable && release != null) {
+                        uriHandler.openUri(release)
+                    } else {
+                        settings.checkForUpdates()
+                    }
+                },
             )
             SettingsBox(
                 title = stringResource(id = R.string.about_changelog),

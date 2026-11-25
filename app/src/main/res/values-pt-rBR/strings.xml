@@ -244,6 +244,14 @@
     <string name="about_translator">Desenvolvedor</string>
     <string name="about_build_type">Tipo de build</string>
     <string name="about_latest_release">Versão mais recente</string>
+    <string name="update_check_title">Verificar atualizações</string>
+    <string name="update_state_checking">Verificando…</string>
+    <string name="update_state_available">A versão %1$s está disponível</string>
+    <string name="update_state_latest">Você está na versão mais recente</string>
+    <string name="update_state_failed">Não foi possível verificar agora. Toque para tentar novamente</string>
+    <string name="update_state_never">Toque para verificar atualizações</string>
+    <string name="update_banner_title">BBDNS %1$s está disponível</string>
+    <string name="update_banner_action">Toque para baixar do GitHub</string>
     <string name="about_changelog">Novidades</string>
     <string name="about_source_code">Código-fonte</string>
     <string name="about_your_name">buzzqw</string>
