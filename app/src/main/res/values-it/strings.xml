@@ -722,6 +722,11 @@
     <string name="stats_data_saved_desc">Stima del traffico non scaricato perché le richieste sono state bloccate.</string>
     <string name="stats_top_apps">App con più blocchi</string>
     <string name="stats_top_apps_desc">Richieste bloccate per applicazione in questa sessione.</string>
+    <string name="stats_top_lists">Liste con più blocchi</string>
+    <string name="stats_top_lists_desc">Quota di tutte le richieste bloccate in questa sessione, per lista.</string>
+    <string name="stats_source_counts">%1$s · %2$d%%</string>
+    <string name="stats_source_custom">Regole personalizzate</string>
+    <string name="stats_other_blocks">Altre regole</string>
     <string name="stats_history_title">Ultimi 30 giorni</string>
     <string name="stats_history_desc">%1$s bloccate su %2$s richieste</string>
     <string name="stats_open_logs">Apri il registro richieste</string>

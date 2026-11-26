@@ -23,8 +23,21 @@ import com.buzzqw.bbdns.core.logging.Logger
  */
 sealed class BlocklistRule {
     data class PlainDomain(val domain: String) : BlocklistRule()
-    data class WildcardDomain(val pattern: String, val regex: Regex) : BlocklistRule()
-    data class RegexPattern(val pattern: String, val regex: Regex) : BlocklistRule()
+
+    /** [sourceIndex] identifies the list that supplied the rule, when known. */
+    data class WildcardDomain(
+        val pattern: String,
+        val regex: Regex,
+        val sourceIndex: Int = -1,
+    ) : BlocklistRule()
+
+    /** [sourceIndex] identifies the list that supplied the rule, when known. */
+    data class RegexPattern(
+        val pattern: String,
+        val regex: Regex,
+        val sourceIndex: Int = -1,
+    ) : BlocklistRule()
+
     data class WhitelistDomain(val domain: String) : BlocklistRule()
 }
 

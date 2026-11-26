@@ -63,6 +63,7 @@ import androidx.core.graphics.drawable.toBitmap
 import com.buzzqw.bbdns.R
 import com.buzzqw.bbdns.core.utils.NumberFormatter
 import com.buzzqw.bbdns.presentation.theme.BbdnsShapes
+import kotlin.math.roundToInt
 
 /** "1.2 MB/s" style speed label. */
 fun formatSpeed(bytesPerSecond: Float): String =
@@ -309,6 +310,76 @@ fun TopAppsList(apps: List<AppUsage>) {
                         if (app.queries > 0 && app.blocked > 0) {
                             drawRoundRect(blockedColor, size = Size(full * app.blocked / app.queries, size.height), cornerRadius = r)
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** One row of the "lists behind most blocks" card. */
+data class BlockSourceUsage(val name: String, val blocked: Long)
+
+/**
+ * Lists ranked by the blocks they caused in this session. The bar and the
+ * percentage use the same denominator ([totalBlocks]) so a short bar always
+ * means a small share of all blocked requests, not a small share of the list
+ * with the most blocks.
+ */
+@Composable
+fun TopListsList(sources: List<BlockSourceUsage>, totalBlocks: Long) {
+    if (sources.isEmpty()) {
+        Text(
+            text = stringResource(R.string.stats_no_activity),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        return
+    }
+    val barColor = MaterialTheme.colorScheme.error
+    val trackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        sources.forEach { source ->
+            val percent = if (totalBlocks > 0) {
+                (source.blocked * 100.0 / totalBlocks).roundToInt()
+            } else {
+                0
+            }
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = source.name,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(
+                            R.string.stats_source_counts,
+                            NumberFormatter.formatCount(source.blocked),
+                            percent,
+                        ),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+                Canvas(modifier = Modifier.fillMaxWidth().height(5.dp)) {
+                    val radius = CornerRadius(size.height / 2, size.height / 2)
+                    drawRoundRect(trackColor, cornerRadius = radius)
+                    val fraction = if (totalBlocks > 0) {
+                        (source.blocked.toFloat() / totalBlocks).coerceIn(0f, 1f)
+                    } else {
+                        0f
+                    }
+                    if (fraction > 0f) {
+                        drawRoundRect(
+                            barColor,
+                            size = Size(size.width * fraction, size.height),
+                            cornerRadius = radius,
+                        )
                     }
                 }
             }

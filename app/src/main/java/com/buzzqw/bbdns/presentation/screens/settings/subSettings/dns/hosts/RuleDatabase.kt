@@ -103,7 +103,7 @@ class RuleDatabase {
         val listStats: StateFlow<List<ListStat>> = _listStats.asStateFlow()
 
         /** How a loaded list entry matched a queried domain. */
-        enum class HostMatchType { EXACT, PARENT_DOMAIN, TLD }
+        enum class HostMatchType { EXACT, PARENT_DOMAIN, TLD, WILDCARD, REGEX }
 
         /** The list that contributed a matching rule. */
         data class HostSource(val title: String, val type: HostMatchType)
@@ -233,8 +233,12 @@ class RuleDatabase {
 
     /**
      * Fast lookup of the list that blocks [host], using the index built by the
-     * last [initialize] run. Covers exact domains, wildcard-domain suffixes and
-     * TLD rules; returns null for pattern-only rules (rare) and user rules.
+     * last [initialize] run. Covers exact domains, wildcard-domain suffixes,
+     * TLD rules and wildcard/regex patterns; returns null for user rules.
+     *
+     * The pattern checks run only for domains not covered by the hash indexes,
+     * so the common case stays a couple of binary searches. This is also the
+     * lookup used to attribute each block to a list in the session statistics.
      */
     fun sourceFor(host: String): HostSource? {
         val value = host.lowercase().trimEnd('.')
@@ -264,6 +268,24 @@ class RuleDatabase {
         val tld = if (lastDot != -1) value.substring(lastDot + 1) else value
         tldSources[tld]?.let { index ->
             sourceTitles.getOrNull(index)?.let { return HostSource(it, HostMatchType.TLD) }
+        }
+
+        // Patterns are the last resort: they are few compared with hashed
+        // domains, but a regex match is still far cheaper than rescanning the
+        // cached list files on every blocked query.
+        for (rule in wildcardRules) {
+            if (rule.regex.matches(value)) {
+                sourceTitles.getOrNull(rule.sourceIndex)?.let {
+                    return HostSource(it, HostMatchType.WILDCARD)
+                }
+            }
+        }
+        for (rule in regexRules) {
+            if (rule.regex.matches(value)) {
+                sourceTitles.getOrNull(rule.sourceIndex)?.let {
+                    return HostSource(it, HostMatchType.REGEX)
+                }
+            }
         }
         return null
     }
@@ -543,13 +565,15 @@ class RuleDatabase {
                             }
                             is BlocklistRule.WildcardDomain -> {
                                 if (isDeny) {
-                                    wildcardRules.add(rule)
+                                    // Keep the list index so the block statistics
+                                    // and "why was this blocked?" can name it.
+                                    wildcardRules.add(rule.copy(sourceIndex = listIndex))
                                     wildcardCount++
                                 }
                             }
                             is BlocklistRule.RegexPattern -> {
                                 if (isDeny) {
-                                    regexRules.add(rule)
+                                    regexRules.add(rule.copy(sourceIndex = listIndex))
                                     regexCount++
                                 }
                             }

@@ -1,0 +1,1 @@
+Changes since 1.0.55. Statistics now show which blocklists caused the most blocks in this session and each list's share of all blocked requests. No change to protection or filtering.

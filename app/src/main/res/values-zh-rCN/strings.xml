@@ -362,6 +362,11 @@
     <string name="stats_data_saved_desc">因请求被拦截而未下载的估算流量。</string>
     <string name="stats_top_apps">拦截最多的应用</string>
     <string name="stats_top_apps_desc">本次会话中各应用被拦截的查询数。</string>
+    <string name="stats_top_lists">拦截次数最多的列表</string>
+    <string name="stats_top_lists_desc">本次会话中所有被拦截请求按列表划分的占比。</string>
+    <string name="stats_source_counts">%1$s · %2$d%%</string>
+    <string name="stats_source_custom">自定义规则</string>
+    <string name="stats_other_blocks">其他规则</string>
     <string name="stats_history_title">最近 30 天</string>
     <string name="stats_history_desc">%2$s 次查询中拦截了 %1$s 次</string>
     <string name="stats_open_logs">打开请求日志</string>

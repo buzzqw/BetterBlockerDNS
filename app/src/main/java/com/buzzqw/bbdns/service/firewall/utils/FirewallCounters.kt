@@ -28,8 +28,9 @@ import java.util.concurrent.atomic.AtomicLong
 /**
  * Live statistics of the current VPN session: allowed/blocked DNS queries,
  * a per-minute activity timeline, the most blocked domains and the latest
- * blocked ones. They power the home dashboard and the foreground
- * notification and do not depend on log persistence being enabled.
+ * blocked ones, plus a per-list breakdown of the blocks. They power the home
+ * dashboard, the statistics page and the foreground notification and do not
+ * depend on log persistence being enabled.
  *
  * It also keeps daily allowed/blocked totals for the last [HISTORY_DAYS]
  * days, saved to private preferences at most once a minute and when the VPN
@@ -40,6 +41,9 @@ object FirewallCounters {
     private const val TOP_DOMAINS_LIMIT = 2_000
     private const val RECENT_LIMIT = 20
 
+    /** Source key for blocks caused by the user's custom domain rules. */
+    const val SOURCE_CUSTOM = "internal:custom-domain-rules"
+
     private val allowed = AtomicLong(0)
     private val blocked = AtomicLong(0)
 
@@ -47,6 +51,9 @@ object FirewallCounters {
 
     /** Per-app counters of the session: uid to [queries, blocked]. */
     private val byUid = ConcurrentHashMap<Int, LongArray>()
+
+    /** Blocked queries attributed to a list (or to custom rules) this session. */
+    private val bySource = ConcurrentHashMap<String, AtomicLong>()
 
     /**
      * Average size of what a blocked request would have downloaded (ad
@@ -98,6 +105,7 @@ object FirewallCounters {
         blocked.set(0)
         blockedByDomain.clear()
         byUid.clear()
+        bySource.clear()
         synchronized(lock) {
             recent.clear()
             timelineAllowed.fill(0)
@@ -164,7 +172,17 @@ object FirewallCounters {
         return result
     }
 
-    fun record(isAllowed: Boolean, domain: String? = null, uid: Int = -1) {
+    /**
+     * Count one query or blocked connection. [blockSource] is the title of the
+     * list (or [SOURCE_CUSTOM]) that caused a block, when the filter knows it;
+     * it feeds the "lists behind most blocks" card of the statistics page.
+     */
+    fun record(
+        isAllowed: Boolean,
+        domain: String? = null,
+        uid: Int = -1,
+        blockSource: String? = null,
+    ) {
         if (isAllowed) allowed.incrementAndGet() else blocked.incrementAndGet()
         if (uid >= 0) {
             val bucket = byUid.getOrPut(uid) { LongArray(2) }
@@ -175,6 +193,9 @@ object FirewallCounters {
         }
         val now = System.currentTimeMillis()
         recordDaily(isAllowed, now)
+        if (!isAllowed && !blockSource.isNullOrBlank()) {
+            bySource.getOrPut(blockSource) { AtomicLong(0) }.incrementAndGet()
+        }
         val cleanDomain = domain?.trim()?.trimEnd('.')?.lowercase()?.takeIf { it.isNotEmpty() }
         if (!isAllowed && cleanDomain != null) {
             val counter = blockedByDomain[cleanDomain]
@@ -203,6 +224,19 @@ object FirewallCounters {
             .map { (uid, v) -> synchronized(v) { Triple(uid, v[0], v[1]) } }
             .sortedWith(compareByDescending<Triple<Int, Long, Long>> { it.third }.thenByDescending { it.second })
             .take(limit)
+
+    /**
+     * Lists (or custom rules) with the most blocks in this session, as
+     * name/count pairs sorted by count.
+     */
+    fun topBlockSources(limit: Int = 8): List<Pair<String, Long>> =
+        bySource.entries
+            .map { it.key to it.value.get() }
+            .sortedWith(compareByDescending<Pair<String, Long>> { it.second }.thenBy { it.first })
+            .take(limit)
+
+    /** Blocks attributed to a list or to custom rules in this session. */
+    fun blockSourcesTotal(): Long = bySource.values.sumOf { it.get() }
 
     /** Estimated bytes not downloaded thanks to [blockedCount] blocked requests. */
     fun estimatedSavedBytes(blockedCount: Long): Long = blockedCount * ESTIMATED_BYTES_PER_BLOCK

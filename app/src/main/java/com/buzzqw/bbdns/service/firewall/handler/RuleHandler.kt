@@ -169,13 +169,23 @@ class RuleHandler @Inject constructor(
         return ruleDatabase.isAllowlisted(domain)
     }
 
-    /** Title of the source that blocks [host], when the index knows it. */
-    fun blockSourceOf(host: String): String? {
+    /**
+     * Stable key of the source that blocks [host], for the session block
+     * statistics. User rules get a dedicated key so the UI can name them in the
+     * current language; everything else is the title of the list that matched.
+     */
+    fun blockSourceKeyOf(host: String): String? {
         val domain = host.trim().trimEnd('.').lowercase()
         if (domain.isEmpty()) return null
         val custom = rules.filterIsInstance<CustomDomainRule>().firstOrNull()
-        if (custom?.isBlockedByUserRule(domain) == true) return "Custom domain rules"
+        if (custom?.isBlockedByUserRule(domain) == true) return FirewallCounters.SOURCE_CUSTOM
         return ruleDatabase.sourceFor(domain)?.title
+    }
+
+    /** Title of the source that blocks [host], when the index knows it. */
+    fun blockSourceOf(host: String): String? {
+        val key = blockSourceKeyOf(host)
+        return if (key == FirewallCounters.SOURCE_CUSTOM) "Custom domain rules" else key
     }
 
     /** The user chose "continue" on the notice page. */
@@ -203,7 +213,8 @@ class RuleHandler @Inject constructor(
         model.uid = uid
         val dnsModel = DNSModel(0, 0, 1, 0, 0, 0, domain, Type.A, DClass.IN)
         logRule.check(model, dnsModel, logUseCases, FirewallResult.DNS_BLOCKED)
-        FirewallCounters.record(false, domain, uid)
+        // The list that blocked the CNAME target is the one to credit here.
+        FirewallCounters.record(false, domain, uid, blockSource = blockSourceKeyOf(target))
         Logger.info("Blocked $domain: it resolves through $target (CNAME cloaking)")
     }
 
@@ -253,7 +264,17 @@ class RuleHandler @Inject constructor(
         // Count DNS queries, plus connections blocked by the per-app rules:
         // counting every allowed packet would make the block rate meaningless.
         if (dnsModel != null || result != FirewallResult.ACCEPT) {
-            FirewallCounters.record(result == FirewallResult.ACCEPT, dnsModel?.domainName, packet.uid)
+            // Resolve the source only for blocks: the lookup is skipped for the
+            // vast majority of queries, which are allowed.
+            val source = dnsModel?.domainName
+                ?.takeIf { result != FirewallResult.ACCEPT }
+                ?.let { blockSourceKeyOf(it) }
+            FirewallCounters.record(
+                result == FirewallResult.ACCEPT,
+                dnsModel?.domainName,
+                packet.uid,
+                blockSource = source,
+            )
         }
         return Triple(result == FirewallResult.ACCEPT, packet.uid, result)
     }

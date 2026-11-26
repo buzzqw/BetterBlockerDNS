@@ -362,6 +362,11 @@
     <string name="stats_data_saved_desc">Tráfego estimado que não foi baixado porque as solicitações foram bloqueadas.</string>
     <string name="stats_top_apps">Apps com mais bloqueios</string>
     <string name="stats_top_apps_desc">Consultas bloqueadas por aplicativo nesta sessão.</string>
+    <string name="stats_top_lists">Listas com mais bloqueios</string>
+    <string name="stats_top_lists_desc">Parte de todas as consultas bloqueadas nesta sessão, por lista.</string>
+    <string name="stats_source_counts">%1$s · %2$d%%</string>
+    <string name="stats_source_custom">Regras personalizadas</string>
+    <string name="stats_other_blocks">Outras regras</string>
     <string name="stats_history_title">Últimos 30 dias</string>
     <string name="stats_history_desc">%1$s bloqueadas de %2$s consultas</string>
     <string name="stats_open_logs">Abrir registro de solicitações</string>

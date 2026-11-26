@@ -75,6 +75,11 @@
     <string name="stats_data_saved_desc">Estimated traffic that was not downloaded because requests were blocked.</string>
     <string name="stats_top_apps">Apps with most blocks</string>
     <string name="stats_top_apps_desc">Blocked queries by application in this session.</string>
+    <string name="stats_top_lists">Lists behind most blocks</string>
+    <string name="stats_top_lists_desc">Share of all blocked queries in this session, by list.</string>
+    <string name="stats_source_counts">%1$s · %2$d%%</string>
+    <string name="stats_source_custom">Your custom rules</string>
+    <string name="stats_other_blocks">Other rules</string>
     <string name="stats_history_title">Last 30 days</string>
     <string name="stats_history_desc">%1$s blocked of %2$s queries</string>
     <string name="stats_open_logs">Open request log</string>

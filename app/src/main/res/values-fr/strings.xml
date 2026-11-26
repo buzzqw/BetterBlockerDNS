@@ -711,6 +711,11 @@
     <string name="stats_data_saved_desc">Trafic estimé qui n\'a pas été téléchargé parce que les requêtes ont été bloquées.</string>
     <string name="stats_top_apps">Applications les plus bloquées</string>
     <string name="stats_top_apps_desc">Requêtes bloquées par application pendant cette session.</string>
+    <string name="stats_top_lists">Listes ayant le plus bloqué</string>
+    <string name="stats_top_lists_desc">Part de toutes les requêtes bloquées dans cette session, par liste.</string>
+    <string name="stats_source_counts">%1$s · %2$d%%</string>
+    <string name="stats_source_custom">Règles personnalisées</string>
+    <string name="stats_other_blocks">Autres règles</string>
     <string name="stats_history_title">30 derniers jours</string>
     <string name="stats_history_desc">%1$s bloquées sur %2$s requêtes</string>
     <string name="stats_open_logs">Ouvrir le journal des requêtes</string>

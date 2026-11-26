@@ -711,6 +711,11 @@
     <string name="stats_data_saved_desc">Geschätzter Datenverkehr, der wegen blockierter Anfragen nicht heruntergeladen wurde.</string>
     <string name="stats_top_apps">Apps mit den meisten Blockierungen</string>
     <string name="stats_top_apps_desc">Blockierte Anfragen pro App in dieser Sitzung.</string>
+    <string name="stats_top_lists">Listen mit den meisten Blockierungen</string>
+    <string name="stats_top_lists_desc">Anteil aller blockierten Anfragen in dieser Sitzung, nach Liste.</string>
+    <string name="stats_source_counts">%1$s · %2$d%%</string>
+    <string name="stats_source_custom">Eigene Regeln</string>
+    <string name="stats_other_blocks">Andere Regeln</string>
     <string name="stats_history_title">Letzte 30 Tage</string>
     <string name="stats_history_desc">%1$s von %2$s Anfragen blockiert</string>
     <string name="stats_open_logs">Anfrageprotokoll öffnen</string>

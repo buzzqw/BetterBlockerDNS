@@ -169,8 +169,9 @@ suggestions go to the [issue tracker](https://github.com/buzzqw/BetterBlockerDNS
 - **Block when the screen is off**, separately for Wi-Fi and mobile data.
 - **Pause** protection for 15 minutes or more from the home screen, the
   notification or an automation app.
-- **Logs and statistics**: block rate, top blocked domains and apps, 30-day
-  history, and "why was this blocked?" for any domain. Turn on *Detailed logs*
+- **Logs and statistics**: block rate, top blocked domains and apps, which
+  blocklists caused the blocks and their share, 30-day history, and "why was
+  this blocked?" for any domain. Turn on *Detailed logs*
   for full hostnames, ports and endpoints.
 
 ### Everyday use

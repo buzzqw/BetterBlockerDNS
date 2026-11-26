@@ -369,6 +369,8 @@ class BlockReasonFinder @Inject constructor(
         HostMatchType.EXACT -> BlockMatchType.EXACT
         HostMatchType.PARENT_DOMAIN -> BlockMatchType.PARENT_DOMAIN
         HostMatchType.TLD -> BlockMatchType.TLD
+        HostMatchType.WILDCARD -> BlockMatchType.WILDCARD
+        HostMatchType.REGEX -> BlockMatchType.REGEX
     }
 
     private fun lastTwoLabels(host: String): String {

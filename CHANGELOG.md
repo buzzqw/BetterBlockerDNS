@@ -8,6 +8,18 @@ listed newest first.
 
 Entries dated before 2026-11-07 are kept from the project's earlier history.
 
+## 2026-11-26
+
+### Release 1.0.56
+- Version 1.0.56 adds a breakdown of which blocklists caused the most blocks in
+  the Statistics page. Protection and filtering behave exactly as before.
+
+### Statistics show which lists did the blocking
+- The Statistics page now ranks the blocklists by how many requests they blocked
+  in this session and shows each list's share of all blocks. Blocks caused by
+  app rules or other protections are grouped under "Other rules", so the shares
+  add up to 100%.
+
 ## 2026-11-25
 
 ### Release 1.0.55

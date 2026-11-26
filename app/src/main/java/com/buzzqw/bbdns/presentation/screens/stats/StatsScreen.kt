@@ -73,6 +73,7 @@ import com.buzzqw.bbdns.presentation.screens.home.components.HistoryCard
 import com.buzzqw.bbdns.presentation.screens.home.components.RecentBlockedCard
 import com.buzzqw.bbdns.presentation.screens.home.components.TopBlockedCard
 import com.buzzqw.bbdns.presentation.screens.home.viewModel.HomeInsightsViewModel
+import com.buzzqw.bbdns.presentation.screens.settings.subSettings.dns.lists.BlocklistNames
 import com.buzzqw.bbdns.presentation.screens.settings.subSettings.logs.viewModel.LogsViewModel
 import com.buzzqw.bbdns.presentation.theme.BbdnsShapes
 import com.buzzqw.bbdns.service.firewall.utils.FirewallCounters
@@ -156,6 +157,16 @@ fun StatsContent(
             emptyList()
         }
     }
+    val (listSources, attributedBlocks) = remember(tick, running) {
+        if (running) {
+            FirewallCounters.topBlockSources(8) to FirewallCounters.blockSourcesTotal()
+        } else {
+            emptyList<Pair<String, Long>>() to 0L
+        }
+    }
+    // Blocks with no list behind them (per-app rules, IPs, DoH protection...):
+    // showing them keeps the percentages of the card adding up to 100%.
+    val otherBlocks = (shownStats.blockedCount - attributedBlocks).coerceAtLeast(0)
 
     val blockRate = if (shownStats.totalCount > 0) {
         (shownStats.blockedCount * 100.0 / shownStats.totalCount).roundToInt()
@@ -310,6 +321,42 @@ fun StatsContent(
                 } else {
                     TopAppsList(apps = apps)
                 }
+            }
+        }
+
+        val customSourceName = stringResource(R.string.stats_source_custom)
+        val otherSourceName = stringResource(R.string.stats_other_blocks)
+        val topLists = listSources.map { (source, count) ->
+            BlockSourceUsage(
+                name = if (source == FirewallCounters.SOURCE_CUSTOM) {
+                    customSourceName
+                } else {
+                    BlocklistNames.displayName(source)
+                },
+                blocked = count,
+            )
+        } + if (otherBlocks > 0) listOf(BlockSourceUsage(otherSourceName, otherBlocks)) else emptyList()
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = BbdnsShapes.card,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            ),
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = stringResource(R.string.stats_top_lists),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = stringResource(R.string.stats_top_lists_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                TopListsList(sources = topLists, totalBlocks = shownStats.blockedCount)
             }
         }
 
